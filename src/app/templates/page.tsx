@@ -1,9 +1,10 @@
 import { Metadata } from "next"
 import TemplateGallery from "@/components/template-gallery"
 
-export const metadata: Metadata = {
-  title: "Quote Templates",
-  description: "Professional quote templates for common business scenarios. Start with pre-built templates for web development, interior design, events, and more.",
+export const dynamic = 'force-dynamic'
+
+export default function TemplatesPage() {
+  return <TemplateGallery />
 }
 
 export default function TemplatesPage() {

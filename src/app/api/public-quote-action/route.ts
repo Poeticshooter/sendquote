@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY!)
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 const FROM = process.env.EMAIL_FROM_ADDRESS || 'quotes@resend.dev'
 
 function escapeHtml(text: string | null | undefined): string {
@@ -84,30 +84,32 @@ export async function POST(request: NextRequest) {
     .single()
 
   try {
-    const safeClientName = sanitizeForHeader(quote.client_name)
-    const safeBusinessName = escapeHtml(profile?.business_name || '')
-    const safeQuoteNumber = escapeHtml(quote.quote_number)
-    const safeNotes = notes ? escapeHtml(notes) : ''
+    if (resend) {
+      const safeClientName = sanitizeForHeader(quote.client_name)
+      const safeBusinessName = escapeHtml(profile?.business_name || '')
+      const safeQuoteNumber = escapeHtml(quote.quote_number)
+      const safeNotes = notes ? escapeHtml(notes) : ''
 
-    if (action === 'accepted') {
-      await resend.emails.send({
-        from: FROM,
-        to: senderEmail,
-        subject: `✅ ${safeClientName} accepted your quote #${safeQuoteNumber}`,
-        html: `<p>Hi ${safeBusinessName || 'there'},</p>
+      if (action === 'accepted') {
+        await resend.emails.send({
+          from: FROM,
+          to: senderEmail,
+          subject: `✅ ${safeClientName} accepted your quote #${safeQuoteNumber}`,
+          html: `<p>Hi ${safeBusinessName || 'there'},</p>
 <p>Great news! <strong>${escapeHtml(quote.client_name)}</strong> has accepted your quote <strong>#${safeQuoteNumber}</strong>.</p>
 <p>The quote status has been updated to 'Accepted'.</p>`,
-      })
-    } else if (action === 'changes_requested') {
-      await resend.emails.send({
-        from: FROM,
-        to: senderEmail,
-        subject: `✏️ ${safeClientName} requested changes on #${safeQuoteNumber}`,
-        html: `<p>Hi ${safeBusinessName || 'there'},</p>
+        })
+      } else if (action === 'changes_requested') {
+        await resend.emails.send({
+          from: FROM,
+          to: senderEmail,
+          subject: `✏️ ${safeClientName} requested changes on #${safeQuoteNumber}`,
+          html: `<p>Hi ${safeBusinessName || 'there'},</p>
 <p><strong>${escapeHtml(quote.client_name)}</strong> has requested changes on quote <strong>#${safeQuoteNumber}</strong>.</p>
 ${safeNotes ? `<p><strong>Message:</strong> ${safeNotes}</p>` : ''}
 <p>Consider revising the quote and sending it again.</p>`,
-      })
+        })
+      }
     }
   } catch {
     console.error('Failed to send email notification for quote action')

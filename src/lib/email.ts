@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY!)
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 const FROM = process.env.EMAIL_FROM_ADDRESS || 'quotes@resend.dev'
 
 // To: sender — client opened the quote
@@ -9,6 +9,7 @@ export async function notifyQuoteOpened(
   clientName: string,
   quoteNumber: string
 ) {
+  if (!resend) return
   await resend.emails.send({
     from: FROM,
     to: email,
@@ -24,6 +25,7 @@ export async function notifyQuoteAccepted(
   clientName: string,
   quoteNumber: string
 ) {
+  if (!resend) return
   await resend.emails.send({
     from: FROM,
     to: email,
@@ -40,6 +42,7 @@ export async function notifyChangesRequested(
   quoteNumber: string,
   message: string
 ) {
+  if (!resend) return
   await resend.emails.send({
     from: FROM,
     to: email,
@@ -55,6 +58,7 @@ export async function remindFollowUp(
   clientName: string,
   quoteNumber: string
 ) {
+  if (!resend) return
   await resend.emails.send({
     from: FROM,
     to: email,
@@ -70,6 +74,7 @@ export async function remindAfterOpen(
   clientName: string,
   quoteNumber: string
 ) {
+  if (!resend) return
   await resend.emails.send({
     from: FROM,
     to: email,
@@ -85,6 +90,7 @@ export async function remindExpiry(
   clientName: string,
   quoteNumber: string
 ) {
+  if (!resend) return
   await resend.emails.send({
     from: FROM,
     to: email,

@@ -4,7 +4,7 @@ import { createServerClient } from '@supabase/ssr'
 import { generateQuotePDF } from '@/lib/pdf'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY!)
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 const FROM = process.env.EMAIL_FROM_ADDRESS || 'quotes@resend.dev'
 
 async function getUser(request: NextRequest) {
@@ -85,20 +85,22 @@ items: items.map((i: any) => ({
   const pdfBuffer = Buffer.from(pdfBytes)
 
   try {
-    await resend.emails.send({
-      from: FROM,
-      to: quote.client_email,
-      subject: `Quote #${quote.quote_number} from ${businessName}`,
-      html: `<p>Dear ${quote.client_name},</p>
+    if (resend) {
+      await resend.emails.send({
+        from: FROM,
+        to: quote.client_email,
+        subject: `Quote #${quote.quote_number} from ${businessName}`,
+        html: `<p>Dear ${quote.client_name},</p>
 <p>Please find your quote <strong>#${quote.quote_number}</strong> attached.</p>
 <p>You can also view it online: <a href="${siteUrl}/q/${quote.unique_token}">View Quote Online</a></p>
 <p>If you have any questions, please feel free to reach out.</p>
 <p>Thanks,<br/>${businessName}</p>`,
-      attachments: [{
-        filename: `quote-${quote.quote_number}.pdf`,
-        content: pdfBuffer.toString('base64'),
-      }],
-    })
+        attachments: [{
+          filename: `quote-${quote.quote_number}.pdf`,
+          content: pdfBuffer.toString('base64'),
+        }],
+      })
+    }
   } catch (e) {
     console.error('Send email error:', e)
     return NextResponse.json({ error: 'email failed' }, { status: 500 })

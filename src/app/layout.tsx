@@ -16,9 +16,8 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "any" },
     ],
-    apple: "/apple-touch-icon.png",
+    apple: "/favicon.svg",
   },
   manifest: "/manifest.json",
   appleWebApp: {
@@ -26,7 +25,7 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "SendQuote",
   },
-  metadataBase: new URL("https://sendquote.in"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://sendquote.in"),
   title: {
     default: "SendQuote — Professional Quote Generator for Indian Businesses",
     template: "%s | SendQuote",
@@ -59,7 +58,7 @@ export const metadata: Metadata = {
     description: "Create professional GST-ready quotes in 5 minutes. Share via WhatsApp, track opens, accept payments online. Free plan available.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image.svg",
         width: 1200,
         height: 630,
         alt: "SendQuote — Send quotes that close deals. Professional quote generator for Indian businesses.",
@@ -70,7 +69,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "SendQuote — Professional Quote Generator for Indian Businesses",
     description: "Create professional GST-ready quotes in 5 minutes. Share via WhatsApp, track opens, accept payments online.",
-    images: ["/og-image.png"],
+    images: ["/og-image.svg"],
     site: "@sendquote",
     creator: "@sendquote",
   },
@@ -147,7 +146,7 @@ export default function RootLayout({
         ],
         screenshot: {
           "@type": "ImageObject",
-          url: "https://sendquote.in/og-image.png",
+          url: "https://sendquote.in/og-image.svg",
         },
       },
       {
@@ -174,22 +173,8 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('theme');
-                  if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                    document.documentElement.classList.add('dark');
-                  }
-                } catch (e) {}
-              })();
-            `,
-          }}
-        />
       </head>
-      <body className="min-h-full flex flex-col bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans">
+      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 font-sans">
         <I18nWrapper>
           <ToastProvider>
             <ErrorBoundary>

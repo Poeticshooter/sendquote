@@ -2,24 +2,32 @@ import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase"
 import { csrfProtected } from "@/lib/csrf"
 
-export async function POST(req: NextRequest) {
+async function authenticate(req: NextRequest) {
   const supabase = createAdminClient()
 
   const authHeader = req.headers.get("Authorization")
   if (!authHeader?.startsWith("Bearer ")) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    return { user: null, error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) }
   }
 
   const token = authHeader.slice(7)
   const { data: { user }, error: authError } = await supabase.auth.getUser(token)
   if (authError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    return { user: null, error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) }
   }
 
   const csrf = csrfProtected(req)
   if (!csrf.ok) {
-    return NextResponse.json({ error: csrf.message }, { status: csrf.status })
+    return { user: null, error: NextResponse.json({ error: csrf.message }, { status: csrf.status }) }
   }
+
+  return { user, error: null, supabase }
+}
+
+export async function POST(req: NextRequest) {
+  const auth = await authenticate(req)
+  if (auth.error) return auth.error
+  const { user, supabase } = auth!
 
   const formData = await req.formData()
   const file = formData.get("logo") as File | null
@@ -52,4 +60,22 @@ export async function POST(req: NextRequest) {
   await supabase.from("profiles").update({ logo_url: publicUrl }).eq("user_id", user.id)
 
   return NextResponse.json({ url: publicUrl })
+}
+
+export async function DELETE(req: NextRequest) {
+  const auth = await authenticate(req)
+  if (auth.error) return auth.error
+  const { user, supabase } = auth!
+
+  const { error: deleteError } = await supabase.storage
+    .from("logos")
+    .remove([`logos/${user.id}`])
+
+  if (deleteError && !deleteError.message.includes("not found")) {
+    return NextResponse.json({ error: deleteError.message }, { status: 500 })
+  }
+
+  await supabase.from("profiles").update({ logo_url: null }).eq("user_id", user.id)
+
+  return NextResponse.json({ success: true })
 }

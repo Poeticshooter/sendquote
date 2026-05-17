@@ -3,6 +3,8 @@ import { redirect } from "next/navigation"
 import { cookies } from "next/headers"
 import AdminDashboardClient from "./AdminDashboardClient"
 
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = {
   title: "Admin Dashboard — SendQuote",
   description: "Admin panel for monitoring SendQuote platform metrics.",

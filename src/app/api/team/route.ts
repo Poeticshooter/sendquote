@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
 import { getUser } from '@/lib/auth'
+import { csrfProtected } from '@/lib/csrf'
 import crypto from 'crypto'
 
 export async function GET(request: NextRequest) {
@@ -23,6 +24,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const user = await getUser(request)
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+  const csrfResult = csrfProtected(request)
+  if (!csrfResult.ok) return NextResponse.json({ error: csrfResult.message }, { status: csrfResult.status })
 
   const { email, role = 'member' } = await request.json()
   if (!email) return NextResponse.json({ error: 'email is required' }, { status: 400 })
@@ -53,6 +57,9 @@ export async function PATCH(request: NextRequest) {
   const user = await getUser(request)
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
+  const csrfResult = csrfProtected(request)
+  if (!csrfResult.ok) return NextResponse.json({ error: csrfResult.message }, { status: csrfResult.status })
+
   const url = new URL(request.url)
   const id = url.searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 })
@@ -76,6 +83,9 @@ export async function PATCH(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const user = await getUser(request)
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+  const csrfResult = csrfProtected(request)
+  if (!csrfResult.ok) return NextResponse.json({ error: csrfResult.message }, { status: csrfResult.status })
 
   const url = new URL(request.url)
   const id = url.searchParams.get('id')

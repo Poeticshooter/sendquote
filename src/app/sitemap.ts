@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://sendquote.in'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://sendquote.in'
   return [
     {
       url: baseUrl,

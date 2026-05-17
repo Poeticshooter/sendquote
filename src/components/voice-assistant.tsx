@@ -613,7 +613,7 @@ export default function VoiceAssistant() {
               onClick={() => setOpen(false)}
             />
             <motion.div
-              className="fixed bottom-24 left-6 w-[420px] max-w-[calc(100vw-48px)] bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden"
+              className="fixed bottom-24 left-6 w-[420px] max-w-[calc(100vw-48px)] bg-white rounded-3xl shadow-2xl border border-slate-200 z-50 overflow-hidden"
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -639,7 +639,7 @@ export default function VoiceAssistant() {
                     <div className="relative">
                       <button
                         onClick={() => setShowLangPicker(!showLangPicker)}
-                        className="text-xs text-white/80 bg-white/10 px-2 py-1 rounded-lg hover:bg-white/20 dark:hover:bg-white/30 transition-colors"
+                        className="text-xs text-white/80 bg-white/10 px-2 py-1 rounded-lg hover:bg-white/20:bg-white/30 transition-colors"
                       >
                         {LANGUAGE_LABELS[lang] || 'English'}
                       </button>
@@ -649,14 +649,14 @@ export default function VoiceAssistant() {
                             initial={{ opacity: 0, y: -5 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -5 }}
-                            className="absolute right-0 top-full mt-1 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 py-1 w-40 z-50"
+                            className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-xl border border-slate-200 py-1 w-40 z-50"
                           >
                             {Object.entries(LANGUAGE_LABELS).map(([code, label]) => (
                               <button
                                 key={code}
                                 onClick={() => { setLang(code); setShowLangPicker(false) }}
-                                className={`w-full text-left px-3 py-1.5 text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors ${
-                                  code === lang ? 'text-indigo-600 dark:text-indigo-400 font-medium' : 'text-slate-700 dark:text-slate-300'
+                                className={`w-full text-left px-3 py-1.5 text-sm hover:bg-indigo-50:bg-indigo-900/20 transition-colors ${
+                                  code === lang ? 'text-indigo-600 font-medium' : 'text-slate-700'
                                 }`}
                               >
                                 {label}
@@ -678,7 +678,7 @@ export default function VoiceAssistant() {
                 </div>
               </div>
 
-              <div className="h-80 overflow-y-auto px-4 py-3 space-y-3 bg-slate-50 dark:bg-slate-900">
+              <div className="h-80 overflow-y-auto px-4 py-3 space-y-3 bg-slate-50">
                 {messages.map((msg, i) => (
                   <motion.div
                     key={i}
@@ -697,7 +697,7 @@ export default function VoiceAssistant() {
                     <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                       msg.role === "user"
                         ? "bg-indigo-600 text-white rounded-br-md"
-                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-bl-md shadow-sm"
+                        : "bg-white text-slate-700 border border-slate-200 rounded-bl-md shadow-sm"
                     }`}>
                       {msg.text.split("\n").map((line, li) => (
                         <p key={li} className={li > 0 ? "mt-2" : ""}>{line}</p>
@@ -708,7 +708,7 @@ export default function VoiceAssistant() {
                             msg.confidence >= 0.8 ? 'bg-emerald-400' :
                             msg.confidence >= 0.6 ? 'bg-amber-400' : 'bg-red-400'
                           }`} />
-                          <span className="text-[10px] text-slate-400 dark:text-slate-500">{Math.round(msg.confidence * 100)}% match</span>
+                          <span className="text-[10px] text-slate-400">{Math.round(msg.confidence * 100)}% match</span>
                         </div>
                       )}
                     </div>
@@ -721,7 +721,7 @@ export default function VoiceAssistant() {
                     animate={{ opacity: 1 }}
                     className="flex justify-end"
                   >
-                    <div className="max-w-[85%] rounded-2xl rounded-br-md px-4 py-3 text-sm bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800 italic">
+                    <div className="max-w-[85%] rounded-2xl rounded-br-md px-4 py-3 text-sm bg-indigo-50 text-indigo-600 border border-indigo-100 italic">
                       {interimTranscript}
                       <motion.span
                         className="inline-block w-2 h-4 bg-indigo-400 ml-1"
@@ -744,24 +744,24 @@ export default function VoiceAssistant() {
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="white" strokeWidth="2"/>
                       </svg>
                     </div>
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl rounded-bl-md px-4 py-3 border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <div className="bg-white rounded-2xl rounded-bl-md px-4 py-3 border border-slate-200 shadow-sm">
                       <div className="flex items-center gap-1.5">
                         <motion.div
-                          className="w-2 h-2 bg-indigo-400 dark:bg-indigo-500 rounded-full"
+                          className="w-2 h-2 bg-indigo-400 rounded-full"
                           animate={{ y: [0, -4, 0] }}
                           transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
                         />
                         <motion.div
-                          className="w-2 h-2 bg-indigo-400 dark:bg-indigo-500 rounded-full"
+                          className="w-2 h-2 bg-indigo-400 rounded-full"
                           animate={{ y: [0, -4, 0] }}
                           transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
                         />
                         <motion.div
-                          className="w-2 h-2 bg-indigo-400 dark:bg-indigo-500 rounded-full"
+                          className="w-2 h-2 bg-indigo-400 rounded-full"
                           animate={{ y: [0, -4, 0] }}
                           transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
                         />
-                        <span className="text-xs text-slate-400 dark:text-slate-500 ml-1">Thinking...</span>
+                        <span className="text-xs text-slate-400 ml-1">Thinking...</span>
                       </div>
                     </div>
                   </motion.div>
@@ -773,15 +773,15 @@ export default function VoiceAssistant() {
                     animate={{ opacity: 1, y: 0 }}
                     className="flex justify-center"
                   >
-                    <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs px-4 py-3 rounded-xl border border-amber-200 dark:border-amber-800 max-w-[90%]">
+                    <div className="bg-amber-50 text-amber-700 text-xs px-4 py-3 rounded-xl border border-amber-200 max-w-[90%]">
                       <p className="font-medium mb-1">Not sure I understood</p>
-                      <p className="text-amber-600 dark:text-amber-500 mb-2">Try one of these:</p>
+                      <p className="text-amber-600 mb-2">Try one of these:</p>
                       <div className="flex flex-wrap gap-1.5">
                         {["Create a new quote", "Show my recent quotes", "What can you do?"].map(s => (
                           <button
                             key={s}
                             onClick={() => handleRetry(s)}
-                            className="text-xs bg-amber-100 dark:bg-amber-800/40 hover:bg-amber-200 dark:hover:bg-amber-700/40 text-amber-800 dark:text-amber-300 px-2.5 py-1 rounded-full transition-colors"
+                            className="text-xs bg-amber-100 hover:bg-amber-200:bg-amber-700/40 text-amber-800 px-2.5 py-1 rounded-full transition-colors"
                           >
                             {s}
                           </button>
@@ -797,7 +797,7 @@ export default function VoiceAssistant() {
                     animate={{ opacity: 1 }}
                     className="flex justify-center"
                   >
-                    <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs px-4 py-2 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <div className="bg-amber-50 text-amber-700 text-xs px-4 py-2 rounded-lg border border-amber-200">
                       {error}
                     </div>
                   </motion.div>
@@ -806,7 +806,7 @@ export default function VoiceAssistant() {
                 <div ref={messagesEndRef} />
               </div>
 
-              <div className="px-4 py-2 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700">
+              <div className="px-4 py-2 bg-white border-t border-slate-100">
                 <canvas
                   ref={waveformRef}
                   className="w-full h-8"
@@ -814,13 +814,13 @@ export default function VoiceAssistant() {
                 />
               </div>
 
-              <div className="px-4 pb-2 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700">
+              <div className="px-4 pb-2 bg-white border-t border-slate-100">
                 <div className="flex flex-wrap gap-1.5 py-2">
                   {getSuggestions().map((chip) => (
                     <button
                       key={chip.text}
                       onClick={() => handleSuggestionClick(chip.text)}
-                      className="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-600 hover:border-indigo-200 dark:hover:border-indigo-700 transition-all"
+                      className="text-xs bg-slate-100 hover:bg-indigo-50:bg-indigo-900/20 text-slate-600 hover:text-indigo-600:text-indigo-400 px-3 py-1.5 rounded-full border border-slate-200 hover:border-indigo-200:border-indigo-700 transition-all"
                     >
                       {chip.label}
                     </button>
@@ -828,7 +828,7 @@ export default function VoiceAssistant() {
                 </div>
               </div>
 
-              <div className="px-4 pb-4 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 pt-3">
+              <div className="px-4 pb-4 bg-white border-t border-slate-100 pt-3">
                 <div className="flex items-center gap-2">
                   <div className="flex-1 relative">
                     <input
@@ -841,7 +841,7 @@ export default function VoiceAssistant() {
                         }
                       }}
                       placeholder={supported ? "Type or speak..." : "Type your request..."}
-                      className="w-full bg-slate-100 dark:bg-slate-700 text-sm rounded-xl px-4 py-3 pr-12 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-700 transition-all"
+                      className="w-full bg-slate-100 text-sm rounded-xl px-4 py-3 pr-12 text-slate-900 placeholder:text-slate-400:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-300:ring-indigo-700 transition-all"
                     />
                   </div>
                   {supported ? (
@@ -892,7 +892,7 @@ export default function VoiceAssistant() {
                   )}
                 </div>
                 {!supported && (
-                    <p className="text-[10px] text-amber-600 dark:text-amber-500 mt-1.5">
+                    <p className="text-[10px] text-amber-600 mt-1.5">
                     Voice not supported in this browser. Type your request above.
                   </p>
                 )}

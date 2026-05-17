@@ -59,10 +59,10 @@ export function FloatingDocument({ className, delay = 0 }: { className?: string;
         ease: "easeInOut",
       }}
     >
-      <div className="w-12 h-16 bg-white dark:bg-slate-800 rounded-lg shadow-xl dark:shadow-slate-900/50 border border-slate-200 dark:border-slate-700 flex flex-col p-2 gap-1">
-        <div className="h-1 bg-slate-200 dark:bg-slate-700 rounded" />
-        <div className="h-1 bg-slate-200 dark:bg-slate-700 rounded w-3/4" />
-        <div className="h-1 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
+      <div className="w-12 h-16 bg-white rounded-lg shadow-xl border border-slate-200 flex flex-col p-2 gap-1">
+        <div className="h-1 bg-slate-200 rounded" />
+        <div className="h-1 bg-slate-200 rounded w-3/4" />
+        <div className="h-1 bg-slate-200 rounded w-1/2" />
         <div className="mt-auto h-2 bg-indigo-500 rounded" />
       </div>
     </motion.div>
@@ -86,7 +86,7 @@ export function FloatingCoin({ className, delay = 0 }: { className?: string; del
       }}
     >
       <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-lg shadow-amber-500/30 flex items-center justify-center">
-        <span className="text-amber-900 dark:text-amber-200 font-bold text-lg">₹</span>
+        <span className="text-amber-900 font-bold text-lg">₹</span>
       </div>
     </motion.div>
   )

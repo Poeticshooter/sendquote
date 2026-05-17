@@ -174,7 +174,7 @@ src/
 5. **UserTour** - First-time user onboarding
 6. **TemplateGallery** - Quote templates
 7. **Toast** - Notifications
-8. **ThemeToggle** - Light/dark mode
+8. **ThemeToggle** - Light theme indicator
 9. **Breadcrumbs** - Navigation breadcrumb
 10. **Skeleton** - Loading states
 

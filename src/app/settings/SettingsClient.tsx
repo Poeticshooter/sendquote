@@ -116,6 +116,24 @@ setTotalQuotes(tc || 0)
     setUploading(false)
   }
 
+  async function handleDeleteLogo() {
+    setUploading(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    const csrfToken = document.cookie.split('; ').find(r => r.startsWith(CSRF_COOKIE_NAME_LOCAL + '='))?.split('=')[1]
+    const res = await fetch("/api/upload-logo", {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        ...(csrfToken ? { [CSRF_HEADER_NAME_LOCAL]: csrfToken } : {}),
+      },
+    })
+    const json = await res.json()
+    if (res.ok) { setLogoUrl(""); toast("Logo removed", "success") }
+    else toast(json.error || "Failed to remove logo", "error")
+    setUploading(false)
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
@@ -201,24 +219,24 @@ setTotalQuotes(tc || 0)
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-sm text-slate-400 dark:text-slate-500 mt-3">Loading settings...</p>
+          <p className="text-sm text-slate-400 mt-3">Loading settings...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50">
+    <div className="min-h-screen bg-slate-50">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/50">
         <div className="max-w-2xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <BrandLogo href="/dashboard" className="h-6" />
-            <span className="text-sm text-slate-500 dark:text-slate-400">Settings</span>
+            <span className="text-sm text-slate-500">Settings</span>
           </div>
-          <button onClick={handleLogout} className="text-sm text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" aria-label="Sign out">
+          <button onClick={handleLogout} className="text-sm text-slate-400 hover:text-slate-600:text-slate-300 p-2 rounded-lg hover:bg-slate-100:bg-slate-800 transition-colors" aria-label="Sign out">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
             </svg>
@@ -228,18 +246,18 @@ setTotalQuotes(tc || 0)
 
       <main className="max-w-2xl mx-auto px-6 py-8 space-y-6 animate-fade-in">
         {/* Plan card */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Plan & Usage</h2>
+        <div className="bg-white rounded-xl p-6 border border-slate-200">
+          <h2 className="text-lg font-bold text-slate-900 mb-4">Plan & Usage</h2>
           <div className="grid sm:grid-cols-2 gap-4 text-sm">
             {[
               ["Plan", <span key="p" className={`font-medium capitalize ${plan === "free" ? "text-amber-700" : "text-emerald-700"}`}>{plan}</span>],
-              ["Email", <span key="e" className="font-medium text-slate-900 dark:text-white">{email}</span>],
-              ["Total Quotes", <span key="t" className="font-medium text-slate-900 dark:text-white">{totalQuotes}</span>],
-              ["This Month", <span key="m" className="font-medium text-slate-900 dark:text-white">{monthCount}{plan === "free" ? " / 5" : " (unlimited)"}</span>],
-              ...(planExpiry ? [["Expires", <span key="ex" className="font-medium text-slate-900 dark:text-white">{new Date(planExpiry).toLocaleDateString("en-IN")}</span>]] : []),
+              ["Email", <span key="e" className="font-medium text-slate-900">{email}</span>],
+              ["Total Quotes", <span key="t" className="font-medium text-slate-900">{totalQuotes}</span>],
+              ["This Month", <span key="m" className="font-medium text-slate-900">{monthCount}{plan === "free" ? " / 5" : " (unlimited)"}</span>],
+              ...(planExpiry ? [["Expires", <span key="ex" className="font-medium text-slate-900">{new Date(planExpiry).toLocaleDateString("en-IN")}</span>]] : []),
             ].map(([label, value]) => (
               <div key={label as string}>
-                <p className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">{label as string}</p>
+                <p className="text-slate-500 text-xs uppercase tracking-wide">{label as string}</p>
                 <div className="mt-1">{value}</div>
               </div>
             ))}
@@ -249,7 +267,7 @@ setTotalQuotes(tc || 0)
               <Link href="/upgrade" className="inline-flex bg-indigo-600 text-white text-sm font-medium px-5 py-2 rounded-lg hover:bg-indigo-700 transition-all shadow-sm">
                 Upgrade to Starter — ₹299/month
               </Link>
-              <Link href="/upgrade" className="inline-flex bg-white dark:bg-slate-800 text-violet-700 dark:text-violet-400 text-sm font-medium px-5 py-2 rounded-lg border border-violet-200 dark:border-violet-800 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all">
+              <Link href="/upgrade" className="inline-flex bg-white text-violet-700 text-sm font-medium px-5 py-2 rounded-lg border border-violet-200 hover:bg-violet-50:bg-violet-900/20 transition-all">
                 View Professional — ₹799/month
               </Link>
             </div>
@@ -262,13 +280,13 @@ setTotalQuotes(tc || 0)
         </div>
 
         {/* Referral */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Refer a Friend</h2>
+        <div className="bg-white rounded-xl p-6 border border-slate-200">
+          <h2 className="text-lg font-bold text-slate-900 mb-4">Refer a Friend</h2>
           <div className="space-y-3">
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">Your Referral Code</p>
+              <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Your Referral Code</p>
               <div className="flex items-center gap-2">
-                <code className="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-slate-700 dark:text-slate-300">
+                <code className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono text-slate-700">
                   {referralCode || "Loading..."}
                 </code>
                 <button
@@ -283,18 +301,18 @@ setTotalQuotes(tc || 0)
               </div>
             </div>
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">Share this link</p>
-              <p className="text-sm text-slate-600 dark:text-slate-400 break-all bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2">
+              <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Share this link</p>
+              <p className="text-sm text-slate-600 break-all bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
                 {typeof window !== "undefined" ? `${window.location.origin}/register?ref=${referralCode}` : ""}
               </p>
             </div>
-            <p className="text-xs text-slate-400 dark:text-slate-500">When someone signs up using your link and upgrades to a paid plan, your plan gets extended by 30 days.</p>
+            <p className="text-xs text-slate-400">When someone signs up using your link and upgrades to a paid plan, your plan gets extended by 30 days.</p>
           </div>
         </div>
 
         {/* Language */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Language</h2>
+        <div className="bg-white rounded-xl p-6 border border-slate-200">
+          <h2 className="text-lg font-bold text-slate-900 mb-4">Language</h2>
           <div className="flex gap-3">
             <button
               type="button"
@@ -302,7 +320,7 @@ setTotalQuotes(tc || 0)
               className={`flex-1 py-3 px-4 rounded-lg border text-sm font-medium transition-all ${
                 language === "en"
                   ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-                  : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600"
+                  : "border-slate-200 text-slate-600 hover:border-slate-300:border-slate-600"
               }`}
             >
               English
@@ -312,8 +330,8 @@ setTotalQuotes(tc || 0)
               onClick={() => handleLanguageChange("hi")}
               className={`flex-1 py-3 px-4 rounded-lg border text-sm font-medium transition-all ${
                 language === "hi"
-                  ? "border-indigo-300 dark:border-indigo-700 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400"
-                  : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600"
+                  ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                  : "border-slate-200 text-slate-600 hover:border-slate-300:border-slate-600"
               }`}
             >
               हिंदी
@@ -322,15 +340,15 @@ setTotalQuotes(tc || 0)
         </div>
 
         {/* Voice Assistant */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Voice Assistant</h2>
+        <div className="bg-white rounded-xl p-6 border border-slate-200">
+          <h2 className="text-lg font-bold text-slate-900 mb-4">Voice Assistant</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Voice Recognition Language</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">Voice Recognition Language</label>
               <select
                 value={voiceLang}
                 onChange={e => handleVoiceLangChange(e.target.value)}
-                className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800 text-sm"
+                className="w-full px-4 py-2.5 border border-slate-200 bg-white text-slate-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200:ring-indigo-800 text-sm"
               >
                 <option value="en-IN">English (India)</option>
                 <option value="hi-IN">हिंदी (Hindi)</option>
@@ -345,13 +363,13 @@ setTotalQuotes(tc || 0)
             </div>
             <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Enable Voice Assistant</p>
-                  <p className="text-xs text-slate-400 dark:text-slate-500">Show the voice assistant button on all pages</p>
+                  <p className="text-sm font-medium text-slate-700">Enable Voice Assistant</p>
+                  <p className="text-xs text-slate-400">Show the voice assistant button on all pages</p>
                 </div>
               <button
                 type="button"
                 onClick={() => handleVoiceEnabledChange(!voiceEnabled)}
-                className={`relative w-11 h-6 rounded-full transition-colors ${voiceEnabled ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-600'}`}
+                className={`relative w-11 h-6 rounded-full transition-colors ${voiceEnabled ? 'bg-indigo-600' : 'bg-slate-300'}`}
                 role="switch"
                 aria-checked={voiceEnabled}
                 aria-label="Toggle voice assistant"
@@ -360,7 +378,7 @@ setTotalQuotes(tc || 0)
               </button>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Speech Speed</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Speech Speed</label>
               <input
                 type="range"
                 min="0.5"
@@ -370,7 +388,7 @@ setTotalQuotes(tc || 0)
                 onChange={e => handleTtsRateChange(parseFloat(e.target.value))}
                 className="w-full accent-indigo-600"
               />
-              <div className="flex justify-between text-xs text-slate-400 dark:text-slate-500 mt-1">
+              <div className="flex justify-between text-xs text-slate-400 mt-1">
                 <span>Slow</span>
                 <span>{ttsRate.toFixed(1)}x</span>
                 <span>Fast</span>
@@ -380,31 +398,37 @@ setTotalQuotes(tc || 0)
         </div>
 
         {/* Profile form */}
-        <form onSubmit={handleSave} className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 space-y-5">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Business Profile</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 -mt-3">This information appears on your quotes.</p>
+        <form onSubmit={handleSave} className="bg-white rounded-xl p-6 border border-slate-200 space-y-5">
+          <h2 className="text-lg font-bold text-slate-900">Business Profile</h2>
+          <p className="text-sm text-slate-500 -mt-3">This information appears on your quotes.</p>
 
           {/* Logo upload */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Business Logo</label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Business Logo</label>
             <div className="flex items-center gap-4">
               {logoUrl ? (
                 <div className="relative group">
-                  <Image src={logoUrl} alt="Logo" width={64} height={64} className="w-16 h-16 object-contain rounded-lg border border-slate-200 dark:border-slate-700" />
-                  <button type="button" onClick={() => fileInputRef.current?.click()}
-                    className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center text-white text-xs font-medium">
-                    Change
-                  </button>
+                  <Image src={logoUrl} alt="Logo" width={64} height={64} className="w-16 h-16 object-contain rounded-lg border border-slate-200" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                    <button type="button" onClick={() => fileInputRef.current?.click()}
+                      className="text-white text-xs font-medium px-2 py-1 bg-white/20 rounded hover:bg-white/30">
+                      Change
+                    </button>
+                    <button type="button" onClick={handleDeleteLogo}
+                      className="text-white text-xs font-medium px-2 py-1 bg-red-500/60 rounded hover:bg-red-500/80">
+                      Remove
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div onClick={() => fileInputRef.current?.click()}
-                  className="w-16 h-16 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors flex items-center justify-center cursor-pointer bg-slate-50 dark:bg-slate-800">
-                  <svg className="w-6 h-6 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  className="w-16 h-16 rounded-lg border-2 border-dashed border-slate-300 hover:border-indigo-400:border-indigo-500 transition-colors flex items-center justify-center cursor-pointer bg-slate-50">
+                  <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                   </svg>
                 </div>
               )}
-              <div className="text-xs text-slate-400 dark:text-slate-500">
+              <div className="text-xs text-slate-400">
                 <p>PNG, JPG or WebP</p>
                 <p>Max 2MB</p>
               </div>
@@ -423,43 +447,43 @@ setTotalQuotes(tc || 0)
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Business Name</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Business Name</label>
             <input type="text" value={businessName} onChange={e => setBusinessName(e.target.value)}
-              className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800" placeholder="Your Business Name" />
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-200:ring-indigo-800" placeholder="Your Business Name" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Phone</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Phone</label>
             <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
-              className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800" placeholder="98765 43210" />
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-200:ring-indigo-800" placeholder="98765 43210" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">GST Number</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">GST Number</label>
             <input type="text" value={gstNumber} onChange={e => setGstNumber(e.target.value)}
-              className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800" placeholder="22AAAAA0000A1Z5 (optional)" />
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-200:ring-indigo-800" placeholder="22AAAAA0000A1Z5 (optional)" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Address</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Address</label>
             <textarea value={address} onChange={e => setAddress(e.target.value)} rows={2}
-              className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800 resize-none" placeholder="Business address" />
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-200:ring-indigo-800 resize-none" placeholder="Business address" />
           </div>
 
-          <div className="pt-4 border-t border-slate-100 dark:border-slate-700">
-            <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Email Settings</h3>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mb-4">
+          <div className="pt-4 border-t border-slate-100">
+            <h3 className="text-sm font-semibold text-slate-700 mb-2">Email Settings</h3>
+            <p className="text-xs text-slate-400 mb-4">
               {plan === "free"
                 ? "Free plan: Add your Gmail app password to send emails from your own address. Get one at myaccount.google.com/apppasswords"
                 : "Paid plan: Emails are sent via SendQuote. Optional: add your own Gmail for branded sending."}
             </p>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Gmail Address</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Gmail Address</label>
                 <input type="email" value={smtpEmail} onChange={e => setSmtpEmail(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800" placeholder="you@gmail.com" />
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-200:ring-indigo-800" placeholder="you@gmail.com" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Gmail App Password</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Gmail App Password</label>
                 <input type="password" value={smtpAppPassword} onChange={e => setSmtpAppPassword(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800" placeholder="xxxx xxxx xxxx xxxx" />
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-200:ring-indigo-800" placeholder="xxxx xxxx xxxx xxxx" />
               </div>
             </div>
           </div>

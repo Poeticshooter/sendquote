@@ -98,7 +98,7 @@ export default function QuoteTable({ quotes, selectedQuotes, onSelect, onSelectA
   })
 
   function SortIcon({ column }: { column: SortKey }) {
-    if (sortKey !== column) return <span className="text-slate-300 dark:text-slate-600 ml-1">↕</span>
+    if (sortKey !== column) return <span className="text-slate-300 ml-1">↕</span>
     return <span className="text-indigo-500 ml-1">{sortDir === "asc" ? "↑" : "↓"}</span>
   }
 
@@ -122,31 +122,31 @@ export default function QuoteTable({ quotes, selectedQuotes, onSelect, onSelectA
               <input type="checkbox" checked={selectedQuotes.length === quotes.length && quotes.length > 0} onChange={onSelectAll} className="rounded border-slate-300" />
             </th>
             <th
-              className="text-left px-4 py-3.5 font-medium text-slate-500 text-xs uppercase tracking-wider cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 select-none"
+              className="text-left px-4 py-3.5 font-medium text-slate-500 text-xs uppercase tracking-wider cursor-pointer hover:text-slate-700:text-slate-300 select-none"
               onClick={() => handleSort("quote_number")}
             >
               Quote <SortIcon column="quote_number" />
             </th>
             <th
-              className="text-left px-4 py-3.5 font-medium text-slate-500 text-xs uppercase tracking-wider cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 select-none"
+              className="text-left px-4 py-3.5 font-medium text-slate-500 text-xs uppercase tracking-wider cursor-pointer hover:text-slate-700:text-slate-300 select-none"
               onClick={() => handleSort("client_name")}
             >
               Client <SortIcon column="client_name" />
             </th>
             <th
-              className="text-left px-4 py-3.5 font-medium text-slate-500 text-xs uppercase tracking-wider cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 select-none"
+              className="text-left px-4 py-3.5 font-medium text-slate-500 text-xs uppercase tracking-wider cursor-pointer hover:text-slate-700:text-slate-300 select-none"
               onClick={() => handleSort("total")}
             >
               Amount <SortIcon column="total" />
             </th>
             <th
-              className="text-left px-4 py-3.5 font-medium text-slate-500 text-xs uppercase tracking-wider cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 select-none"
+              className="text-left px-4 py-3.5 font-medium text-slate-500 text-xs uppercase tracking-wider cursor-pointer hover:text-slate-700:text-slate-300 select-none"
               onClick={() => handleSort("status")}
             >
               Status <SortIcon column="status" />
             </th>
             <th
-              className="text-left px-4 py-3.5 font-medium text-slate-500 text-xs uppercase tracking-wider cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 select-none hidden sm:table-cell"
+              className="text-left px-4 py-3.5 font-medium text-slate-500 text-xs uppercase tracking-wider cursor-pointer hover:text-slate-700:text-slate-300 select-none hidden sm:table-cell"
               onClick={() => handleSort("created_at")}
             >
               Date <SortIcon column="created_at" />

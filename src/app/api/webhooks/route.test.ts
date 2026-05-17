@@ -126,11 +126,13 @@ describe('POST /api/webhooks', () => {
 
 describe('GET /api/webhooks', () => {
   let mockWebhookBuilder: any
+  let mockDeleteBuilder: any
 
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(authModule.getUser).mockResolvedValue({ id: 'user-1', email: 'test@example.com' } as any)
     vi.mocked(supabaseModule.createAdminClient).mockReturnValue(mockSupabase as any)
+    mockDeleteBuilder = { eq: vi.fn().mockImplementation(() => mockDeleteBuilder) }
     mockWebhookBuilder = {
       insert: vi.fn().mockReturnThis(),
       select: vi.fn().mockReturnThis(),
@@ -138,7 +140,7 @@ describe('GET /api/webhooks', () => {
       delete: vi.fn(() => mockDeleteBuilder),
       eq: vi.fn().mockReturnThis(),
       order: vi.fn(),
-      limit: vi.fn().mockReturnThis(),
+      limit: vi.fn(),
     }
     mockSupabase.from.mockReturnValue(mockWebhookBuilder)
     mockWebhookBuilder.order.mockResolvedValue({ data: [], error: null })

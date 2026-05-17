@@ -5,7 +5,6 @@ import Link from "next/link"
 import { motion, useScroll, useTransform, useMotionValue } from "framer-motion"
 import BrandLogo from "@/components/brand-logo"
 import Button from "@/components/ui/button"
-import ThemeToggle from "@/components/theme-toggle"
 import { FloatingOrb, Floating3DCube, FloatingDocument, FloatingCoin, FloatingCheck } from "./animations"
 
 export default function HeroSection() {
@@ -27,7 +26,7 @@ export default function HeroSection() {
   const shape2Y = useTransform(mouseY, [-1, 1], [20, -20])
 
   return (
-    <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-white dark:bg-slate-900">
+    <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-white">
       {/* Dot grid background */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
         style={{ backgroundImage: 'radial-gradient(circle, #0f172a 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
@@ -46,23 +45,23 @@ export default function HeroSection() {
       {/* Mouse-parallax floating shapes */}
       <motion.div
         style={{ x: shape1X, y: shape1Y }}
-        className="absolute top-32 right-[8%] w-14 h-14 border-2 border-indigo-200 dark:border-indigo-800 rounded-2xl rotate-12 opacity-50"
+        className="absolute top-32 right-[8%] w-14 h-14 border-2 border-indigo-200 rounded-2xl rotate-12 opacity-50"
         animate={{ rotate: [12, 20, 12], y: [0, -15, 0] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
         style={{ x: shape2X, y: shape2Y }}
-        className="absolute top-[45%] left-[6%] w-10 h-10 bg-emerald-200 dark:bg-emerald-800 rounded-full opacity-40"
+        className="absolute top-[45%] left-[6%] w-10 h-10 bg-emerald-200 rounded-full opacity-40"
         animate={{ y: [0, -20, 0], scale: [1, 1.15, 1] }}
         transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute bottom-32 left-[12%] w-14 h-14 border-2 border-emerald-200 dark:border-emerald-800 rounded-xl -rotate-12 opacity-30"
+        className="absolute bottom-32 left-[12%] w-14 h-14 border-2 border-emerald-200 rounded-xl -rotate-12 opacity-30"
         animate={{ rotate: [-12, -20, -12], y: [0, 15, 0] }}
         transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
       />
       <motion.div
-        className="absolute top-[30%] right-[18%] w-8 h-8 bg-violet-200 dark:bg-violet-800 rounded-lg rotate-45 opacity-30"
+        className="absolute top-[30%] right-[18%] w-8 h-8 bg-violet-200 rounded-lg rotate-45 opacity-30"
         animate={{ rotate: [45, 55, 45], scale: [1, 1.2, 1] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 2 }}
       />
@@ -88,7 +87,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, scale: 0.8, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: [0.34, 1.56, 0.64, 1] }}
-          className="inline-flex items-center gap-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium px-4 py-1.5 rounded-full mb-10 border border-slate-200 dark:border-slate-700"
+          className="inline-flex items-center gap-2 bg-slate-100 text-slate-700 text-xs font-medium px-4 py-1.5 rounded-full mb-10 border border-slate-200"
         >
           <motion.span
             className="w-2 h-2 rounded-full bg-emerald-500"
@@ -100,7 +99,7 @@ export default function HeroSection() {
 
         {/* Main headline */}
         <motion.h1
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-slate-900 dark:text-white mb-8"
+          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-slate-900 mb-8"
           initial="hidden"
           animate="visible"
         >
@@ -132,7 +131,7 @@ export default function HeroSection() {
 
         {/* Subtext */}
         <motion.p
-          className="text-lg sm:text-xl text-slate-500 dark:text-slate-400 max-w-xl mx-auto leading-relaxed mb-12"
+          className="text-lg sm:text-xl text-slate-500 max-w-xl mx-auto leading-relaxed mb-12"
           initial={{ opacity: 0, y: 30, filter: "blur(4px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           transition={{ duration: 0.6, delay: 0.55, ease: "easeOut" }}
@@ -148,7 +147,7 @@ export default function HeroSection() {
           transition={{ duration: 0.5, delay: 0.7, ease: "easeOut" }}
         >
           <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-            <Button as="a" href="/register" size="lg" className="shadow-xl dark:shadow-slate-900/50 shadow-indigo-300/50 hover:shadow-2xl hover:shadow-indigo-300/60" aria-label="Start free trial, no credit card required">
+            <Button as="a" href="/register" size="lg" className="shadow-xl shadow-indigo-300/50 hover:shadow-2xl hover:shadow-indigo-300/60" aria-label="Start free trial, no credit card required">
               Start Free — No Credit Card
               <motion.svg
                 className="w-4 h-4"

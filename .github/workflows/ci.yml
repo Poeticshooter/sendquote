@@ -38,4 +38,13 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+          ENCRYPTION_SALT: ci-build-salt-placeholder
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
+          SMTP_EMAIL: ci@placeholder.com
+          SMTP_APP_PASSWORD: placeholder
+          NEXT_PUBLIC_RAZORPAY_KEY_ID: rzp_test_placeholder
+          RAZORPAY_KEY_SECRET: placeholder
+          RAZORPAY_WEBHOOK_SECRET: placeholder
+          ADMIN_EMAIL: admin@placeholder.com
+          ADMIN_PASSWORD: placeholder
+          CRON_SECRET: placeholder-cron-secret

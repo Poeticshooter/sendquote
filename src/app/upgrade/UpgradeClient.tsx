@@ -212,10 +212,10 @@ export default function UpgradeClient() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-950/30">
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-200/50">
         <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white tracking-tight">
+          <Link href="/dashboard" className="flex items-center gap-2 text-sm font-bold text-slate-900 tracking-tight">
             <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect width="32" height="32" rx="8" fill="#4F46E5" />
               <path d="M10 10h12M10 16h8M10 22h10" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
@@ -223,7 +223,7 @@ export default function UpgradeClient() {
             </svg>
             SendQuote
           </Link>
-          <span className="text-sm text-slate-500 dark:text-slate-400">Plans & Pricing</span>
+          <span className="text-sm text-slate-500">Plans & Pricing</span>
         </div>
       </header>
 
@@ -232,18 +232,18 @@ export default function UpgradeClient() {
           <div className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 text-xs font-medium px-4 py-1.5 rounded-full mb-4 shadow-sm">
             Pricing
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">Choose the right plan for you</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-2">All plans include a 7-day free trial. No credit card required.</p>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Choose the right plan for you</h1>
+          <p className="text-slate-500 mt-2">All plans include a 7-day free trial. No credit card required.</p>
         </div>
 
         <div className="flex justify-center mb-8">
-          <div className="bg-white dark:bg-slate-800 rounded-full p-1.5 border border-slate-200 dark:border-slate-700 shadow-sm flex">
+          <div className="bg-white rounded-full p-1.5 border border-slate-200 shadow-sm flex">
             <button
               onClick={() => setBillingCycle("monthly")}
               className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
                 billingCycle === "monthly"
                   ? "bg-indigo-600 text-white shadow-md"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                  : "text-slate-500 hover:text-slate-700:text-slate-300"
               }`}
             >
               Monthly
@@ -253,7 +253,7 @@ export default function UpgradeClient() {
               className={`px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-1.5 ${
                 billingCycle === "annual"
                   ? "bg-indigo-600 text-white shadow-md"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                  : "text-slate-500 hover:text-slate-700:text-slate-300"
               }`}
             >
               Annual
@@ -267,8 +267,8 @@ export default function UpgradeClient() {
         )}
 
         <div className="max-w-md mx-auto mb-8">
-          <div className="max-w-md mx-auto bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm">
-            <label className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 block">Have a coupon code?</label>
+          <div className="max-w-md mx-auto bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+            <label className="text-xs font-medium text-slate-500 mb-2 block">Have a coupon code?</label>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -276,12 +276,12 @@ export default function UpgradeClient() {
                 onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                 placeholder="Enter coupon code"
                 disabled={couponApplied}
-                className="flex-1 px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-500"
+                className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-slate-50:bg-slate-800 disabled:text-slate-400:text-slate-500"
               />
               {couponApplied ? (
                 <button
                   onClick={removeCoupon}
-                  className="px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg font-medium transition-colors"
+                  className="px-3 py-2 text-sm text-red-600 hover:bg-red-50:bg-red-900/20 rounded-lg font-medium transition-colors"
                 >
                   Remove
                 </button>
@@ -303,11 +303,11 @@ export default function UpgradeClient() {
                 {couponInfo.discount_type === "percentage"
                   ? `${couponInfo.discount_value}% discount applied`
                   : `₹${couponInfo.discount_value} discount applied`}
-                {couponInfo.description && <span className="text-slate-400 dark:text-slate-500 ml-1">— {couponInfo.description}</span>}
+                {couponInfo.description && <span className="text-slate-400 ml-1">— {couponInfo.description}</span>}
               </div>
             )}
             {couponStatus === "invalid" && (
-              <div className="mt-2 text-xs text-red-500 dark:text-red-400 font-medium">Invalid or expired coupon code</div>
+              <div className="mt-2 text-xs text-red-500 font-medium">Invalid or expired coupon code</div>
             )}
           </div>
         </div>
@@ -323,8 +323,8 @@ export default function UpgradeClient() {
                 key={plan.name}
                 className={`relative rounded-2xl p-6 border-2 transition-all hover:shadow-xl ${
                   isPopular
-                    ? "bg-indigo-600 border-indigo-600 shadow-lg shadow-indigo-200 dark:shadow-indigo-900/50"
-                    : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
+                    ? "bg-indigo-600 border-indigo-600 shadow-lg shadow-indigo-200"
+                    : "bg-white border-slate-200 hover:border-slate-300:border-slate-600"
                 }`}
               >
                 {isPopular && (
@@ -333,16 +333,16 @@ export default function UpgradeClient() {
                   </div>
                 )}
 
-                <h3 className={`text-lg font-bold ${isPopular ? "text-white" : "text-slate-900 dark:text-white"}`}>{plan.name}</h3>
+                <h3 className={`text-lg font-bold ${isPopular ? "text-white" : "text-slate-900"}`}>{plan.name}</h3>
 
                 <div className="mt-4">
                   {plan.priceMonthly === 0 ? (
-                    <div className={`text-3xl font-black ${isPopular ? "text-white" : "text-slate-900 dark:text-white"}`}>Free</div>
+                    <div className={`text-3xl font-black ${isPopular ? "text-white" : "text-slate-900"}`}>Free</div>
                   ) : (
                     <>
                       <div className="flex items-baseline gap-1">
-                        <span className={`text-3xl font-black ${isPopular ? "text-white" : "text-slate-900 dark:text-white"}`}>₹{Math.round(pricing.total)}</span>
-                        <span className={`text-sm ${isPopular ? "text-indigo-200" : "text-slate-400 dark:text-slate-500"}`}>
+                        <span className={`text-3xl font-black ${isPopular ? "text-white" : "text-slate-900"}`}>₹{Math.round(pricing.total)}</span>
+                        <span className={`text-sm ${isPopular ? "text-indigo-200" : "text-slate-400"}`}>
                           /{billingCycle === "annual" ? "year" : "month"}
                         </span>
                       </div>
@@ -355,10 +355,10 @@ export default function UpgradeClient() {
                   )}
                 </div>
 
-                <ul className={`mt-5 space-y-2 text-sm ${isPopular ? "text-indigo-100" : "text-slate-600 dark:text-slate-400"}`}>
+                <ul className={`mt-5 space-y-2 text-sm ${isPopular ? "text-indigo-100" : "text-slate-600"}`}>
                   {plan.features.map((f) => (
                     <li key={f} className="flex items-start gap-2">
-                      <svg className={`w-5 h-5 shrink-0 mt-0.5 ${isPopular ? "text-white" : "text-indigo-600 dark:text-indigo-400"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <svg className={`w-5 h-5 shrink-0 mt-0.5 ${isPopular ? "text-white" : "text-indigo-600"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                       </svg>
                       {f}
@@ -367,7 +367,7 @@ export default function UpgradeClient() {
                 </ul>
 
                 {isCurrent ? (
-                  <div className="mt-6 block w-full text-center py-2.5 rounded-xl font-semibold text-sm bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-default">
+                  <div className="mt-6 block w-full text-center py-2.5 rounded-xl font-semibold text-sm bg-slate-100 text-slate-400 cursor-default">
                     Current Plan
                   </div>
                 ) : plan.priceMonthly === 0 ? null : (
@@ -376,7 +376,7 @@ export default function UpgradeClient() {
                     disabled={loading}
                     className={`mt-6 block w-full text-center py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] disabled:opacity-50 ${
                       isPopular
-                        ? "bg-white text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 shadow-lg"
+                        ? "bg-white text-indigo-700 hover:bg-indigo-50:bg-indigo-900/30 shadow-lg"
                         : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm"
                     }`}
                   >
@@ -405,9 +405,9 @@ export default function UpgradeClient() {
           </div>
         </div>
 
-        <div className="mt-8 bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 text-center max-w-xl mx-auto shadow-sm">
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5 justify-center">
+        <div className="mt-8 bg-white rounded-2xl p-6 border border-slate-200 text-center max-w-xl mx-auto shadow-sm">
+          <p className="text-sm text-slate-600">
+            <span className="font-semibold text-slate-900 flex items-center gap-1.5 justify-center">
               <svg className="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h8.25a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
               </svg> 7-day money-back guarantee.
@@ -417,7 +417,7 @@ export default function UpgradeClient() {
         </div>
 
         <div className="text-center mt-10">
-          <Link href="/dashboard" className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300">← Back to Dashboard</Link>
+          <Link href="/dashboard" className="text-sm text-slate-500 hover:text-slate-700:text-slate-300">← Back to Dashboard</Link>
         </div>
       </main>
     </div>

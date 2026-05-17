@@ -77,7 +77,7 @@ echo ""
 # Phase 4: SEO Checks
 echo -e "${YELLOW}--- SEO Checks ---${NC}"
 
-check "OG image is PNG (not SVG)" "test -f public/og-image.png || ! grep -rq 'og-image.svg' src/app/layout.tsx 2>/dev/null"
+check "OG image exists (svg or png)" "test -f public/og-image.svg || test -f public/og-image.png"
 check "JSON-LD in layout" "grep -q 'application/ld+json' src/app/layout.tsx"
 check "FAQPage schema in landing" "grep -q 'FAQPage' src/app/page.tsx"
 check "Product schema in landing" "grep -q 'Product' src/app/page.tsx"

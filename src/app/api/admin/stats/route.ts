@@ -1,17 +1,15 @@
 import { NextResponse } from "next/server"
-import { cookies } from "next/headers"
-import { createClient } from "@/lib/supabase"
+import { verifyAdmin } from "@/lib/admin-auth"
+import { createAdminClient } from "@/lib/supabase"
+import { logger } from "@/lib/logger"
 
 export async function GET() {
-  const cookieStore = await cookies()
-  const session = cookieStore.get("admin_session")
-
-  if (!session?.value) {
+  if (!await verifyAdmin()) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
   try {
-    const supabase = createClient()
+    const supabase = createAdminClient()
 
     const [{ count: totalUsers }, { count: totalQuotes }, { count: totalInvoices }, { count: freeUsers }, { count: starterUsers }, { count: proUsers }, { count: entUsers }] = await Promise.all([
       supabase.from("profiles").select("*", { count: "exact", head: true }),
@@ -33,12 +31,14 @@ export async function GET() {
       .from("profiles")
       .select("id, business_name, plan, plan_expiry, billing_cycle, created_at")
       .order("created_at", { ascending: false })
+      .limit(100)
 
     const { data: allSubscriptions } = await supabase
       .from("subscriptions")
       .select("*")
       .eq("status", "active")
       .order("created_at", { ascending: false })
+      .limit(50)
 
     const { data: recentQuotes } = await supabase
       .from("quotes")
@@ -46,33 +46,38 @@ export async function GET() {
       .order("created_at", { ascending: false })
       .limit(10)
 
-    const { data: quoteStats } = await supabase
-      .from("quotes")
-      .select("status, created_at, total")
-
     const now = new Date()
     const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
     const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString()
     const lastMonthEnd = thisMonthStart
 
-    const thisMonthQuotes = quoteStats?.filter(q => q.created_at >= thisMonthStart) || []
-    const lastMonthQuotes = quoteStats?.filter(q => q.created_at >= lastMonthStart && q.created_at < lastMonthEnd) || []
+    const { data: thisMonthAccepted } = await supabase
+      .from("quotes")
+      .select("total")
+      .eq("status", "accepted")
+      .gte("created_at", thisMonthStart)
 
-    const acceptedThisMonth = thisMonthQuotes.filter(q => q.status === "accepted").length
-    const acceptedLastMonth = lastMonthQuotes.filter(q => q.status === "accepted").length
+    const { data: lastMonthAccepted } = await supabase
+      .from("quotes")
+      .select("total")
+      .eq("status", "accepted")
+      .gte("created_at", lastMonthStart)
+      .lt("created_at", lastMonthEnd)
 
-    const monthlyRevenue = thisMonthQuotes
-      .filter(q => q.status === "accepted")
-      .reduce((sum, q) => sum + (q.total || 0), 0)
+    const acceptedThisMonth = thisMonthAccepted?.length || 0
+    const acceptedLastMonth = lastMonthAccepted?.length || 0
 
-    const lastMonthRevenue = lastMonthQuotes
-      .filter(q => q.status === "accepted")
-      .reduce((sum, q) => sum + (q.total || 0), 0)
+    const monthlyRevenue = thisMonthAccepted?.reduce((sum, q) => sum + Number(q.total || 0), 0) || 0
+    const lastMonthRevenue = lastMonthAccepted?.reduce((sum, q) => sum + Number(q.total || 0), 0) || 0
 
-    const statusBreakdown = quoteStats?.reduce((acc: Record<string, number>, q) => {
-      acc[q.status] = (acc[q.status] || 0) + 1
-      return acc
-    }, {}) || {}
+    const { data: statusCounts } = await supabase
+      .from("quotes")
+      .select("status")
+
+    const statusBreakdown: Record<string, number> = {}
+    for (const q of statusCounts || []) {
+      statusBreakdown[q.status] = (statusBreakdown[q.status] || 0) + 1
+    }
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
     const { data: dailyStats } = await supabase
@@ -82,6 +87,11 @@ export async function GET() {
       .order("created_at", { ascending: true })
 
     const mrr = (starterUsers || 0) * 299 + (proUsers || 0) * 799 + (entUsers || 0) * 2499
+
+    const { count: totalCoupons } = await supabase.from("coupons").select("*", { count: "exact", head: true })
+    const { count: activeCoupons } = await supabase.from("coupons").select("*", { count: "exact", head: true }).eq("active", true)
+    const { data: couponUsageData } = await supabase.from("coupon_usages").select("discount_applied")
+    const totalDiscountsGiven = couponUsageData?.reduce((sum, u) => sum + Number(u.discount_applied || 0), 0) || 0
 
     return NextResponse.json({
       totalUsers: totalUsers || 0,
@@ -106,9 +116,14 @@ export async function GET() {
       recentUsers: recentUsers || [],
       recentQuotes: recentQuotes || [],
       dailyStats: dailyStats || [],
+      couponStats: {
+        total: totalCoupons || 0,
+        active: activeCoupons || 0,
+        totalDiscountsGiven,
+      },
     })
   } catch (err) {
-    console.error("Admin stats error:", err)
+    logger.error("Admin stats error", { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json({ error: "Failed to load stats" }, { status: 500 })
   }
 }

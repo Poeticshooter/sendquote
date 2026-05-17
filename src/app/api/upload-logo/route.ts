@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase"
+import { csrfProtected } from "@/lib/csrf"
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const supabase = createAdminClient()
 
   const authHeader = req.headers.get("Authorization")
@@ -13,6 +14,11 @@ export async function POST(req: Request) {
   const { data: { user }, error: authError } = await supabase.auth.getUser(token)
   if (authError || !user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  const csrf = csrfProtected(req)
+  if (!csrf.ok) {
+    return NextResponse.json({ error: csrf.message }, { status: csrf.status })
   }
 
   const formData = await req.formData()

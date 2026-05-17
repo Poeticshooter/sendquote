@@ -4,7 +4,7 @@ import PublicQuoteClient from "./PublicQuoteClient"
 export const metadata: Metadata = {
   robots: {
     index: false,
-    follow: true,
+    follow: false,
   },
 }
 

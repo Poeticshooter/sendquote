@@ -51,7 +51,7 @@ export default function EditQuotePage() {
         client_phone: quote.client_phone || "",
         client_email: quote.client_email || "",
         client_address: quote.client_address || "",
-        validTill: quote.valid_till || "",
+        validTill: quote.valid_until || "",
         paymentTerms: quote.payment_terms || "",
         items: (itemRows || []).map((row: any) => ({
           id: row.id,

@@ -88,12 +88,19 @@ function StatCard({ label, value, sub, trend, color }: { label: string; value: s
   )
 }
 
+import { createClient } from "@/lib/supabase"
+
 export default function AdminDashboardClient() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<"overview" | "users" | "quotes" | "revenue">("overview")
+  const [activeTab, setActiveTab] = useState<"overview" | "users" | "quotes" | "revenue" | "coupons">("overview")
   const [userSearch, setUserSearch] = useState("")
   const [quoteSearch, setQuoteSearch] = useState("")
+  const [coupons, setCoupons] = useState<Array<{ id: string; code: string; description: string; discount_type: string; discount_value: number; applies_to: string; billing_cycle: string; max_uses: number | null; used_count: number; expires_at: string | null; active: boolean; created_at: string }>>([])
+  const [showCreateCoupon, setShowCreateCoupon] = useState(false)
+  const [editingCoupon, setEditingCoupon] = useState<string | null>(null)
+  const [couponForm, setCouponForm] = useState({ code: "", description: "", discount_type: "percentage", discount_value: "", applies_to: "all_plans", billing_cycle: "both", max_uses: "", expires_at: "" })
+  const [realtimeConnected, setRealtimeConnected] = useState(false)
   const router = useRouter()
 
   const fetchStats = useCallback(async () => {
@@ -104,17 +111,76 @@ export default function AdminDashboardClient() {
     setLoading(false)
   }, [router])
 
-  useEffect(() => { 
+  const fetchCoupons = useCallback(async () => {
+    const res = await fetch("/api/admin/coupons")
+    if (res.ok) {
+      const data = await res.json()
+      setCoupons(data.coupons || [])
+    }
+  }, [])
+
+  useEffect(() => {
     fetchStats()
-    const interval = setInterval(fetchStats, 30000)
-    return () => clearInterval(interval)
-  }, [fetchStats])
+    fetchCoupons()
+    const supabase = createClient()
+    const channel = supabase
+      .channel('admin-dashboard')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quotes' }, () => { fetchStats(); fetchCoupons() })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => { fetchStats(); fetchCoupons() })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'subscriptions' }, () => { fetchStats(); fetchCoupons() })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'coupons' }, () => { fetchCoupons() })
+      .on('system', { event: 'SYSTEM' }, (payload) => {
+        if ((payload as any).status === 'connected') setRealtimeConnected(true)
+      })
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') setRealtimeConnected(true)
+      })
+    return () => { supabase.removeChannel(channel) }
+  }, [fetchStats, fetchCoupons])
 
   async function handleLogout() {
     if (!confirm("Are you sure you want to sign out?")) return
     await fetch("/api/admin/logout", { method: "POST" })
     router.push("/admin/login")
     router.refresh()
+  }
+
+  async function handleCreateCoupon() {
+    if (!couponForm.code || !couponForm.discount_value) return
+    const res = await fetch("/api/admin/coupons", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code: couponForm.code.toUpperCase(),
+        description: couponForm.description || null,
+        discount_type: couponForm.discount_type,
+        discount_value: Number(couponForm.discount_value),
+        applies_to: couponForm.applies_to,
+        billing_cycle: couponForm.billing_cycle,
+        max_uses: couponForm.max_uses ? Number(couponForm.max_uses) : null,
+        expires_at: couponForm.expires_at || null,
+      }),
+    })
+    if (res.ok) {
+      setCouponForm({ code: "", description: "", discount_type: "percentage", discount_value: "", applies_to: "all_plans", billing_cycle: "both", max_uses: "", expires_at: "" })
+      setShowCreateCoupon(false)
+      fetchCoupons()
+    }
+  }
+
+  async function handleToggleCoupon(id: string, active: boolean) {
+    await fetch(`/api/admin/coupons/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ active }),
+    })
+    fetchCoupons()
+  }
+
+  async function handleDeleteCoupon(id: string) {
+    if (!confirm("Delete this coupon?")) return
+    await fetch(`/api/admin/coupons/${id}`, { method: "DELETE" })
+    fetchCoupons()
   }
 
   if (loading) {
@@ -156,6 +222,7 @@ export default function AdminDashboardClient() {
     { key: "users", label: "Users", icon: "👥" },
     { key: "quotes", label: "Quotes", icon: "📄" },
     { key: "revenue", label: "Revenue", icon: "💰" },
+    { key: "coupons", label: "Coupons", icon: "🎟️" },
   ] as const
 
   return (
@@ -174,6 +241,10 @@ export default function AdminDashboardClient() {
             </Link>
             <span className="text-slate-300">|</span>
             <span className="text-xs bg-amber-100 text-amber-700 font-semibold px-2.5 py-1 rounded-full">Internal</span>
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5 ${realtimeConnected ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${realtimeConnected ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+              {realtimeConnected ? 'Live' : 'Connecting...'}
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <button 
@@ -622,6 +693,202 @@ export default function AdminDashboardClient() {
                   Accepted (revenue)
                 </div>
               </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Coupons Tab */}
+        {activeTab === "coupons" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">Coupon Management</h3>
+                <p className="text-sm text-slate-500">Create and manage discount codes for clients</p>
+              </div>
+              <button
+                onClick={() => setShowCreateCoupon(!showCreateCoupon)}
+                className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                {showCreateCoupon ? "Cancel" : "+ New Coupon"}
+              </button>
+            </div>
+
+            {showCreateCoupon && (
+              <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm mb-6">
+                <h4 className="text-sm font-semibold text-slate-900 mb-4">Create New Coupon</h4>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-xs font-medium text-slate-500 mb-1 block">Code *</label>
+                    <input
+                      type="text"
+                      value={couponForm.code}
+                      onChange={e => setCouponForm({ ...couponForm, code: e.target.value.toUpperCase() })}
+                      placeholder="VIP-CLIENT-2026"
+                      className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-500 mb-1 block">Description</label>
+                    <input
+                      type="text"
+                      value={couponForm.description}
+                      onChange={e => setCouponForm({ ...couponForm, description: e.target.value })}
+                      placeholder="For VIP clients"
+                      className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-500 mb-1 block">Discount Type *</label>
+                    <select
+                      value={couponForm.discount_type}
+                      onChange={e => setCouponForm({ ...couponForm, discount_type: e.target.value })}
+                      className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="percentage">Percentage (%)</option>
+                      <option value="fixed">Fixed (₹)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-500 mb-1 block">Discount Value *</label>
+                    <input
+                      type="number"
+                      value={couponForm.discount_value}
+                      onChange={e => setCouponForm({ ...couponForm, discount_value: e.target.value })}
+                      placeholder={couponForm.discount_type === "percentage" ? "100" : "500"}
+                      className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-500 mb-1 block">Applies To</label>
+                    <select
+                      value={couponForm.applies_to}
+                      onChange={e => setCouponForm({ ...couponForm, applies_to: e.target.value })}
+                      className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="all_plans">All Plans</option>
+                      <option value="starter">Starter Only</option>
+                      <option value="professional">Professional Only</option>
+                      <option value="enterprise">Enterprise Only</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-500 mb-1 block">Billing Cycle</label>
+                    <select
+                      value={couponForm.billing_cycle}
+                      onChange={e => setCouponForm({ ...couponForm, billing_cycle: e.target.value })}
+                      className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="both">Both</option>
+                      <option value="monthly">Monthly Only</option>
+                      <option value="annual">Annual Only</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-500 mb-1 block">Max Uses (blank = unlimited)</label>
+                    <input
+                      type="number"
+                      value={couponForm.max_uses}
+                      onChange={e => setCouponForm({ ...couponForm, max_uses: e.target.value })}
+                      placeholder="Unlimited"
+                      className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-500 mb-1 block">Expires At (blank = never)</label>
+                    <input
+                      type="date"
+                      value={couponForm.expires_at}
+                      onChange={e => setCouponForm({ ...couponForm, expires_at: e.target.value })}
+                      className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={handleCreateCoupon}
+                  disabled={!couponForm.code || !couponForm.discount_value}
+                  className="mt-4 px-6 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Create Coupon
+                </button>
+              </div>
+            )}
+
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-slate-50">
+                  <tr>
+                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide px-4 py-3">Code</th>
+                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide px-4 py-3">Discount</th>
+                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide px-4 py-3">Uses</th>
+                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide px-4 py-3">Applies To</th>
+                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide px-4 py-3">Expires</th>
+                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide px-4 py-3">Status</th>
+                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide px-4 py-3">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {coupons.map(coupon => {
+                    const isExpired = coupon.expires_at && new Date(coupon.expires_at) < new Date()
+                    const isFullyUsed = coupon.max_uses !== null && coupon.used_count >= coupon.max_uses
+                    const isActive = coupon.active && !isExpired && !isFullyUsed
+                    return (
+                      <tr key={coupon.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-4 py-3">
+                          <div>
+                            <p className="text-sm font-mono font-bold text-slate-900">{coupon.code}</p>
+                            {coupon.description && <p className="text-xs text-slate-400">{coupon.description}</p>}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-sm font-semibold text-emerald-600">
+                            {coupon.discount_type === "percentage" ? `${coupon.discount_value}%` : `₹${coupon.discount_value}`}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-sm text-slate-600">
+                            {coupon.used_count}{coupon.max_uses ? ` / ${coupon.max_uses}` : " / ∞"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-xs text-slate-500">
+                            {coupon.applies_to === "all_plans" ? "All" : PLAN_NAMES[coupon.applies_to] || coupon.applies_to}
+                            {coupon.billing_cycle !== "both" && ` · ${coupon.billing_cycle}`}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-xs text-slate-500">
+                            {coupon.expires_at ? new Date(coupon.expires_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "Never"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`text-xs font-medium px-2 py-1 rounded-full ${isActive ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"}`}>
+                            {isActive ? "Active" : isExpired ? "Expired" : isFullyUsed ? "Used Up" : "Disabled"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleToggleCoupon(coupon.id, !coupon.active)}
+                              className={`text-xs px-2 py-1 rounded font-medium transition-colors ${coupon.active ? "text-amber-600 hover:bg-amber-50" : "text-emerald-600 hover:bg-emerald-50"}`}
+                            >
+                              {coupon.active ? "Disable" : "Enable"}
+                            </button>
+                            <button
+                              onClick={() => handleDeleteCoupon(coupon.id)}
+                              className="text-xs text-red-600 hover:bg-red-50 px-2 py-1 rounded font-medium transition-colors"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+              {coupons.length === 0 && (
+                <p className="text-sm text-slate-400 text-center py-8">No coupons created yet. Click &quot;New Coupon&quot; to create one.</p>
+              )}
             </div>
           </motion.div>
         )}

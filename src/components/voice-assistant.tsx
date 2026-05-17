@@ -3,289 +3,131 @@
 import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { usePathname, useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase"
+import { useVoice } from "@/hooks/use-voice"
+import { findBestIntent, processIntent, createInitialContext, VoiceContext, VoiceState } from "@/lib/voice-engine"
+import { LANGUAGE_LABELS } from "@/lib/voice-locales"
+import { nanoid } from "nanoid"
 
 type Message = {
   role: "user" | "assistant"
   text: string
+  confidence?: number
 }
 
-type ActionData = {
-  route?: string
-  action?: string
-  data?: Record<string, string>
+type SuggestionChip = {
+  label: string
+  text: string
 }
 
-const LANDING_SUGGESTIONS = [
-  "Tell me about SendQuote",
-  "What features do you offer?",
-  "How much does it cost?",
-  "Is there a free plan?",
-  "How do I get started?",
-  "Do you support GST?",
+const IDLE_SUGGESTIONS: SuggestionChip[] = [
+  { label: "Create quote", text: "Create a new quote" },
+  { label: "Show quotes", text: "Show my recent quotes" },
+  { label: "Convert invoice", text: "Convert last quote to invoice" },
+  { label: "Help", text: "What can you do?" },
 ]
 
-const DASHBOARD_SUGGESTIONS = [
-  "Create a quote for Rahul from Mumbai",
-  "Show me my recent quotes",
-  "Show my analytics",
-  "Create an invoice from last quote",
-  "Go to settings",
-  "Show pending follow-ups",
-]
-
-function getLandingResponse(text: string): string {
-  const lower = text.toLowerCase()
-
-  if (lower.includes("tell me about") || lower.includes("what is") || lower.includes("about sendquote") || lower.includes("what do you")) {
-    return "SendQuote is India's first professional quote-making platform designed for small businesses, contractors, and freelancers. You can create stunning quotes in 5 minutes, share them via WhatsApp, and get notified when your client opens them. No app download needed for clients — everything works on mobile browsers. We support GST calculations, branded PDFs, and one-tap client acceptance. Ready to see how it works?"
-  }
-
-  if (lower.includes("feature") || lower.includes("offer") || lower.includes("capabilities") || lower.includes("what can")) {
-    return "Here's what SendQuote offers: Professional PDF quotes with your logo, Open tracking (know when clients view your quote), One-tap client acceptance, Smart auto follow-ups, WhatsApp & email sharing, GST-ready invoices (5%, 12%, 18%, 28%), Mobile-first client view, Bulk CSV export, and a beautiful dashboard to track everything. Would you like to explore any feature in detail?"
-  }
-
-  if (lower.includes("price") || lower.includes("cost") || lower.includes("plan") || lower.includes("pricing") || lower.includes("starter") || lower.includes("professional") || lower.includes("rupee") || lower.includes("₹")) {
-    return "We have three plans:\n\nFree — 5 quotes/month with basic features. Perfect to try us out.\n\nStarter at ₹299/month — unlimited quotes, open tracking, branded PDFs, GST invoices, WhatsApp sharing, auto follow-ups, and one-tap client acceptance.\n\nProfessional at ₹799/month — everything in Starter plus up to 5 team members, custom branding, analytics dashboard, and bulk CSV export.\n\nAll paid plans come with a 7-day free trial. No credit card required!"
-  }
-
-  if (lower.includes("free") || lower.includes("trial") || lower.includes("start")) {
-    return "Yes! Our Free plan gives you 5 quotes per month with basic features — perfect to try SendQuote before upgrading. You get the quote builder, shareable links, and PDF downloads. When you're ready for more (unlimited quotes, open tracking, GST invoices), upgrade to Starter at just ₹299/month. Click 'Get Started' above to create your free account!"
-  }
-
-  if (lower.includes("gst") || lower.includes("tax") || lower.includes("invoice")) {
-    return "Absolutely! SendQuote has built-in GST support for Indian businesses. You can choose from standard GST rates: 0%, 5%, 12%, 18%, or 28%. Set your GST number in your profile settings and it automatically appears on all your quotes and invoices. The system calculates GST for you — no manual math needed!"
-  }
-
-  if (lower.includes("sign") || lower.includes("register") || lower.includes("account") || lower.includes("start") || lower.includes("begin") || lower.includes("get started")) {
-    return "Getting started is easy! Just click 'Get Started' or 'Sign In' in the top navigation, create your free account in under a minute, and start creating professional quotes. You don't need a credit card for the free plan. Want to see it in action? Sign up and I'll guide you through your first quote!"
-  }
-
-  if (lower.includes("hello") || lower.includes("hi") || lower.includes("hey") || lower.includes("namaste")) {
-    return "Namaste! Welcome to SendQuote — India's professional quote platform for small businesses. I can tell you about our features, pricing, and how we help you close more deals. What would you like to know?"
-  }
-
-  if (lower.includes("thank")) {
-    return "You're welcome! Ready to give SendQuote a try? Click 'Get Started' above to create your free account. Or ask me anything else about the product!"
-  }
-
-  return "I'd be happy to help! You can ask me about SendQuote features, pricing plans, GST support, how to get started, or anything else about the product. What interests you most?"
+const STATE_LABELS: Record<VoiceState, string> = {
+  IDLE: "Ready",
+  CREATING_QUOTE: "Creating quote...",
+  ASKING_CLIENT: "Waiting for client name...",
+  ASKING_EMAIL: "Waiting for client email...",
+  ASKING_ITEMS: "Waiting for items...",
+  ASKING_GST: "Waiting for GST rate...",
+  ASKING_DISCOUNT: "Waiting for discount...",
+  REVIEWING_QUOTE: "Reviewing quote...",
+  CONFIRMING_SEND: "Confirming send...",
+  LISTING_QUOTES: "Fetching quotes...",
+  ASKING_QUOTE_NUMBER: "Waiting for quote number...",
 }
 
-function getDashboardResponse(intent: string, data: Record<string, string>): { text: string; action?: ActionData } {
-  const responses: Record<string, { text: string; action?: ActionData }> = {
-    create_quote: { 
-      text: `I'll open the quote creator${data.clientName ? ` for ${data.clientName}` : ""}. You can also say "for [client name]" to pre-fill the client.`, 
-      action: { route: "/quote/new" } 
-    },
-    voice_quote: { 
-      text: "Opening voice quote builder. Just speak naturally about what you need!", 
-      action: { route: "/quote/voice" } 
-    },
-    invoice: { 
-      text: "Go to any accepted quote and click 'Convert to Invoice' to create an invoice.", 
-      action: { route: "/invoices" } 
-    },
-    last_accepted: { 
-      text: "I'll find your most recent accepted quote and help convert it to invoice.", 
-      action: { route: "/dashboard", action: "find_accepted" } 
-    },
-    show_quotes: { 
-      text: "Taking you to your quotes dashboard. You can filter by status or search.", 
-      action: { route: "/dashboard" } 
-    },
-    show_analytics: { 
-      text: "Here's your analytics dashboard showing conversion rates, revenue trends, and more.", 
-      action: { route: "/dashboard", action: "analytics" } 
-    },
-    show_invoices: { 
-      text: "Opening your invoices list. Track payments and outstanding amounts here.", 
-      action: { route: "/invoices" } 
-    },
-    settings: { 
-      text: "Opening settings. Update your business details, logo, GST number, and more.", 
-      action: { route: "/settings" } 
-    },
-    upgrade: { 
-      text: "Let me show you our paid plans with more features!", 
-      action: { route: "/upgrade" } 
-    },
-    pricing: { 
-      text: "Here's our pricing: Free (5 quotes), Starter ₹299/mo (unlimited), Professional ₹799/mo (teams).", 
-      action: { route: "/upgrade" } 
-    },
-    follow_ups: { 
-      text: "These are quotes that need follow-up. I'll show you all pending quotes ready for a reminder.", 
-      action: { route: "/dashboard", action: "follow_ups" } 
-    },
-    client_history: {
-      text: "Let me show you past quotes for this client. This helps you see their history and suggest similar pricing.",
-      action: { route: "/dashboard", action: "client_history" }
-    },
-    duplicate: {
-      text: "I'll duplicate this quote so you can quickly create a similar one for another client.",
-      action: { route: "/dashboard", action: "duplicate" }
-    },
-    share_whatsapp: {
-      text: "Open any quote and click the WhatsApp button to share directly. No app needed for clients!",
-      action: { route: "/dashboard" }
-    },
-    gst_help: {
-      text: "GST is automatic! Set your GST rate (5%, 12%, 18%, or 28%) in settings. It calculates on every quote."
-    },
-    help: {
-      text: "I can help you with:\n• Create quotes — \"create a quote for Rahul\"\n• Voice quotes — \"make a quote by voice\"\n• Convert to invoice\n• Show analytics\n• Follow-up reminders\n• View invoices\n• Change settings\n• Upgrade plan\n\nWhat would you like to do?"
-    },
-    general: {
-      text: `I understand "${data.raw}". Try saying "create a quote", "show analytics", "go to settings", or "what are my follow-ups"?`
+const STORAGE_KEY = "sendquote-voice-context"
+
+function loadSavedContext(): VoiceContext | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      return { ...createInitialContext(), ...parsed }
     }
-  }
-
-  return responses[intent] || responses.general
+  } catch { /* ignore */ }
+  return null
 }
 
-function detectCommand(text: string): string {
-  const lower = text.toLowerCase()
-  
-  const patterns: { pattern: RegExp; action: string }[] = [
-    { pattern: /create (a )?(voice )?quote/i, action: "voice_quote" },
-    { pattern: /create (a )?quote/i, action: "create_quote" },
-    { pattern: /make (a )?(voice )?quote/i, action: "voice_quote" },
-    { pattern: /voice quote/i, action: "voice_quote" },
-    { pattern: /convert (to )?invoice/i, action: "invoice" },
-    { pattern: /invoice/i, action: "invoice" },
-    { pattern: /last accepted|latest accepted|recent accepted/i, action: "last_accepted" },
-    { pattern: /show (my )?quotes|view quotes|all quotes|recent quotes/i, action: "show_quotes" },
-    { pattern: /show (my )?analytics|conversion|revenue|report/i, action: "show_analytics" },
-    { pattern: /show (my )?invoices/i, action: "show_invoices" },
-    { pattern: /settings?|preferences|profile|update business/i, action: "settings" },
-    { pattern: /upgrade|paid plan|premium|pro/i, action: "upgrade" },
-    { pattern: /price|cost|how much|plan/i, action: "pricing" },
-    { pattern: /follow.?up|reminder|pending|need to follow/i, action: "follow_ups" },
-    { pattern: /client history|past quotes|previous quote/i, action: "client_history" },
-    { pattern: /duplicate|copy (this )?quote/i, action: "duplicate" },
-    { pattern: /share|whatsapp/i, action: "share_whatsapp" },
-    { pattern: /gst|tax|how does tax work/i, action: "gst_help" },
-    { pattern: /help|what can you do|commands/i, action: "help" },
-  ]
-
-  for (const { pattern, action } of patterns) {
-    if (pattern.test(text)) return action
-  }
-  return "general"
+function saveContext(ctx: VoiceContext) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(ctx))
+  } catch { /* ignore */ }
 }
 
-function parseVoiceCommand(text: string): { intent: string; data: Record<string, string> } {
-  const intent = detectCommand(text)
-  const data: Record<string, string> = { raw: text }
-
-  const clientMatch = text.match(/(?:for |to |client\s+)?([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/)
-  if (clientMatch) data.clientName = clientMatch[1]
-
-  const cityMatch = text.match(/(?:from|in|at)\s+([A-Z][a-z]+)/)
-  if (cityMatch) data.city = cityMatch[1]
-
-  const emailMatch = text.match(/[\w.-]+@[\w.-]+\.\w+/)
-  if (emailMatch) data.email = emailMatch[0]
-
-  const phoneMatch = text.match(/(\d{10})/)
-  if (phoneMatch) data.phone = phoneMatch[0]
-
-  const amountMatch = text.match(/(?:₹|rupees?|rs\.?\s*)?(\d+(?:,\d+)*)/i)
-  if (amountMatch) data.amount = amountMatch[1].replace(/,/g, "")
-
-  const qtyMatch = text.match(/(\d+)\s*(?:hours?|units?|pcs?|pieces?|kg|liters?)/i)
-  if (qtyMatch) data.quantity = qtyMatch[1]
-
-  return { intent, data }
+function clearSavedContext() {
+  try { localStorage.removeItem(STORAGE_KEY) } catch { /* ignore */ }
 }
 
 export default function VoiceAssistant() {
   const pathname = usePathname()
   const router = useRouter()
+  const supabase = createClient()
+
   const [open, setOpen] = useState(false)
-  const [listening, setListening] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [currentText, setCurrentText] = useState("")
-  const [transcript, setTranscript] = useState("")
-  const [suggestions, setSuggestions] = useState<string[]>(LANDING_SUGGESTIONS)
-  const recognitionRef = useRef<any>(null)
+  const [lang, setLang] = useState("en-IN")
+  const [voiceContext, setVoiceContext] = useState<VoiceContext>(createInitialContext)
+  const [showLangPicker, setShowLangPicker] = useState(false)
+  const [processing, setProcessing] = useState(false)
+  const [firstOpen, setFirstOpen] = useState(true)
+  const [showLowConfidence, setShowLowConfidence] = useState(false)
+  const [lastConfidence, setLastConfidence] = useState(0)
+
+  const { transcript, interimTranscript, listening, supported, error, confidence: speechConfidence, start, stop, speak, reset } = useVoice(lang)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const waveformRef = useRef<HTMLCanvasElement>(null)
   const animFrameRef = useRef<number>(0)
-  const [browserSupportsSpeech, setBrowserSupportsSpeech] = useState(true)
-  const [firstOpen, setFirstOpen] = useState(true)
 
   const isLanding = pathname === "/"
   const showAssistant = pathname === "/" || pathname.startsWith("/dashboard") || pathname.startsWith("/quote") || pathname.startsWith("/settings") || pathname.startsWith("/invoices")
 
-  const handleAssistantResponseRef = useRef<((text: string) => Promise<void>) | null>(null)
-  const startWaveformRef = useRef<(() => void) | null>(null)
-  const stopWaveformRef = useRef<(() => void) | null>(null)
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        supabase.from("profiles").select("voice_language, voice_enabled, tts_rate").eq("user_id", user.id).single().then(({ data: prof }) => {
+          if (prof) {
+            if (prof.voice_language) setLang(prof.voice_language)
+            if (prof.voice_enabled === false) setOpen(false)
+          }
+        })
+      }
+    })
+  }, [supabase])
 
   useEffect(() => {
-    setSuggestions(isLanding ? LANDING_SUGGESTIONS : DASHBOARD_SUGGESTIONS)
+    const saved = loadSavedContext()
+    if (saved && saved.state !== "IDLE") {
+      setVoiceContext(saved)
+    }
+  }, [])
+
+  useEffect(() => {
     if (firstOpen && messages.length === 0) {
-      setMessages([{
-        role: "assistant",
-        text: isLanding
-          ? "Namaste! 👋 Welcome to SendQuote — India's professional quote platform for small businesses. I can tell you about our features, pricing, and how we help you close more deals. What would you like to know?"
-          : "Hi! I'm your SendQuote assistant. I can help you create quotes, manage invoices, share on WhatsApp, and more. What would you like to do today?"
-      }])
+      const saved = loadSavedContext()
+      const greeting = isLanding
+        ? "Namaste! Welcome to SendQuote. I can help you create quotes, check status, and more. What would you like to do?"
+        : saved && saved.state !== "IDLE"
+          ? `Welcome back! You were creating a quote for ${saved.pendingClientName || "a client"}. Say 'continue' to resume, or start fresh.`
+          : "Hi! I'm your SendQuote voice assistant. Say 'create a quote' to get started, or tap the mic to speak."
+      setMessages([{ role: "assistant", text: greeting }])
       setFirstOpen(false)
     }
   }, [isLanding, firstOpen, messages.length])
-
-  useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    if (!SpeechRecognition) {
-      setBrowserSupportsSpeech(false)
-    } else {
-      const recognition = new SpeechRecognition()
-      recognition.continuous = false
-      recognition.interimResults = true
-      recognition.lang = "en-IN"
-
-      recognition.onresult = (event: any) => {
-        let final = ""
-        let interim = ""
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const t = event.results[i][0].transcript
-          if (event.results[i].isFinal) final += t
-          else interim += t
-        }
-        setTranscript(final || interim)
-        if (final) {
-          handleAssistantResponseRef.current?.(final.trim())
-        }
-      }
-
-      recognition.onerror = () => {
-        setListening(false)
-        stopWaveformRef.current?.()
-      }
-
-      recognition.onend = () => {
-        setListening(false)
-        stopWaveformRef.current?.()
-      }
-
-      recognitionRef.current = recognition
-    }
-
-    return () => {
-      stopWaveformRef.current?.()
-      recognitionRef.current?.stop()
-    }
-  }, [])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
   useEffect(() => {
-    if (listening) startWaveformRef.current?.()
-    else stopWaveformRef.current?.()
-  }, [listening])
+    saveContext(voiceContext)
+  }, [voiceContext])
 
   function startWaveform() {
     const canvas = waveformRef.current
@@ -295,7 +137,7 @@ export default function VoiceAssistant() {
     canvas.width = canvas.offsetWidth * 2
     canvas.height = canvas.offsetHeight * 2
     ctx.scale(2, 2)
-    const bars = 32
+    const bars = 48
     const w = canvas.offsetWidth / bars
     let tick = 0
 
@@ -303,15 +145,11 @@ export default function VoiceAssistant() {
       if (!ctx || !canvas) return
       ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight)
       for (let i = 0; i < bars; i++) {
-        const h = listening
-          ? (Math.sin(tick * 0.3 + i * 0.4) * 0.5 + 0.5) * 28 + 4
-          : 4
+        const h = (Math.sin(tick * 0.3 + i * 0.4) * 0.5 + 0.5) * 28 + 4
         const alpha = 0.4 + Math.sin(tick * 0.1 + i * 0.3) * 0.2
         ctx.fillStyle = `rgba(99, 102, 241, ${alpha})`
-        const x = i * w + w * 0.15
-        const bw = w * 0.7
         ctx.beginPath()
-        ctx.roundRect(x, (canvas.offsetHeight - h) / 2, bw, h, 3)
+        ctx.roundRect(i * w + w * 0.15, (canvas.offsetHeight - h) / 2, w * 0.7, h, 3)
         ctx.fill()
       }
       tick++
@@ -329,57 +167,423 @@ export default function VoiceAssistant() {
     ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight)
   }
 
-  const handleAssistantResponse = useCallback(async (text: string) => {
-    setListening(false)
-    setMessages(prev => [...prev, { role: "user", text }])
+  useEffect(() => {
+    if (listening) startWaveform()
+    else stopWaveform()
+  }, [listening])
 
-    if (isLanding) {
-      const response = getLandingResponse(text)
-      await new Promise(r => setTimeout(r, 600 + Math.random() * 400))
-      setMessages(prev => [...prev, { role: "assistant", text: response }])
+  const addAssistantMessage = useCallback((text: string, confidence?: number) => {
+    setMessages(prev => [...prev, { role: "assistant", text, confidence }])
+  }, [])
+
+  const addUserMessage = useCallback((text: string) => {
+    setMessages(prev => [...prev, { role: "user", text }])
+  }, [])
+
+  const handleAction = useCallback(async (action: string | undefined) => {
+    if (!action) return
+
+    if (action === 'fetch_quotes') {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        addAssistantMessage("Please sign in to view your quotes.")
+        return
+      }
+      const { data: quotes } = await supabase
+        .from('quotes')
+        .select('quote_number, client_name, status, total, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+      if (!quotes || quotes.length === 0) {
+        addAssistantMessage("You don't have any quotes yet. Say 'create a quote' to get started.")
+        return
+      }
+
+      const summary = quotes.map((q, i) => {
+        const status = q.status.charAt(0).toUpperCase() + q.status.slice(1)
+        return `${i + 1}. ${q.quote_number} for ${q.client_name} — ₹${Number(q.total).toLocaleString('en-IN')} (${status})`
+      }).join('\n')
+
+      addAssistantMessage(`Here are your recent quotes:\n${summary}`)
+
+      const ttsText = `You have ${quotes.length} recent quotes. ${quotes.slice(0, 3).map((q, i) => `Quote ${q.quote_number} for ${q.client_name}, ${q.status}`).join('. ')}.`
+      speak(ttsText, lang)
       return
     }
 
-    const { intent, data } = parseVoiceCommand(text)
-    const { text: response, action } = getDashboardResponse(intent, data)
+    if (action === 'save_draft') {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        addAssistantMessage("Please sign in to save.")
+        return
+      }
 
-    await new Promise(r => setTimeout(r, 600 + Math.random() * 400))
-    setMessages(prev => [...prev, { role: "assistant", text: response }])
+      const subtotal = voiceContext.pendingItems.reduce((s, i) => s + i.quantity * i.rate, 0)
+      const gstAmount = Math.round(subtotal * 0.18)
+      const total = subtotal + gstAmount
 
-    if (action?.route) {
-      await new Promise(r => setTimeout(r, 1200))
-      router.push(action.route)
+      const { data: quoteNumber } = await supabase.rpc('next_quote_number', { p_user_id: user.id })
+
+      const { data: quote, error: qErr } = await supabase
+        .from('quotes')
+        .insert({
+          user_id: user.id,
+          quote_number: quoteNumber || `QS-${Date.now().toString(36)}`,
+          unique_token: nanoid(12),
+          client_name: voiceContext.pendingClientName || '',
+          client_email: voiceContext.pendingClientEmail || '',
+          status: 'draft',
+          subtotal,
+          gst_rate: 18,
+          gst_amount: gstAmount,
+          total,
+        })
+        .select('id')
+        .single()
+
+      if (qErr || !quote) {
+        addAssistantMessage("Failed to save quote. Please try again.")
+        return
+      }
+
+      if (voiceContext.pendingItems.length > 0) {
+        const itemsData = voiceContext.pendingItems.map((item, index) => ({
+          quote_id: quote.id,
+          description: item.description,
+          quantity: item.quantity,
+          unit: 'nos',
+          rate: item.rate,
+          amount: item.quantity * item.rate,
+          sort_order: index,
+        }))
+        await supabase.from('quote_items').insert(itemsData)
+      }
+
+      addAssistantMessage(`Quote saved as draft! Quote ID: ${quote.id}`)
+      speak("Quote saved as draft.", lang)
+      setVoiceContext(createInitialContext)
+      clearSavedContext()
+      return
     }
-  }, [isLanding, router])
 
-  handleAssistantResponseRef.current = handleAssistantResponse
-  startWaveformRef.current = startWaveform
-  stopWaveformRef.current = stopWaveform
+    if (action === 'save_and_send') {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        addAssistantMessage("Please sign in to send.")
+        return
+      }
 
-  function startListening() {
-    if (!recognitionRef.current) return
-    setTranscript("")
-    setListening(true)
-    try {
-      recognitionRef.current.start()
-    } catch {
-      recognitionRef.current.stop()
-      setTimeout(() => recognitionRef.current?.start(), 100)
+      const subtotal = voiceContext.pendingItems.reduce((s, i) => s + i.quantity * i.rate, 0)
+      const gstAmount = Math.round(subtotal * 0.18)
+      const total = subtotal + gstAmount
+
+      const { data: quoteNumber } = await supabase.rpc('next_quote_number', { p_user_id: user.id })
+
+      const { data: quote, error: qErr } = await supabase
+        .from('quotes')
+        .insert({
+          user_id: user.id,
+          quote_number: quoteNumber || `QS-${Date.now().toString(36)}`,
+          unique_token: nanoid(12),
+          client_name: voiceContext.pendingClientName || '',
+          client_email: voiceContext.pendingClientEmail || '',
+          status: 'sent',
+          subtotal,
+          gst_rate: 18,
+          gst_amount: gstAmount,
+          total,
+        })
+        .select('id')
+        .single()
+
+      if (qErr || !quote) {
+        addAssistantMessage("Failed to create quote.")
+        return
+      }
+
+      if (voiceContext.pendingItems.length > 0) {
+        const itemsData = voiceContext.pendingItems.map((item, index) => ({
+          quote_id: quote.id,
+          description: item.description,
+          quantity: item.quantity,
+          unit: 'nos',
+          rate: item.rate,
+          amount: item.quantity * item.rate,
+          sort_order: index,
+        }))
+        await supabase.from('quote_items').insert(itemsData)
+      }
+
+      addAssistantMessage(`Quote created and sent! Opening it now...`)
+      speak("Quote created and sent.", lang)
+      setVoiceContext(createInitialContext)
+      clearSavedContext()
+      router.push(`/quote/${quote.id}`)
+      return
     }
-  }
 
-  function stopListening() {
-    recognitionRef.current?.stop()
-    setListening(false)
-    stopWaveform()
-  }
+    if (action === 'send_quote') {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        addAssistantMessage("Please sign in to send.")
+        return
+      }
 
-  function handleSuggestionClick(prompt: string) {
-    setCurrentText(prompt)
-    handleAssistantResponse(prompt)
-  }
+      const subtotal = voiceContext.pendingItems.reduce((s, i) => s + i.quantity * i.rate, 0)
+      const gstAmount = Math.round(subtotal * 0.18)
+      const total = subtotal + gstAmount
+
+      const { data: quoteNumber } = await supabase.rpc('next_quote_number', { p_user_id: user.id })
+
+      const { data: quote, error: qErr } = await supabase
+        .from('quotes')
+        .insert({
+          user_id: user.id,
+          quote_number: quoteNumber || `QS-${Date.now().toString(36)}`,
+          unique_token: nanoid(12),
+          client_name: voiceContext.pendingClientName || '',
+          client_email: voiceContext.pendingClientEmail || '',
+          status: 'sent',
+          subtotal,
+          gst_rate: 18,
+          gst_amount: gstAmount,
+          total,
+        })
+        .select('id')
+        .single()
+
+      if (qErr || !quote) {
+        addAssistantMessage("Failed to send quote.")
+        return
+      }
+
+      if (voiceContext.pendingItems.length > 0) {
+        const itemsData = voiceContext.pendingItems.map((item, index) => ({
+          quote_id: quote.id,
+          description: item.description,
+          quantity: item.quantity,
+          unit: 'nos',
+          rate: item.rate,
+          amount: item.quantity * item.rate,
+          sort_order: index,
+        }))
+        await supabase.from('quote_items').insert(itemsData)
+      }
+
+      addAssistantMessage("Quote sent successfully!")
+      speak("Quote sent successfully.", lang)
+      setVoiceContext(createInitialContext)
+      clearSavedContext()
+      return
+    }
+
+    if (action === 'show_status') {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        addAssistantMessage("Please sign in to check status.")
+        return
+      }
+      const { data: quotes } = await supabase
+        .from('quotes')
+        .select('status')
+        .eq('user_id', user.id)
+      const counts: Record<string, number> = {}
+      quotes?.forEach(q => { counts[q.status] = (counts[q.status] || 0) + 1 })
+      const summary = Object.entries(counts).map(([s, c]) => `${c} ${s}`).join(', ')
+      addAssistantMessage(`Your quote status: ${summary || "No quotes yet."}`)
+      return
+    }
+
+    if (action.startsWith('convert_invoice:')) {
+      const quoteNum = action.split(':')[1]
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        addAssistantMessage("Please sign in to convert.")
+        return
+      }
+      const { data: quote } = await supabase
+        .from('quotes')
+        .select('id, status')
+        .eq('user_id', user.id)
+        .eq('quote_number', quoteNum)
+        .single()
+
+      if (!quote) {
+        addAssistantMessage(`Quote ${quoteNum} not found.`)
+        return
+      }
+      if (quote.status !== 'accepted') {
+        addAssistantMessage(`Quote ${quoteNum} must be accepted before converting to invoice.`)
+        return
+      }
+      const { data: invoiceId } = await supabase.rpc('create_invoice_from_quote', { p_quote_id: quote.id })
+      if (invoiceId) {
+        addAssistantMessage(`Quote ${quoteNum} converted to invoice!`)
+        speak("Converted to invoice.", lang)
+        router.push(`/invoices`)
+      } else {
+        addAssistantMessage("Failed to convert to invoice.")
+      }
+      return
+    }
+
+    if (action.startsWith('set_gst:')) {
+      const rate = parseFloat(action.split(':')[1])
+      addAssistantMessage(`GST set to ${rate}%.`)
+      return
+    }
+
+    if (action.startsWith('set_discount:')) {
+      const value = parseFloat(action.split(':')[1])
+      addAssistantMessage(`Discount set to ${value}%.`)
+      return
+    }
+  }, [voiceContext, supabase, router, speak, lang, addAssistantMessage])
+
+  const processTranscript = useCallback(async (text: string) => {
+    if (!text.trim() || processing) return
+    setProcessing(true)
+    stop()
+    reset()
+    addUserMessage(text)
+
+    await new Promise(r => setTimeout(r, 400 + Math.random() * 300))
+
+    if (isLanding) {
+      const lower = text.toLowerCase()
+      let response = "I'd be happy to help! Click 'Get Started' to create your free account."
+      if (lower.includes('feature') || lower.includes('offer')) {
+        response = "SendQuote offers: Professional PDF quotes, Open tracking, One-tap client acceptance, GST-ready invoices, WhatsApp & email sharing, and a beautiful dashboard."
+      } else if (lower.includes('price') || lower.includes('cost') || lower.includes('plan')) {
+        response = "Free — 5 quotes/month. Starter at ₹299/month — unlimited quotes. Professional at ₹799/month — teams and analytics."
+      } else if (lower.includes('gst') || lower.includes('tax')) {
+        response = "SendQuote has built-in GST support. Choose from 0%, 5%, 12%, 18%, or 28%. Set your GST number in settings."
+      } else if (lower.includes('hello') || lower.includes('hi') || lower.includes('namaste')) {
+        response = "Namaste! Welcome to SendQuote. What would you like to know?"
+      }
+      addAssistantMessage(response)
+      speak(response, lang)
+      setProcessing(false)
+      return
+    }
+
+    const { intent, confidence: matchConfidence } = findBestIntent(text, lang)
+    setLastConfidence(matchConfidence)
+
+    if (matchConfidence < 0.5) {
+      setShowLowConfidence(true)
+      addAssistantMessage("I didn't quite catch that. Could you rephrase?", matchConfidence)
+      speak("I didn't quite catch that.", lang)
+      setProcessing(false)
+      return
+    }
+
+    setShowLowConfidence(false)
+    const result = processIntent(intent, voiceContext, text, lang)
+    setVoiceContext(result.newContext)
+    addAssistantMessage(result.response, matchConfidence)
+    speak(result.response, lang)
+
+    if (result.action) {
+      await handleAction(result.action)
+    }
+
+    setProcessing(false)
+  }, [voiceContext, lang, isLanding, processing, stop, reset, addUserMessage, addAssistantMessage, speak, handleAction])
+
+  useEffect(() => {
+    if (transcript) {
+      processTranscript(transcript)
+    }
+  }, [transcript, processTranscript])
+
+  const handleMicToggle = useCallback(() => {
+    if (listening) {
+      stop()
+    } else {
+      reset()
+      start()
+    }
+  }, [listening, start, stop, reset])
+
+  const handleTextSubmit = useCallback(() => {
+    if (currentText.trim()) {
+      processTranscript(currentText.trim())
+      setCurrentText("")
+    }
+  }, [currentText, processTranscript])
+
+  const handleSuggestionClick = useCallback((text: string) => {
+    processTranscript(text)
+  }, [processTranscript])
+
+  const handleRetry = useCallback((text: string) => {
+    setShowLowConfidence(false)
+    processTranscript(text)
+  }, [processTranscript])
+
+  const getSuggestions = useCallback((): SuggestionChip[] => {
+    if (showLowConfidence) {
+      return [
+        { label: "Create quote", text: "Create a new quote" },
+        { label: "Show quotes", text: "Show my recent quotes" },
+        { label: "Help", text: "What can you do?" },
+      ]
+    }
+    switch (voiceContext.state) {
+      case 'IDLE':
+        return IDLE_SUGGESTIONS
+      case 'ASKING_EMAIL':
+        return [
+          { label: "Skip email", text: "Skip" },
+          { label: "Type email", text: "client@example.com" },
+          { label: "Cancel", text: "Cancel" },
+        ]
+      case 'ASKING_ITEMS':
+        return [
+          { label: "Add item", text: "Add cement 50 bags at 350" },
+          { label: "Done", text: "Done adding items" },
+          { label: "Cancel", text: "Cancel" },
+        ]
+      case 'CONFIRMING_SEND':
+        return [
+          { label: "Yes, send", text: "Yes" },
+          { label: "No, cancel", text: "No" },
+        ]
+      default:
+        return IDLE_SUGGESTIONS
+    }
+  }, [voiceContext.state, showLowConfidence])
+
+  useEffect(() => {
+    function handleVoiceCommand(e: Event) {
+      const detail = (e as CustomEvent).detail
+      if (detail?.text) {
+        processTranscript(detail.text)
+      }
+    }
+
+    window.addEventListener('sendquote-voice-command', handleVoiceCommand)
+    return () => window.removeEventListener('sendquote-voice-command', handleVoiceCommand)
+  }, [processTranscript])
+
+  useEffect(() => {
+    if (voiceContext.pendingClientName || voiceContext.pendingItems.length > 0) {
+      window.dispatchEvent(new CustomEvent('sendquote-voice-update', {
+        detail: {
+          clientName: voiceContext.pendingClientName,
+          items: voiceContext.pendingItems,
+          state: voiceContext.state,
+        }
+      }))
+    }
+  }, [voiceContext.pendingClientName, voiceContext.pendingItems, voiceContext.state])
 
   if (!showAssistant) return null
+
+  const waveformColor = listening ? 'rgba(99, 102, 241, ' : processing ? 'rgba(251, 191, 36, ' : 'rgba(148, 163, 184, '
 
   return (
     <>
@@ -409,11 +613,12 @@ export default function VoiceAssistant() {
               onClick={() => setOpen(false)}
             />
             <motion.div
-              className="fixed bottom-24 left-6 w-[420px] max-w-[calc(100vw-48px)] bg-white rounded-3xl shadow-2xl border border-slate-200 z-50 overflow-hidden"
+              className="fixed bottom-24 left-6 w-[420px] max-w-[calc(100vw-48px)] bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 z-50 overflow-hidden"
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              aria-live="polite"
             >
               <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-4">
                 <div className="flex items-center justify-between">
@@ -426,21 +631,41 @@ export default function VoiceAssistant() {
                       </svg>
                     </div>
                     <div>
-                      <p className="text-white font-semibold text-sm">SendQuote Voice Assistant</p>
-                      <p className="text-white/60 text-xs">Powered by AI</p>
+                      <p className="text-white font-semibold text-sm">Voice Assistant</p>
+                      <p className="text-white/60 text-xs">{STATE_LABELS[voiceContext.state]}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {listening && (
-                      <motion.span
-                        className="flex items-center gap-1 text-xs text-white/80"
-                        animate={{ opacity: [1, 0.5, 1] }}
-                        transition={{ duration: 1, repeat: Infinity }}
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowLangPicker(!showLangPicker)}
+                        className="text-xs text-white/80 bg-white/10 px-2 py-1 rounded-lg hover:bg-white/20 dark:hover:bg-white/30 transition-colors"
                       >
-                        <span className="w-2 h-2 rounded-full bg-red-400" />
-                        Listening...
-                      </motion.span>
-                    )}
+                        {LANGUAGE_LABELS[lang] || 'English'}
+                      </button>
+                      <AnimatePresence>
+                        {showLangPicker && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -5 }}
+                            className="absolute right-0 top-full mt-1 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 py-1 w-40 z-50"
+                          >
+                            {Object.entries(LANGUAGE_LABELS).map(([code, label]) => (
+                              <button
+                                key={code}
+                                onClick={() => { setLang(code); setShowLangPicker(false) }}
+                                className={`w-full text-left px-3 py-1.5 text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors ${
+                                  code === lang ? 'text-indigo-600 dark:text-indigo-400 font-medium' : 'text-slate-700 dark:text-slate-300'
+                                }`}
+                              >
+                                {label}
+                              </button>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                     <button
                       onClick={() => setOpen(false)}
                       className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white/80 hover:bg-white/20 transition-colors"
@@ -453,7 +678,7 @@ export default function VoiceAssistant() {
                 </div>
               </div>
 
-              <div className="h-80 overflow-y-auto px-4 py-3 space-y-3 bg-slate-50">
+              <div className="h-80 overflow-y-auto px-4 py-3 space-y-3 bg-slate-50 dark:bg-slate-900">
                 {messages.map((msg, i) => (
                   <motion.div
                     key={i}
@@ -472,23 +697,32 @@ export default function VoiceAssistant() {
                     <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                       msg.role === "user"
                         ? "bg-indigo-600 text-white rounded-br-md"
-                        : "bg-white text-slate-700 border border-slate-200 rounded-bl-md shadow-sm"
+                        : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-bl-md shadow-sm"
                     }`}>
                       {msg.text.split("\n").map((line, li) => (
                         <p key={li} className={li > 0 ? "mt-2" : ""}>{line}</p>
                       ))}
+                      {msg.confidence !== undefined && msg.role === "assistant" && (
+                        <div className="mt-2 flex items-center gap-1.5">
+                          <div className={`h-1.5 w-16 rounded-full ${
+                            msg.confidence >= 0.8 ? 'bg-emerald-400' :
+                            msg.confidence >= 0.6 ? 'bg-amber-400' : 'bg-red-400'
+                          }`} />
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500">{Math.round(msg.confidence * 100)}% match</span>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 ))}
 
-                {transcript && (
+                {interimTranscript && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="flex justify-end"
                   >
-                    <div className="max-w-[85%] rounded-2xl rounded-br-md px-4 py-3 text-sm bg-indigo-100 text-indigo-800 border border-indigo-200 italic">
-                      {transcript}
+                    <div className="max-w-[85%] rounded-2xl rounded-br-md px-4 py-3 text-sm bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800 italic">
+                      {interimTranscript}
                       <motion.span
                         className="inline-block w-2 h-4 bg-indigo-400 ml-1"
                         animate={{ opacity: [1, 0, 1] }}
@@ -498,10 +732,81 @@ export default function VoiceAssistant() {
                   </motion.div>
                 )}
 
+                {processing && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex justify-start"
+                  >
+                    <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center shrink-0 mr-2 mt-1">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z" stroke="white" strokeWidth="2"/>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="white" strokeWidth="2"/>
+                      </svg>
+                    </div>
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl rounded-bl-md px-4 py-3 border border-slate-200 dark:border-slate-700 shadow-sm">
+                      <div className="flex items-center gap-1.5">
+                        <motion.div
+                          className="w-2 h-2 bg-indigo-400 dark:bg-indigo-500 rounded-full"
+                          animate={{ y: [0, -4, 0] }}
+                          transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
+                        />
+                        <motion.div
+                          className="w-2 h-2 bg-indigo-400 dark:bg-indigo-500 rounded-full"
+                          animate={{ y: [0, -4, 0] }}
+                          transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
+                        />
+                        <motion.div
+                          className="w-2 h-2 bg-indigo-400 dark:bg-indigo-500 rounded-full"
+                          animate={{ y: [0, -4, 0] }}
+                          transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
+                        />
+                        <span className="text-xs text-slate-400 dark:text-slate-500 ml-1">Thinking...</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {showLowConfidence && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex justify-center"
+                  >
+                    <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs px-4 py-3 rounded-xl border border-amber-200 dark:border-amber-800 max-w-[90%]">
+                      <p className="font-medium mb-1">Not sure I understood</p>
+                      <p className="text-amber-600 dark:text-amber-500 mb-2">Try one of these:</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {["Create a new quote", "Show my recent quotes", "What can you do?"].map(s => (
+                          <button
+                            key={s}
+                            onClick={() => handleRetry(s)}
+                            className="text-xs bg-amber-100 dark:bg-amber-800/40 hover:bg-amber-200 dark:hover:bg-amber-700/40 text-amber-800 dark:text-amber-300 px-2.5 py-1 rounded-full transition-colors"
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex justify-center"
+                  >
+                    <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs px-4 py-2 rounded-lg border border-amber-200 dark:border-amber-800">
+                      {error}
+                    </div>
+                  </motion.div>
+                )}
+
                 <div ref={messagesEndRef} />
               </div>
 
-              <div className="px-4 py-2 bg-white border-t border-slate-100">
+              <div className="px-4 py-2 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700">
                 <canvas
                   ref={waveformRef}
                   className="w-full h-8"
@@ -509,26 +814,21 @@ export default function VoiceAssistant() {
                 />
               </div>
 
-              {messages.length <= 2 && suggestions.length > 0 && (
-                <div className="px-4 pb-2 bg-white border-t border-slate-100">
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-2">
-                    {isLanding ? "Try asking:" : "Try saying:"}
-                  </p>
-                  <div className="flex flex-wrap gap-1.5 pb-2">
-                    {suggestions.map((s) => (
-                      <button
-                        key={s}
-                        onClick={() => handleSuggestionClick(s)}
-                        className="text-xs bg-slate-100 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 px-3 py-1.5 rounded-full border border-slate-200 hover:border-indigo-200 transition-all"
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
+              <div className="px-4 pb-2 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700">
+                <div className="flex flex-wrap gap-1.5 py-2">
+                  {getSuggestions().map((chip) => (
+                    <button
+                      key={chip.text}
+                      onClick={() => handleSuggestionClick(chip.text)}
+                      className="text-xs bg-slate-100 dark:bg-slate-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-600 hover:border-indigo-200 dark:hover:border-indigo-700 transition-all"
+                    >
+                      {chip.label}
+                    </button>
+                  ))}
                 </div>
-              )}
+              </div>
 
-              <div className="px-4 pb-4 bg-white border-t border-slate-100 pt-3">
+              <div className="px-4 pb-4 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 pt-3">
                 <div className="flex items-center gap-2">
                   <div className="flex-1 relative">
                     <input
@@ -537,31 +837,40 @@ export default function VoiceAssistant() {
                       onChange={e => setCurrentText(e.target.value)}
                       onKeyDown={e => {
                         if (e.key === "Enter" && currentText.trim()) {
-                          handleAssistantResponse(currentText.trim())
-                          setCurrentText("")
+                          handleTextSubmit()
                         }
                       }}
-                      placeholder={browserSupportsSpeech ? "Type or speak..." : "Type your request..."}
-                      className="w-full bg-slate-100 text-sm rounded-xl px-4 py-3 pr-12 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all"
+                      placeholder={supported ? "Type or speak..." : "Type your request..."}
+                      className="w-full bg-slate-100 dark:bg-slate-700 text-sm rounded-xl px-4 py-3 pr-12 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-700 transition-all"
                     />
                   </div>
-                  {browserSupportsSpeech ? (
+                  {supported ? (
                     <motion.button
-                      onClick={listening ? stopListening : startListening}
+                      onClick={handleMicToggle}
                       className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-all ${
                         listening
                           ? "bg-red-500 hover:bg-red-600 shadow-lg shadow-red-200"
-                          : "bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200"
+                          : processing
+                            ? "bg-amber-500 hover:bg-amber-600 shadow-lg shadow-amber-200"
+                            : "bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200"
                       }`}
                       whileTap={{ scale: 0.92 }}
                       animate={listening ? {
                         scale: [1, 1.1, 1],
                         transition: { duration: 0.6, repeat: Infinity }
+                      } : processing ? {
+                        scale: [1, 1.05, 1],
+                        transition: { duration: 1, repeat: Infinity }
                       } : {}}
                     >
                       {listening ? (
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                           <rect x="6" y="6" width="12" height="12" rx="2" fill="white"/>
+                        </svg>
+                      ) : processing ? (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                          <circle cx="12" cy="12" r="3" fill="white"/>
+                          <circle cx="12" cy="12" r="7" stroke="white" strokeWidth="1.5" opacity="0.5"/>
                         </svg>
                       ) : (
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -573,12 +882,7 @@ export default function VoiceAssistant() {
                     </motion.button>
                   ) : (
                     <button
-                      onClick={() => {
-                        if (currentText.trim()) {
-                          handleAssistantResponse(currentText.trim())
-                          setCurrentText("")
-                        }
-                      }}
+                      onClick={handleTextSubmit}
                       className="w-11 h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 flex items-center justify-center shadow-lg shadow-indigo-200"
                     >
                       <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -587,8 +891,8 @@ export default function VoiceAssistant() {
                     </button>
                   )}
                 </div>
-                {!browserSupportsSpeech && (
-                  <p className="text-[10px] text-amber-600 mt-1.5">
+                {!supported && (
+                    <p className="text-[10px] text-amber-600 dark:text-amber-500 mt-1.5">
                     Voice not supported in this browser. Type your request above.
                   </p>
                 )}

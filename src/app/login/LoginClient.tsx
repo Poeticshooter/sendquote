@@ -50,15 +50,15 @@ export default function LoginClient() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-950/30 px-4">
       <a href="#main-content" className="skip-link">Skip to main content</a>
       <BrandLogo className="mb-8" />
 
       <div className="w-full max-w-sm animate-fade-in-scale">
-        <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 shadow-sm">
           <div className="text-center mb-6">
-            <h1 className="text-xl font-bold text-slate-900">Welcome back</h1>
-            <p className="text-sm text-slate-500 mt-1">Sign in to manage your quotes</p>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white">Welcome back</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Sign in to manage your quotes</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
@@ -69,20 +69,20 @@ export default function LoginClient() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="input-field"
+                className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800"
                 placeholder="you@example.com"
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-sm font-medium text-slate-700">Password</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
                 <Link href="/forgot-password" className="text-xs text-indigo-600 hover:text-indigo-700 font-medium">
                   Forgot?
                 </Link>
@@ -92,7 +92,7 @@ export default function LoginClient() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
-                className="input-field"
+                className="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800"
                 placeholder="••••••••"
               />
             </div>
@@ -113,7 +113,7 @@ export default function LoginClient() {
           </form>
         </div>
 
-        <p className="text-center text-sm text-slate-500 mt-6">
+        <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-6">
           Don&apos;t have an account?{" "}
           <Link href="/register" className="text-indigo-600 font-medium hover:text-indigo-700">
             Sign up

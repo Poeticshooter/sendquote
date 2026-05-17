@@ -4,6 +4,8 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase"
+import { sanitizeInput } from "@/lib/sanitize"
+import { checkQuota, incrementQuoteCount } from "@/lib/plan"
 import Link from "next/link"
 
 type VoiceItem = {
@@ -91,7 +93,7 @@ export default function VoiceQuoteWizard() {
   const [showLang, setShowLang] = useState(false)
   const [gstRate, setGstRate] = useState("18")
   const [errMsg, setErrMsg] = useState("")
-  const recRef = useRef<any>(null)
+  const recRef = useRef<SpeechRecognition | null>(null)
   const endRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animRef = useRef<number>(0)
@@ -111,16 +113,16 @@ export default function VoiceQuoteWizard() {
   }, [lang])
 
   const startListening = () => {
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    const SR = (window as typeof window & { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition || (window as typeof window & { webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition
     if (!SR) return
     setListening(true)
     setTranscript("")
     if (recRef.current) { try { recRef.current.stop() } catch {} }
-    const rec = new (SR as any)()
+    const rec = new SR()
     rec.continuous = false
     rec.interimResults = true
     rec.lang = lang
-    rec.onresult = (e: any) => {
+    rec.onresult = (e: SpeechRecognitionEvent) => {
       let final = "", interim = ""
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const t = e.results[i][0].transcript
@@ -317,20 +319,28 @@ Say "yes" to create, "add item" to add more, or "edit" to start over.`
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push("/login"); return }
 
+      const quota = await checkQuota(user.id, 'quote')
+      if (!quota.allowed) {
+        addMsg("ai", "Free plan limit reached: 3 quotes/month. Upgrade for ₹299 to continue.")
+        setPhase("review")
+        return
+      }
+
       const subtotal = items.reduce((s, i) => s + (parseInt(i.quantity) || 1) * (parseInt(i.rate) || 0), 0)
       const gstAmt = Math.round(subtotal * (parseInt(gstRate) / 100))
       const total = subtotal + gstAmt
 
-      const { data: cnt } = await supabase.from("quotes").select("quote_number").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1)
-      const lastNum = cnt?.[0]?.quote_number
-      const nextNum = lastNum ? parseInt(lastNum.replace(/\D/g, "")) + 1 : 1001
-      const quote_number = `QT-${nextNum}`
+      const { data: cnt } = await supabase.rpc('next_quote_number', { p_user_id: user.id })
+      const quote_number = cnt as string
+
+      const nanoid = (await import("nanoid")).nanoid
+      const unique_token = nanoid(12)
 
       const { data: quote, error: qErr } = await supabase.from("quotes").insert({
-        user_id: user.id, quote_number,
-        client_name: data.clientName || "", client_phone: data.clientPhone || "",
-        client_email: data.clientEmail || "", client_address: data.clientAddress || "",
-        valid_till: data.validTill || null,
+        user_id: user.id, quote_number, unique_token,
+        client_name: sanitizeInput(data.clientName || ""), client_phone: sanitizeInput(data.clientPhone || ""),
+        client_email: sanitizeInput(data.clientEmail || ""), client_address: sanitizeInput(data.clientAddress || ""),
+        valid_until: data.validTill || null,
         subtotal: subtotal, discount: 0, discount_type: "percentage",
         gst_rate: parseInt(gstRate), gst_amount: gstAmt, total: total, status: "draft",
       }).select().single()
@@ -340,19 +350,21 @@ Say "yes" to create, "add item" to add more, or "edit" to start over.`
       for (let i = 0; i < items.length; i++) {
         const it = items[i]
         await supabase.from("quote_items").insert({
-          quote_id: quote.id, description: it.description,
-          quantity: parseInt(it.quantity) || 1, unit: it.unit || "nos",
+          quote_id: quote.id, description: sanitizeInput(it.description),
+          quantity: parseInt(it.quantity) || 1, unit: sanitizeInput(it.unit || "nos"),
           rate: parseInt(it.rate || "0"),
           amount: (parseInt(it.quantity) || 1) * (parseInt(it.rate || "0")),
           sort_order: i,
         })
       }
 
+      await incrementQuoteCount(user.id)
+
       addMsg("ai", `Quote ${quote_number} created! Redirecting...`)
       speak(`Quote created successfully. Quote number ${quote_number}`)
       setPhase("done")
       setTimeout(() => router.push(`/quote/${quote.id}`), 2000)
-    } catch (e: any) { setErrMsg(e.message); setPhase("error"); addMsg("ai", `Error: ${e.message}`) }
+    } catch (e: unknown) { const message = e instanceof Error ? e.message : "Unknown error"; setErrMsg(message); setPhase("error"); addMsg("ai", `Error: ${message}`) }
   }
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }) }, [msgs])

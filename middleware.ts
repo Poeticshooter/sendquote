@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { generateCsrfToken, setCsrfCookie } from '@/lib/csrf'
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request: { headers: request.headers } })
@@ -13,9 +14,9 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          response = NextResponse.next({ request: { headers: request.headers } })
-          cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options))
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options)
+          })
         },
       },
     }
@@ -33,6 +34,15 @@ export async function middleware(request: NextRequest) {
 
   if (user && (pathname === '/login' || pathname === '/register')) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+
+  if (pathname.startsWith('/q/')) {
+    response.headers.set('X-Frame-Options', 'DENY')
+  }
+
+  if (!response.cookies.get('__csrf')) {
+    const token = generateCsrfToken()
+    setCsrfCookie(response, token)
   }
 
   return response

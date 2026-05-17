@@ -13,7 +13,7 @@ type Invoice = {
   subtotal: number; discount: number; discount_type: string
   gst_rate: number; gst_amount: number; total: number
   notes: string; terms: string; created_at: string; quote_id: string
-  due_date: string | null
+  due_date: string | null; paid_amount: number
 }
 
 type InvoiceItem = { id: string; description: string; quantity: number; unit: string; rate: number; amount: number }
@@ -97,6 +97,20 @@ export default function InvoiceDetailClient() {
     })
     if (error) { toast(error.message, "error") }
     else {
+      const newPaidAmount = totalPaid + newPayment.amount
+      await supabase.from("invoices").update({
+        paid_amount: newPaidAmount,
+        status: newPaidAmount >= totalInvoiceAmount ? "paid" : "unpaid",
+      }).eq("id", id)
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { logActivity } = await import("@/lib/activity")
+        await logActivity(user.id, "payment", id, "payment_recorded", {
+          amount: newPayment.amount,
+          method: newPayment.payment_method,
+          notes: newPayment.notes,
+        })
+      }
       toast("Payment recorded!", "success")
       setShowPaymentModal(false)
       setNewPayment({ amount: 0, payment_date: "", payment_method: "bank_transfer", notes: "" })
@@ -115,7 +129,22 @@ export default function InvoiceDetailClient() {
     return <div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="skeleton h-8 w-48" /></div>
   }
 
-  if (!invoice) return null
+  if (!invoice) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+            <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+          </div>
+          <h2 className="text-lg font-semibold text-slate-900 mb-1">Invoice not found</h2>
+          <p className="text-sm text-slate-500 mb-4">This invoice may have been deleted or you don&apos;t have access to it.</p>
+          <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-700">
+            Back to dashboard
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -148,9 +177,12 @@ export default function InvoiceDetailClient() {
               <Link href={`/quote/${invoice.quote_id}`} className="btn-secondary text-xs">View Quote</Link>
             )}
             {outstanding > 0 && (
-              <button onClick={() => setShowPaymentModal(true)} className="bg-emerald-600 text-white text-xs font-medium px-4 py-2 rounded-lg hover:bg-emerald-700 transition-all">
-                Record Payment
-              </button>
+            <button onClick={() => {
+              setNewPayment(p => ({ ...p, amount: outstanding, payment_date: new Date().toISOString().split("T")[0] }))
+              setShowPaymentModal(true)
+            }} className="bg-emerald-600 text-white text-xs font-medium px-4 py-2 rounded-lg hover:bg-emerald-700 transition-all">
+              Record Payment
+            </button>
             )}
             {invoice.status === "unpaid" && (
               <button onClick={() => updateStatus("paid")} className="btn-secondary text-xs">Mark Paid</button>
@@ -231,6 +263,14 @@ export default function InvoiceDetailClient() {
               <div className="flex justify-between font-bold text-base border-t border-slate-200 pt-2 mt-2 text-slate-900">
                 <span>Total</span><span>{formatINR(Number(invoice.total))}</span>
               </div>
+              {totalPaid > 0 && (
+                <>
+                  <div className="flex justify-between text-emerald-600"><span>Paid</span><span>-{formatINR(totalPaid)}</span></div>
+                  <div className={`flex justify-between font-bold text-sm border-t border-slate-200 pt-2 mt-2 ${outstanding > 0 ? "text-red-600" : "text-emerald-600"}`}>
+                    <span>{outstanding > 0 ? "Balance Due" : "Fully Paid"}</span><span>{formatINR(Math.max(0, outstanding))}</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -248,9 +288,13 @@ export default function InvoiceDetailClient() {
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Payment History</p>
               <div className="space-y-2">
                 {payments.map(p => (
-                  <div key={p.id} className="flex justify-between text-sm">
-                    <span className="text-slate-600">{new Date(p.payment_date).toLocaleDateString("en-IN")}</span>
-                    <span className="text-slate-900 font-medium">{formatINR(Number(p.amount))}</span>
+                  <div key={p.id} className="flex justify-between items-center text-sm py-1.5 border-b border-slate-50">
+                    <div>
+                      <span className="text-slate-600">{new Date(p.payment_date).toLocaleDateString("en-IN")}</span>
+                      <span className="text-xs text-slate-400 ml-2 capitalize">{p.payment_method.replace("_", " ")}</span>
+                      {p.notes && <p className="text-xs text-slate-400 mt-0.5">{p.notes}</p>}
+                    </div>
+                    <span className="text-emerald-600 font-medium">{formatINR(Number(p.amount))}</span>
                   </div>
                 ))}
               </div>

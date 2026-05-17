@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase"
 import { useToast } from "@/components/toast"
+import { CSRF_COOKIE_NAME_LOCAL, CSRF_HEADER_NAME_LOCAL } from "@/lib/csrf"
 
 const STEPS = [
   {
@@ -78,9 +79,13 @@ export default function UserOnboarding() {
     
     const formData = new FormData()
     formData.append("logo", file)
+    const csrfToken = document.cookie.split('; ').find(r => r.startsWith(CSRF_COOKIE_NAME_LOCAL + '='))?.split('=')[1]
     const res = await fetch("/api/upload-logo", {
       method: "POST",
-      headers: { Authorization: `Bearer ${session.access_token}` },
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        ...(csrfToken ? { [CSRF_HEADER_NAME_LOCAL]: csrfToken } : {}),
+      },
       body: formData,
     })
     const json = await res.json()

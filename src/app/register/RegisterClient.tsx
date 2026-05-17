@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase"
 import BrandLogo from "@/components/brand-logo"
@@ -25,11 +25,19 @@ export default function RegisterClient() {
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [businessName, setBusinessName] = useState("")
+  const [referralCode, setReferralCode] = useState("")
+  const [referralError, setReferralError] = useState("")
   const [error, setError] = useState("")
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
+
+  useEffect(() => {
+    const ref = searchParams.get("ref")
+    if (ref) setReferralCode(ref)
+  }, [searchParams])
 
   const passwordStrength = password ? getPasswordStrength(password) : null
 
@@ -77,16 +85,43 @@ export default function RegisterClient() {
     if (data.user) {
       try {
         if (data.session) {
+          let referredBy: string | null = null
+
+          if (referralCode.trim()) {
+            const { data: referrer } = await supabase
+              .from("profiles")
+              .select("user_id")
+              .eq("referral_code", referralCode.trim())
+              .single()
+
+            if (referrer) {
+              referredBy = referrer.user_id
+              await supabase.from("referrals").insert({
+                referrer_id: referrer.user_id,
+                referred_id: data.user.id,
+                status: "pending",
+              })
+            } else {
+              setReferralError("Invalid referral code")
+            }
+          }
+
+          const profileData: Record<string, unknown> = {
+            id: data.user.id,
+            user_id: data.user.id,
+            business_name: trimmedBusiness,
+            plan: "free",
+          }
+          if (referredBy) {
+            profileData.referred_by = referredBy
+          }
+
           const { error: profileError } = await supabase
             .from("profiles")
-            .upsert({ 
-              user_id: data.user.id, 
-              business_name: trimmedBusiness,
-              plan: 'free',
-            }, { onConflict: "user_id" })
+            .insert(profileData)
           
           if (profileError) {
-            console.error("Profile upsert error:", profileError)
+            console.error("Profile insert error:", profileError)
             setError(`Profile error: ${profileError.message}`)
             setLoading(false)
             return
@@ -107,14 +142,14 @@ export default function RegisterClient() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-950/30 px-4">
       <BrandLogo className="mb-8" />
 
       <div className="w-full max-w-sm animate-fade-in-scale">
-        <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 shadow-sm">
           <div className="text-center mb-6">
-            <h1 className="text-xl font-bold text-slate-900">Create your account</h1>
-            <p className="text-sm text-slate-500 mt-1">Start sending professional quotes</p>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white">Create your account</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Start sending professional quotes</p>
           </div>
 
           <form onSubmit={handleRegister} className="space-y-4" noValidate>
@@ -123,47 +158,47 @@ export default function RegisterClient() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Business Name</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Business Name</label>
               <input
                 type="text"
                 value={businessName}
                 onChange={e => { setBusinessName(e.target.value); setFieldErrors(prev => ({ ...prev, business: "" })) }}
                 required
-                className={`input-field ${fieldErrors.business ? "border-red-300 focus:border-red-400 focus:ring-red-200" : ""}`}
+                className={`w-full px-4 py-2.5 border rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 ${fieldErrors.business ? "border-red-300 focus:border-red-400 focus:ring-red-200" : "border-slate-200 dark:border-slate-700 focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:border-indigo-300"}`}
                 placeholder="Rajan Sharma Contractors"
               />
-              {fieldErrors.business && <p className="text-xs text-red-500 mt-1">{fieldErrors.business}</p>}
+              {fieldErrors.business && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{fieldErrors.business}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={e => { setEmail(e.target.value); setFieldErrors(prev => ({ ...prev, email: "" })) }}
                 required
-                className={`input-field ${fieldErrors.email ? "border-red-300 focus:border-red-400 focus:ring-red-200" : ""}`}
+                className={`w-full px-4 py-2.5 border rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 ${fieldErrors.email ? "border-red-300 focus:border-red-400 focus:ring-red-200" : "border-slate-200 dark:border-slate-700 focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:border-indigo-300"}`}
                 placeholder="you@example.com"
               />
-              {fieldErrors.email && <p className="text-xs text-red-500 mt-1">{fieldErrors.email}</p>}
+              {fieldErrors.email && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{fieldErrors.email}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={e => { setPassword(e.target.value); setFieldErrors(prev => ({ ...prev, password: "" })) }}
                 required
                 minLength={6}
-                className={`input-field ${fieldErrors.password ? "border-red-300 focus:border-red-400 focus:ring-red-200" : ""}`}
+                className={`w-full px-4 py-2.5 border rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 ${fieldErrors.password ? "border-red-300 focus:border-red-400 focus:ring-red-200" : "border-slate-200 dark:border-slate-700 focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:border-indigo-300"}`}
                 placeholder="Create a strong password"
               />
               {password && (
                 <div className="mt-2">
                   <div className="flex gap-1 mb-1">
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <div key={i} className={`h-1 flex-1 rounded-full ${i <= (passwordStrength?.score ?? 0) ? (passwordStrength?.color ?? '') : "bg-slate-200"}`} />
+                      <div key={i} className={`h-1 flex-1 rounded-full ${i <= (passwordStrength?.score ?? 0) ? (passwordStrength?.color ?? '') : "bg-slate-200 dark:bg-slate-700"}`} />
                     ))}
                   </div>
                   <p className={`text-xs ${passwordStrength && passwordStrength.score === 4 ? "text-emerald-600" : passwordStrength && passwordStrength.score === 3 ? "text-yellow-600" : "text-red-500"}`}>
@@ -171,20 +206,32 @@ export default function RegisterClient() {
                   </p>
                 </div>
               )}
-              {fieldErrors.password && <p className="text-xs text-red-500 mt-1">{fieldErrors.password}</p>}
+              {fieldErrors.password && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{fieldErrors.password}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Confirm Password</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Confirm Password</label>
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={e => { setConfirmPassword(e.target.value); setFieldErrors(prev => ({ ...prev, confirm: "" })) }}
                 required
-                className={`input-field ${fieldErrors.confirm ? "border-red-300 focus:border-red-400 focus:ring-red-200" : ""}`}
+                className={`w-full px-4 py-2.5 border rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 ${fieldErrors.confirm ? "border-red-300 focus:border-red-400 focus:ring-red-200" : "border-slate-200 dark:border-slate-700 focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:border-indigo-300"}`}
                 placeholder="Repeat your password"
               />
-              {fieldErrors.confirm && <p className="text-xs text-red-500 mt-1">{fieldErrors.confirm}</p>}
+              {fieldErrors.confirm && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{fieldErrors.confirm}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Referral Code <span className="text-slate-400 dark:text-slate-500 font-normal">(optional)</span></label>
+              <input
+                type="text"
+                value={referralCode}
+                onChange={e => { setReferralCode(e.target.value); setReferralError("") }}
+                className={`w-full px-4 py-2.5 border rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 ${referralError ? "border-red-300 focus:border-red-400 focus:ring-red-200" : "border-slate-200 dark:border-slate-700 focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:border-indigo-300"}`}
+                placeholder="Enter referral code"
+              />
+              {referralError && <p className="text-xs text-red-500 dark:text-red-400 mt-1">{referralError}</p>}
             </div>
 
             <button
@@ -195,11 +242,11 @@ export default function RegisterClient() {
               {loading ? "Creating account..." : "Create Free Account"}
             </button>
 
-            <p className="text-xs text-slate-400 text-center">By signing up, you agree to our Terms and Privacy Policy.</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 text-center">By signing up, you agree to our Terms and Privacy Policy.</p>
           </form>
         </div>
 
-        <p className="text-center text-sm text-slate-500 mt-6">
+        <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-6">
           Already have an account?{" "}
           <Link href="/login" className="text-indigo-600 font-medium hover:text-indigo-700">Sign in</Link>
         </p>

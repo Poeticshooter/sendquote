@@ -1,0 +1,87 @@
+# SendQuote - Robots.txt
+# https://sendquote.in
+
+# Default rules for all crawlers
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /register
+Allow: /templates
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /clients/
+Disallow: /invoices/
+Disallow: /quote/
+Disallow: /invoice/
+Disallow: /q/
+Disallow: /api/
+Disallow: /upgrade/
+
+# Allow AI crawlers to index public pages
+User-agent: GPTBot
+Allow: /
+Allow: /login
+Allow: /register
+Allow: /templates
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /clients/
+Disallow: /invoices/
+Disallow: /quote/
+Disallow: /invoice/
+Disallow: /q/
+Disallow: /api/
+Disallow: /upgrade/
+
+User-agent: CCBot
+Allow: /
+Allow: /login
+Allow: /register
+Allow: /templates
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /clients/
+Disallow: /invoices/
+Disallow: /quote/
+Disallow: /invoice/
+Disallow: /q/
+Disallow: /api/
+Disallow: /upgrade/
+
+User-agent: Google-Extended
+Allow: /
+Allow: /login
+Allow: /register
+Allow: /templates
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /clients/
+Disallow: /invoices/
+Disallow: /quote/
+Disallow: /invoice/
+Disallow: /q/
+Disallow: /api/
+Disallow: /upgrade/
+
+User-agent: anthropic-ai
+Allow: /
+Allow: /login
+Allow: /register
+Allow: /templates
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /settings/
+Disallow: /clients/
+Disallow: /invoices/
+Disallow: /quote/
+Disallow: /invoice/
+Disallow: /q/
+Disallow: /api/
+Disallow: /upgrade/
+
+# Sitemap
+Sitemap: https://sendquote.in/sitemap.xml

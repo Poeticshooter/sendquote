@@ -1,11 +1,14 @@
 "use client"
 
 import { useEffect, useState, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase"
 import { formatINR } from "@/lib/utils"
+import { sanitizeInput } from "@/lib/sanitize"
+import { checkQuota } from "@/lib/plan"
 import { useToast } from "@/components/toast"
+import { getStatusStyleCompact } from "@/lib/status-styles"
 import VoiceInputButton from "./voice-input-button"
 import {
   DndContext,
@@ -112,7 +115,7 @@ function SortableLineItem({ item, index, filteredItems, itemDropdownIndex, updat
               value={item.description}
               onChange={e => { updateItem(index, "description", e.target.value); setItemDropdownIndex(index) }}
               onFocus={() => setItemDropdownIndex(index)}
-              className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200"
+              className="flex-1 px-3 py-2 text-sm border border-slate-200 bg-white text-slate-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200"
               placeholder="Description"
             />
             <VoiceInputButton
@@ -148,7 +151,7 @@ function SortableLineItem({ item, index, filteredItems, itemDropdownIndex, updat
             type="text"
             value={item.spec}
             onChange={e => updateItem(index, "spec", e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            className="w-full px-3 py-2 text-sm border border-slate-200 bg-white text-slate-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200"
             placeholder="Specifications"
           />
         </div>
@@ -157,7 +160,7 @@ function SortableLineItem({ item, index, filteredItems, itemDropdownIndex, updat
             type="number"
             value={item.quantity || ""}
             onChange={e => updateItem(index, "quantity", e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            className="w-full px-3 py-2 text-sm border border-slate-200 bg-white text-slate-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200"
             placeholder="Qty"
             min="0"
           />
@@ -167,7 +170,7 @@ function SortableLineItem({ item, index, filteredItems, itemDropdownIndex, updat
             type="number"
             value={item.rate || ""}
             onChange={e => updateItem(index, "rate", e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            className="w-full px-3 py-2 text-sm border border-slate-200 bg-white text-slate-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200"
             placeholder="Rate"
             min="0"
           />
@@ -176,7 +179,7 @@ function SortableLineItem({ item, index, filteredItems, itemDropdownIndex, updat
           <select
             value={item.unit}
             onChange={e => updateItem(index, "unit", e.target.value)}
-            className="w-full px-2 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            className="w-full px-2 py-2 text-sm border border-slate-200 bg-white text-slate-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200"
           >
             {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
           </select>
@@ -219,6 +222,7 @@ interface Props {
 
 export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
   const { toast } = useToast()
   const sensors = useSensors(
@@ -231,6 +235,7 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
   const [currentStep, setCurrentStep] = useState(1)
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [quoteCount, setQuoteCount] = useState<number | null>(null)
 
   const [clientName, setClientName] = useState(initialData?.client_name || "")
   const [clientPhone, setClientPhone] = useState(initialData?.client_phone || "")
@@ -257,6 +262,68 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) return
+      const { count } = await supabase.from("quotes").select("id", { count: "exact", head: true }).eq("user_id", user.id)
+      setQuoteCount(count || 0)
+
+      const templateType = searchParams.get("template")
+      const templateId = searchParams.get("templateId")
+
+      if (templateType === "default" && templateId) {
+        const { DEFAULT_TEMPLATES } = await import("@/components/template-gallery")
+        const tpl = DEFAULT_TEMPLATES.find(t => t.id === templateId)
+        if (tpl) {
+          setClientName("")
+          setClientPhone("")
+          setClientEmail("")
+          setClientAddress("")
+          setDiscount(tpl.discount)
+          setDiscountType(tpl.discountType as "percentage" | "fixed")
+          setGstRate(tpl.gstRate)
+          setNotes(tpl.notes || "")
+          setTerms(tpl.terms || "")
+          setPaymentTerms(tpl.paymentTerms || "")
+          const loadedItems = tpl.items.map((item, i) => ({
+            id: `tpl-${i}`,
+            description: item.description,
+            spec: item.spec,
+            quantity: item.quantity,
+            unit: item.unit,
+            rate: item.rate,
+            amount: item.quantity * item.rate,
+          }))
+          setItems(loadedItems)
+          toast(`Loaded "${tpl.name}" template`, "success")
+        }
+      } else if (templateType === "saved" && templateId) {
+        const { data: quote } = await supabase.from("quotes").select("*").eq("id", templateId).single()
+        if (quote) {
+          setClientName("")
+          setClientPhone("")
+          setClientEmail("")
+          setClientAddress("")
+          setDiscount(Number(quote.discount))
+          setDiscountType(quote.discount_type as "percentage" | "fixed")
+          setGstRate(Number(quote.gst_rate))
+          setNotes(quote.notes || "")
+          setTerms(quote.terms || "")
+          setPaymentTerms(quote.payment_terms || "")
+          const { data: items } = await supabase.from("quote_items").select("*").eq("quote_id", templateId).order("sort_order")
+          if (items && items.length > 0) {
+            const loadedItems = items.map((item, i) => ({
+              id: `tpl-${i}`,
+              description: item.description,
+              spec: item.spec || "",
+              quantity: item.quantity,
+              unit: item.unit,
+              rate: item.rate,
+              amount: item.amount,
+            }))
+            setItems(loadedItems)
+          }
+          toast(`Loaded "${quote.template_name || quote.client_name}" template`, "success")
+        }
+      }
+
       const { data: clientData } = await supabase.from("quotes").select("client_name, client_phone, client_email, client_address")
         .eq("user_id", user.id).not("client_name", "is", null).order("created_at", { ascending: false }).limit(20)
       const seenClients = new Set()
@@ -282,7 +349,7 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
         setPastItems(Array.from(uniqueItems.values()))
       }
     })
-  }, [supabase])
+  }, [supabase]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -307,42 +374,77 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
+      if (mode === "create") {
+        const quota = await checkQuota(user.id, 'quote')
+        if (!quota.allowed) {
+          toast("Free plan: 3 quotes/month. Upgrade for ₹299.", "error")
+          return
+        }
+      }
+
       const { subtotal, discountAmount, afterDiscount, gstAmount, total } = calculateTotals()
 
       const quoteData = {
         user_id: user.id,
-        client_name: clientName,
-        client_phone: clientPhone,
-        client_email: clientEmail,
-        client_address: clientAddress,
-        valid_till: validTill || null,
-        payment_terms: paymentTerms,
+        client_name: sanitizeInput(clientName),
+        client_phone: sanitizeInput(clientPhone),
+        client_email: sanitizeInput(clientEmail),
+        client_address: sanitizeInput(clientAddress),
+        valid_until: validTill || null,
+        payment_terms: sanitizeInput(paymentTerms),
         subtotal,
         discount,
         discount_type: discountType,
         gst_rate: gstRate,
         gst_amount: gstAmount,
         total,
-        notes,
-        terms,
+        notes: sanitizeInput(notes),
+        terms: sanitizeInput(terms),
         status: asDraft ? "draft" : "sent",
       }
 
       let quote
+      let quoteNumber = ''
       if (mode === "create") {
         const nanoid = (await import("nanoid")).nanoid
         const token = nanoid(12)
-        const { count } = await supabase.from("quotes").select("id", { count: "exact", head: true }).eq("user_id", user.id)
-        const quoteNumber = `QS-${String((count || 0) + 1).padStart(3, "0")}`
+        const { data: numData } = await supabase.rpc('next_quote_number', { p_user_id: user.id })
+        quoteNumber = numData as string
 
-        const { data, error } = await supabase.from("quotes").insert({
-          ...quoteData,
-          quote_number: quoteNumber,
-          unique_token: token,
-        }).select("id").single()
+        const itemsData = items.map((item, index) => ({
+          description: sanitizeInput(item.description),
+          spec: sanitizeInput(item.spec || ''),
+          quantity: item.quantity,
+          unit: sanitizeInput(item.unit),
+          rate: item.rate,
+          amount: item.amount,
+          sort_order: index,
+        }))
+
+        const { data, error } = await supabase.rpc('create_quote_with_items', {
+          p_user_id: user.id,
+          p_quote_number: quoteNumber,
+          p_unique_token: token,
+          p_client_name: quoteData.client_name,
+          p_client_email: quoteData.client_email,
+          p_client_phone: quoteData.client_phone,
+          p_client_address: quoteData.client_address,
+          p_valid_until: quoteData.valid_until,
+          p_payment_terms: quoteData.payment_terms,
+          p_subtotal: quoteData.subtotal,
+          p_discount: quoteData.discount,
+          p_discount_type: quoteData.discount_type,
+          p_gst_rate: quoteData.gst_rate,
+          p_gst_amount: quoteData.gst_amount,
+          p_total: quoteData.total,
+          p_notes: quoteData.notes,
+          p_terms: quoteData.terms,
+          p_status: quoteData.status,
+          p_items: JSON.stringify(itemsData),
+        })
 
         if (error) throw error
-        quote = data
+        quote = { id: data }
       } else {
         const { data, error } = await supabase.from("quotes").update({
           ...quoteData,
@@ -353,15 +455,13 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
         quote = data
 
         await supabase.from("quote_items").delete().eq("quote_id", quoteId)
-      }
 
-      if (quote) {
         const itemsData = items.map((item, index) => ({
-          quote_id: quote.id,
-          description: item.description,
-          spec: item.spec || null,
+          quote_id: quoteId,
+          description: sanitizeInput(item.description),
+          spec: sanitizeInput(item.spec || ''),
           quantity: item.quantity,
-          unit: item.unit,
+          unit: sanitizeInput(item.unit),
           rate: item.rate,
           amount: item.amount,
           sort_order: index,
@@ -369,22 +469,37 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
 
         const { error: itemsError } = await supabase.from("quote_items").insert(itemsData)
         if (itemsError) throw itemsError
+      }
+
+      if (quote) {
+        if (mode === "create") {
+          const { incrementQuoteCount } = await import("@/lib/plan")
+          await incrementQuoteCount(user.id)
+          const { logActivity } = await import("@/lib/activity")
+          await logActivity(user.id, "quote", quote.id, "quote_created", { quote_number: quoteNumber })
+        }
 
         toast(mode === "create" ? "Quote created!" : "Quote updated!", "success")
         router.push(`/quote/${quote.id}`)
       }
-    } catch (err: any) {
-      toast(err.message || "Failed to save quote", "error")
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to save quote"
+      toast(message, "error")
     } finally {
       setSaving(false)
     }
   }
 
+  const handleSaveRef = useRef(handleSave)
+  useEffect(() => {
+    handleSaveRef.current = handleSave
+  })
+
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "s") {
         e.preventDefault()
-        handleSave()
+        handleSaveRef.current()
       }
       if (e.key === "Escape" && showPreview) {
         setShowPreview(false)
@@ -392,20 +507,56 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
     }
     document.addEventListener("keydown", handleKeyDown)
     return () => document.removeEventListener("keydown", handleKeyDown)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showPreview])
+
+  useEffect(() => {
+    function handleVoiceUpdate(e: Event) {
+      const detail = (e as CustomEvent).detail
+      if (detail?.clientName && !clientName) {
+        setClientName(detail.clientName)
+      }
+      if (detail?.items?.length > 0 && items.length === 1 && !items[0].description) {
+        const voiceItems = detail.items.map((item: { description: string; quantity: number; rate: number }, i: number) => ({
+          id: `voice-${i}`,
+          description: item.description,
+          spec: "",
+          quantity: item.quantity,
+          unit: "nos",
+          rate: item.rate,
+          amount: item.quantity * item.rate,
+        }))
+        setItems(voiceItems)
+      } else if (detail?.items?.length > 0) {
+        const voiceItems = detail.items.map((item: { description: string; quantity: number; rate: number }, i: number) => ({
+          id: `voice-${Date.now()}-${i}`,
+          description: item.description,
+          spec: "",
+          quantity: item.quantity,
+          unit: "nos",
+          rate: item.rate,
+          amount: item.quantity * item.rate,
+        }))
+        setItems(prev => [...prev, ...voiceItems])
+      }
+    }
+
+    window.addEventListener('sendquote-voice-update', handleVoiceUpdate)
+    return () => window.removeEventListener('sendquote-voice-update', handleVoiceUpdate)
+  }, [clientName, items])
 
   const filteredClients = pastClients.filter(c => c.client_name.toLowerCase().includes(clientName.toLowerCase()))
 
   function updateItem(index: number, field: keyof LineItem, value: string | number) {
     const newItems = [...items]
+    const item = { ...newItems[index] } as LineItem
     if (field === "description" || field === "spec" || field === "unit") {
-      (newItems[index] as any)[field] = value
+      ;(item as Record<string, unknown>)[field] = value
     } else {
       const numValue = typeof value === "string" ? parseFloat(value) || 0 : value
-      ;(newItems[index] as any)[field] = numValue
-      newItems[index].amount = newItems[index].quantity * newItems[index].rate
+      ;(item as Record<string, unknown>)[field] = numValue
+      item.amount = item.quantity * item.rate
     }
+    newItems[index] = item
     setItems(newItems)
     validateStep(currentStep)
   }
@@ -478,15 +629,6 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
 
   const { subtotal, discountAmount, afterDiscount, gstAmount, total } = calculateTotals()
 
-  const statusStyle = (status: string) => {
-    const styles: Record<string, string> = {
-      draft: "bg-slate-100 text-slate-600",
-      sent: "bg-blue-100 text-blue-700",
-      accepted: "bg-emerald-100 text-emerald-700",
-    }
-    return styles[status] || styles.draft
-  }
-
   return (
     <div className="min-h-screen bg-slate-50 flex">
       <div className="flex-1 flex flex-col">
@@ -505,7 +647,7 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
               <span className="text-sm text-slate-500">{mode === "create" ? "New Quote" : "Edit Quote"}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-400">Press ESC to exit • Ctrl+S to save</span>
+              <span className="text-xs text-slate-400 hidden sm:inline">Press ESC to exit • Ctrl+S to save</span>
               <button
                 onClick={() => setShowPreview(!showPreview)}
                 className="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
@@ -530,7 +672,7 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
                     disabled={step.id > currentStep}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
                       step.id === currentStep
-                        ? "bg-indigo-600 text-white"
+                        ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
                         : step.id < currentStep
                         ? "bg-indigo-50 text-indigo-700"
                         : "text-slate-400"
@@ -548,7 +690,7 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
                     <span className="hidden sm:inline text-sm font-medium">{step.name}</span>
                   </button>
                   {index < STEPS.length - 1 && (
-                    <div className={`w-8 sm:w-16 h-0.5 mx-1 ${step.id < currentStep ? "bg-indigo-600" : "bg-slate-200"}`} />
+                    <div className={`w-8 sm:w-16 h-0.5 mx-1 transition-colors ${step.id < currentStep ? "bg-indigo-600" : "bg-slate-200"}`} />
                   )}
                 </div>
               ))}
@@ -569,7 +711,7 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
                           value={clientName}
                           onChange={e => { setClientName(e.target.value); setShowClientDropdown(true) }}
                           onFocus={() => setShowClientDropdown(true)}
-                          className={`flex-1 px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all ${errors.clientName ? "border-red-300 focus:ring-red-200" : "border-slate-200 focus:ring-indigo-200 focus:border-indigo-300"}`}
+                          className={`flex-1 px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all bg-white text-slate-900 ${errors.clientName ? "border-red-300 focus:ring-red-200" : "border-slate-200 focus:ring-indigo-200 focus:border-indigo-300"}`}
                           placeholder="Enter client name"
                         />
                         <VoiceInputButton
@@ -606,7 +748,7 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
                         type="tel"
                         value={clientPhone}
                         onChange={e => setClientPhone(e.target.value)}
-                        className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all ${errors.clientPhone ? "border-red-300 focus:ring-red-200" : "border-slate-200 focus:ring-indigo-200 focus:border-indigo-300"}`}
+                        className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all bg-white text-slate-900 ${errors.clientPhone ? "border-red-300 focus:ring-red-200" : "border-slate-200 focus:ring-indigo-200 focus:border-indigo-300"}`}
                         placeholder="10-digit phone number"
                       />
                       {errors.clientPhone && <p className="text-xs text-red-500 mt-1">{errors.clientPhone}</p>}
@@ -617,7 +759,7 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
                         type="email"
                         value={clientEmail}
                         onChange={e => setClientEmail(e.target.value)}
-                        className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all ${errors.clientEmail ? "border-red-300 focus:ring-red-200" : "border-slate-200 focus:ring-indigo-200 focus:border-indigo-300"}`}
+                        className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-all bg-white text-slate-900 ${errors.clientEmail ? "border-red-300 focus:ring-red-200" : "border-slate-200 focus:ring-indigo-200 focus:border-indigo-300"}`}
                         placeholder="client@example.com"
                       />
                       {errors.clientEmail && <p className="text-xs text-red-500 mt-1">{errors.clientEmail}</p>}
@@ -628,7 +770,7 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
                         type="date"
                         value={validTill}
                         onChange={e => setValidTill(e.target.value)}
-                        className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300"
+                        className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 bg-white text-slate-900"
                       />
                     </div>
                     <div className="md:col-span-2">
@@ -637,7 +779,7 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
                         value={clientAddress}
                         onChange={e => setClientAddress(e.target.value)}
                         rows={2}
-                        className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 resize-none"
+                        className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 resize-none bg-white text-slate-900"
                         placeholder="Client address"
                       />
                     </div>
@@ -647,7 +789,7 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
                         type="text"
                         value={paymentTerms}
                         onChange={e => setPaymentTerms(e.target.value)}
-                        className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300"
+                        className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 bg-white text-slate-900"
                         placeholder="e.g., 50% advance, 50% on delivery"
                       />
                     </div>
@@ -706,14 +848,14 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
                           type="number"
                           value={discount || ""}
                           onChange={e => setDiscount(parseFloat(e.target.value) || 0)}
-                          className="flex-1 px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                          className="flex-1 px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 bg-white text-slate-900"
                           placeholder="0"
                           min="0"
                         />
                         <select
                           value={discountType}
                           onChange={e => setDiscountType(e.target.value as "percentage" | "fixed")}
-                          className="px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                          className="px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 bg-white text-slate-900"
                         >
                           <option value="percentage">%</option>
                           <option value="fixed">₹</option>
@@ -726,7 +868,7 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
                         type="number"
                         value={gstRate || ""}
                         onChange={e => setGstRate(parseFloat(e.target.value) || 0)}
-                        className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                        className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 bg-white text-slate-900"
                         placeholder="0"
                         min="0"
                         max="28"
@@ -761,7 +903,7 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
                       value={notes}
                       onChange={e => setNotes(e.target.value)}
                       rows={3}
-                      className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 resize-none"
+                      className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 resize-none bg-white text-slate-900"
                       placeholder="Additional notes for the client"
                     />
                   </div>
@@ -771,7 +913,7 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
                       value={terms}
                       onChange={e => setTerms(e.target.value)}
                       rows={3}
-                      className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 resize-none"
+                      className="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-200 resize-none bg-white text-slate-900"
                       placeholder="Terms and conditions"
                     />
                   </div>
@@ -782,6 +924,17 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
             {currentStep === 4 && (
               <div className="space-y-6">
                 <h2 className="text-lg font-semibold text-slate-900">Review Quote</h2>
+                {mode === "create" && (
+                  <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 flex items-center gap-3">
+                    <svg className="w-5 h-5 text-indigo-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-medium text-indigo-900">Quote Number Preview</p>
+                      <p className="text-xs text-indigo-700 mt-0.5">This quote will be assigned number <strong>QS-{String((quoteCount || 0) + 1).padStart(4, "0")}</strong> upon saving</p>
+                    </div>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <h3 className="font-medium text-slate-700">Client Details</h3>
@@ -817,10 +970,10 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
                         <tbody>
                           {items.map((item, i) => (
                             <tr key={i} className="border-b border-slate-100">
-                              <td className="px-4 py-2">{item.description}</td>
-                              <td className="text-right px-4 py-2">{item.quantity} {item.unit}</td>
-                              <td className="text-right px-4 py-2">₹{item.rate.toFixed(2)}</td>
-                              <td className="text-right px-4 py-2 font-medium">₹{item.amount.toFixed(2)}</td>
+                              <td className="px-4 py-2 text-slate-900">{item.description}</td>
+                              <td className="text-right px-4 py-2 text-slate-700">{item.quantity} {item.unit}</td>
+                              <td className="text-right px-4 py-2 text-slate-700">₹{item.rate.toFixed(2)}</td>
+                              <td className="text-right px-4 py-2 font-medium text-slate-900">₹{item.amount.toFixed(2)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -906,10 +1059,10 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
                 <tbody>
                   {items.filter(i => i.description).map((item, i) => (
                     <tr key={i}>
-                      <td className="py-1">{item.description}</td>
-                      <td className="text-right py-1">{item.quantity}</td>
-                      <td className="text-right py-1">₹{item.rate}</td>
-                      <td className="text-right py-1">₹{item.amount}</td>
+                      <td className="py-1 text-slate-900">{item.description}</td>
+                      <td className="text-right py-1 text-slate-700">{item.quantity}</td>
+                      <td className="text-right py-1 text-slate-700">₹{item.rate}</td>
+                      <td className="text-right py-1 font-medium text-slate-900">₹{item.amount}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -918,7 +1071,7 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-slate-500">Subtotal</span>
-                <span>₹{subtotal.toFixed(2)}</span>
+                <span className="text-slate-900">₹{subtotal.toFixed(2)}</span>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-red-600">
@@ -929,7 +1082,7 @@ export default function QuoteWizard({ initialData, quoteId, mode }: Props) {
               {gstRate > 0 && (
                 <div className="flex justify-between">
                   <span className="text-slate-500">GST ({gstRate}%)</span>
-                  <span>₹{gstAmount.toFixed(2)}</span>
+                  <span className="text-slate-900">₹{gstAmount.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between font-bold text-lg text-indigo-600 pt-2 border-t border-slate-200">

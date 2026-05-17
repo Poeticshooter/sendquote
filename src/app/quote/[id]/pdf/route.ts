@@ -1,28 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
-import { createServerClient } from '@supabase/ssr'
-
-async function getUser(request: NextRequest) {
-  const authHeader = request.headers.get('Authorization')
-  if (authHeader?.startsWith('Bearer ')) {
-    const token = authHeader.slice(7)
-    const supabase = createAdminClient()
-    const { data: { user }, error } = await supabase.auth.getUser(token)
-    if (!error && user) return user
-  }
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return request.cookies.getAll() },
-        setAll() {},
-      },
-    }
-  )
-  const { data: { user } } = await supabase.auth.getUser()
-  return user
-}
+import { getUser } from '@/lib/auth'
 
 export async function GET(
   request: NextRequest,
@@ -68,7 +46,7 @@ export async function GET(
     logoUrl: profile?.logo_url || undefined,
     quoteNumber: quote.quote_number,
     date: new Date(quote.created_at).toLocaleDateString('en-IN'),
-    validTill: quote.valid_till ? new Date(quote.valid_till).toLocaleDateString('en-IN') : 'N/A',
+    validTill: quote.valid_until ? new Date(quote.valid_until).toLocaleDateString('en-IN') : 'N/A',
     clientName: quote.client_name,
     clientAddress: quote.client_address || '',
     clientPhone: quote.client_phone || '',

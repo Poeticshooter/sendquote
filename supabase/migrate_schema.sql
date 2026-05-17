@@ -614,3 +614,270 @@ BEGIN
   RETURN result;
 END;
 $$;
+
+-- ============================================================
+-- PHASE 1: SCHEMA ADDITIONS (Tasks 1-9)
+-- Safe migrations — will not affect existing data
+-- ============================================================
+
+-- 1.1 PROFILES ADDITIONS
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS upi_id TEXT DEFAULT '';
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS preferred_language TEXT DEFAULT 'en';
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS referral_code TEXT UNIQUE DEFAULT '';
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS referred_by TEXT DEFAULT '';
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS quote_counter INT NOT NULL DEFAULT 0;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS smtp_email TEXT DEFAULT '';
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS smtp_app_password TEXT DEFAULT '';
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS voice_language TEXT DEFAULT 'en-IN';
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS voice_enabled BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS tts_rate DECIMAL(3,1) NOT NULL DEFAULT 1.0;
+
+-- 1.2 QUOTES ADDITIONS
+ALTER TABLE quotes ADD COLUMN IF NOT EXISTS parent_quote_id UUID REFERENCES quotes(id) ON DELETE SET NULL;
+ALTER TABLE quotes ADD COLUMN IF NOT EXISTS version INT NOT NULL DEFAULT 1;
+ALTER TABLE quotes ADD COLUMN IF NOT EXISTS is_template BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE quotes ADD COLUMN IF NOT EXISTS template_name TEXT DEFAULT '';
+
+-- 1.3 INVOICES ADDITIONS
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS paid_amount DECIMAL(12,2) NOT NULL DEFAULT 0;
+ALTER TABLE invoices DROP COLUMN IF EXISTS balance_due;
+ALTER TABLE invoices ADD COLUMN IF NOT EXISTS balance_due DECIMAL(12,2) GENERATED ALWAYS AS (total - paid_amount) STORED;
+
+-- 1.4 ACTIVITY LOGS TABLE
+CREATE TABLE IF NOT EXISTS activity_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  entity_type TEXT NOT NULL CHECK (entity_type IN ('quote','invoice','client','payment')),
+  entity_id UUID NOT NULL,
+  action TEXT NOT NULL,
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_user ON activity_logs(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_entity ON activity_logs(entity_type, entity_id);
+
+-- 1.5 REFERRALS TABLE
+CREATE TABLE IF NOT EXISTS referrals (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  referrer_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  referred_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','converted','expired')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(referred_id)
+);
+CREATE INDEX IF NOT EXISTS idx_referrals_referrer ON referrals(referrer_id);
+CREATE INDEX IF NOT EXISTS idx_referrals_status ON referrals(status);
+
+-- 1.6 NEXT QUOTE NUMBER RPC
+CREATE OR REPLACE FUNCTION next_quote_number(p_user_id UUID)
+RETURNS TEXT
+LANGUAGE plpgsql SECURITY DEFINER
+AS $$
+DECLARE
+  v_num INT;
+  v_result TEXT;
+BEGIN
+  UPDATE profiles SET quote_counter = quote_counter + 1 WHERE user_id = p_user_id RETURNING quote_counter INTO v_num;
+  v_result := 'QS-' || LPAD(v_num::TEXT, 4, '0');
+  RETURN v_result;
+END;
+$$;
+
+-- 1.7 UNIQUE CONSTRAINT ON PAYMENTS.razorpay_payment_id
+ALTER TABLE payments ADD COLUMN IF NOT EXISTS razorpay_payment_id TEXT DEFAULT '';
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'payments_razorpay_payment_id_key'
+  ) THEN
+    ALTER TABLE payments ADD CONSTRAINT payments_razorpay_payment_id_key UNIQUE (razorpay_payment_id);
+  END IF;
+END $$;
+CREATE INDEX IF NOT EXISTS idx_payments_razorpay ON payments(razorpay_payment_id);
+
+-- 1.8 FIX track_quote_open RPC — use upsert to prevent race conditions
+CREATE OR REPLACE FUNCTION track_quote_open(p_token TEXT)
+RETURNS VOID
+LANGUAGE plpgsql SECURITY DEFINER
+AS $$
+DECLARE v_quote_id UUID; v_status TEXT;
+BEGIN
+  SELECT id, status INTO v_quote_id, v_status FROM quotes WHERE unique_token = p_token LIMIT 1;
+  IF v_quote_id IS NULL THEN RETURN; END IF;
+  INSERT INTO quote_events (quote_id, event_type, device_type) VALUES (v_quote_id, 'opened', 'unknown');
+  IF v_status = 'sent' THEN UPDATE quotes SET status = 'opened', updated_at = NOW() WHERE id = v_quote_id; END IF;
+END;
+$$;
+
+-- 1.9 RLS POLICIES FOR NEW TABLES
+ALTER TABLE activity_logs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can read their own activity logs"
+  ON activity_logs FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own activity logs"
+  ON activity_logs FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+ALTER TABLE referrals ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can read their own referrals"
+  ON referrals FOR SELECT
+  USING (auth.uid() = referrer_id OR auth.uid() = referred_id);
+
+CREATE POLICY "Users can insert referrals"
+  ON referrals FOR INSERT
+  WITH CHECK (auth.uid() = referrer_id OR auth.uid() = referred_id);
+
+-- 20. AUTO-GENERATE REFERRAL CODE ON SIGNUP
+CREATE OR REPLACE FUNCTION generate_referral_code()
+RETURNS TRIGGER
+LANGUAGE plpgsql SECURITY DEFINER
+AS $$
+DECLARE
+  v_code TEXT;
+  v_base TEXT;
+  v_suffix INT;
+BEGIN
+  v_base := UPPER(SUBSTRING(NEW.business_name FROM '^[A-Za-z]{1,6}'));
+  IF v_base = '' THEN
+    v_base := 'USER';
+  END IF;
+  LOOP
+    v_suffix := floor(random() * 9000 + 1000)::INT;
+    v_code := v_base || v_suffix;
+    BEGIN
+      UPDATE profiles SET referral_code = v_code WHERE id = NEW.id;
+      EXIT;
+    EXCEPTION WHEN unique_violation THEN
+      -- Retry with different suffix
+    END;
+  END LOOP;
+  RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER on_profile_created_generate_referral
+  AFTER INSERT ON profiles
+  FOR EACH ROW EXECUTE FUNCTION generate_referral_code();
+
+-- INCREMENT MONTHLY QUOTE COUNT RPC
+CREATE OR REPLACE FUNCTION increment_monthly_quote_count(p_user_id UUID)
+RETURNS VOID
+LANGUAGE plpgsql SECURITY DEFINER
+AS $$
+BEGIN
+  UPDATE profiles SET monthly_quote_count = monthly_quote_count + 1 WHERE user_id = p_user_id;
+END;
+$$;
+
+-- RATE LIMITS TABLE (for distributed rate limiting across serverless instances)
+CREATE TABLE IF NOT EXISTS rate_limits (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  key TEXT NOT NULL,
+  count INT NOT NULL DEFAULT 1,
+  first_seen TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(key)
+);
+CREATE INDEX IF NOT EXISTS idx_rate_limits_key ON rate_limits(key);
+CREATE INDEX IF NOT EXISTS idx_rate_limits_first_seen ON rate_limits(first_seen);
+
+-- CRON REMINDER TRACKING (for idempotent cron jobs)
+CREATE TABLE IF NOT EXISTS cron_reminders (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  quote_id UUID REFERENCES quotes(id) ON DELETE CASCADE,
+  reminder_type TEXT NOT NULL CHECK (reminder_type IN ('follow_up','after_open','expiry_warning','invoice_overdue')),
+  sent_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(quote_id, reminder_type)
+);
+CREATE INDEX IF NOT EXISTS idx_cron_reminders_quote ON cron_reminders(quote_id);
+CREATE INDEX IF NOT EXISTS idx_cron_reminders_type ON cron_reminders(reminder_type);
+
+-- DASHBOARD STATS RPC (server-first dashboard)
+CREATE OR REPLACE FUNCTION get_dashboard_stats(p_user_id UUID)
+RETURNS JSON
+LANGUAGE plpgsql SECURITY DEFINER
+AS $$
+DECLARE
+  v_total_quotes INT;
+  v_total_value NUMERIC;
+  v_accepted INT;
+  v_outstanding NUMERIC;
+  v_overdue NUMERIC;
+  v_month_start DATE;
+  v_month_count INT;
+  v_result JSON;
+BEGIN
+  SELECT COUNT(*) INTO v_total_quotes FROM quotes WHERE user_id = p_user_id;
+  SELECT COALESCE(SUM(total), 0) INTO v_total_value FROM quotes WHERE user_id = p_user_id;
+  SELECT COUNT(*) INTO v_accepted FROM quotes WHERE user_id = p_user_id AND status = 'accepted';
+  SELECT COALESCE(SUM(total), 0) INTO v_outstanding FROM quotes WHERE user_id = p_user_id AND status IN ('sent', 'opened');
+  SELECT COALESCE(SUM(total), 0) INTO v_overdue FROM quotes WHERE user_id = p_user_id AND status = 'sent' AND valid_till < CURRENT_DATE;
+
+  v_month_start := DATE_TRUNC('month', CURRENT_DATE);
+  SELECT COUNT(*) INTO v_month_count FROM quotes WHERE user_id = p_user_id AND created_at >= v_month_start;
+
+  v_result := json_build_object(
+    'total_quotes', v_total_quotes,
+    'total_value', v_total_value,
+    'accepted', v_accepted,
+    'outstanding', v_outstanding,
+    'overdue', v_overdue,
+    'month_count', v_month_count
+  );
+
+  RETURN v_result;
+END;
+$$;
+
+-- UPSERT RATE LIMIT ENTRY
+CREATE OR REPLACE FUNCTION upsert_rate_limit(
+  p_key TEXT,
+  p_max INT,
+  p_window_seconds INT
+)
+RETURNS JSON
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  v_entry RECORD;
+  v_now TIMESTAMPTZ := NOW();
+  v_window_start TIMESTAMPTZ := v_now - (p_window_seconds || ' seconds')::INTERVAL;
+BEGIN
+  -- Clean up expired entries
+  DELETE FROM rate_limits WHERE first_seen < v_window_start;
+
+  -- Get or create entry
+  SELECT * INTO v_entry FROM rate_limits WHERE key = p_key;
+
+  IF v_entry IS NULL THEN
+    INSERT INTO rate_limits (key, count, first_seen, updated_at)
+    VALUES (p_key, 1, v_now, v_now)
+    RETURNING * INTO v_entry;
+    RETURN json_build_object('allowed', true, 'remaining', p_max - 1, 'count', 1);
+  END IF;
+
+  -- Reset if window expired
+  IF v_entry.first_seen < v_window_start THEN
+    UPDATE rate_limits SET count = 1, first_seen = v_now, updated_at = v_now WHERE key = p_key
+    RETURNING * INTO v_entry;
+    RETURN json_build_object('allowed', true, 'remaining', p_max - 1, 'count', 1);
+  END IF;
+
+  -- Check limit
+  IF v_entry.count >= p_max THEN
+    RETURN json_build_object(
+      'allowed', false,
+      'remaining', 0,
+      'retryAfter', CEIL(EXTRACT(EPOCH FROM (v_entry.first_seen + (p_window_seconds || ' seconds')::INTERVAL - v_now)))
+    );
+  END IF;
+
+  -- Increment
+  UPDATE rate_limits SET count = count + 1, updated_at = v_now WHERE key = p_key
+  RETURNING * INTO v_entry;
+  RETURN json_build_object('allowed', true, 'remaining', p_max - v_entry.count, 'count', v_entry.count);
+END;
+$$;

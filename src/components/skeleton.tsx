@@ -8,7 +8,15 @@ export function Skeleton({ className = "", rows = 1 }: { className?: string; row
   )
 }
 
-export function CardSkeleton() {
+export function SkeletonText({ width = "w-full", height = "h-4" }: { width?: string; height?: string }) {
+  return <div className={`skeleton ${height} ${width} rounded`} />
+}
+
+export function SkeletonCircle({ size = "w-10 h-10" }: { size?: string }) {
+  return <div className={`skeleton ${size} rounded-full`} />
+}
+
+export function SkeletonCard() {
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
       <div className="skeleton h-4 w-1/3" />
@@ -17,6 +25,8 @@ export function CardSkeleton() {
     </div>
   )
 }
+
+export const CardSkeleton = SkeletonCard
 
 export function TableSkeleton({ rows = 5 }: { rows?: number }) {
   return (
@@ -33,6 +43,16 @@ export function TableSkeleton({ rows = 5 }: { rows?: number }) {
           <div className="skeleton h-4 w-1/6" />
         </div>
       ))}
+    </div>
+  )
+}
+
+export function ChartSkeleton() {
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+      <div className="skeleton h-5 w-1/3" />
+      <div className="skeleton h-4 w-1/2" />
+      <div className="skeleton h-40 w-full rounded-lg" />
     </div>
   )
 }

@@ -1,29 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
-import { createServerClient } from '@supabase/ssr'
 import { generateInvoicePDF } from '@/lib/pdf'
+import { getUser } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
-async function getUser(request: NextRequest) {
-  const authHeader = request.headers.get('Authorization')
-  if (authHeader?.startsWith('Bearer ')) {
-    const token = authHeader.slice(7)
-    const supabase = createAdminClient()
-    const { data: { user }, error } = await supabase.auth.getUser(token)
-    if (!error && user) return user
-  }
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return request.cookies.getAll() },
-        setAll() {},
-      },
-    }
-  )
-  const { data: { user } } = await supabase.auth.getUser()
-  return user
-}
+type InvoiceItem = { description: string; spec?: string; quantity: number; unit: string; rate: number; amount: number }
+type Payment = { amount: number }
 
 export async function GET(
   request: NextRequest,
@@ -38,7 +20,6 @@ export async function GET(
     const { id } = await params
     const supabase = createAdminClient()
 
-    // Get invoice directly
     const { data: invoice, error: invErr } = await supabase
       .from('invoices')
       .select('*')
@@ -52,26 +33,23 @@ export async function GET(
       return NextResponse.json({ error: 'forbidden' }, { status: 403 })
     }
 
-    // Get profile
     const { data: profile } = await supabase
       .from('profiles')
-      .select('business_name, logo_url, phone, gst_number, address')
+      .select('business_name, logo_url, phone, gst_number, address, upi_id')
       .eq('user_id', invoice.user_id)
       .single()
 
-    // Get items
     const { data: items } = await supabase
       .from('invoice_items')
       .select('*')
       .eq('invoice_id', id)
       .order('sort_order')
 
-    // Get payments
     const { data: payments } = await supabase
       .from("payments")
       .select("amount")
       .eq("invoice_id", id)
-    const paidAmount = (payments || []).reduce((sum: number, p: any) => sum + Number(p.amount), 0)
+    const paidAmount = (payments || []).reduce((sum: number, p: Payment) => sum + Number(p.amount), 0)
 
     const pdfBytes = await generateInvoicePDF({
       businessName: profile?.business_name || 'Your Business',
@@ -84,7 +62,7 @@ export async function GET(
       clientAddress: invoice.client_address || '',
       clientPhone: invoice.client_phone || '',
       clientEmail: invoice.client_email || '',
-      items: (items || []).map((i: any) => ({
+      items: (items || []).map((i: InvoiceItem) => ({
         description: i.description,
         quantity: i.quantity,
         unit: i.unit,
@@ -101,6 +79,7 @@ export async function GET(
       terms: invoice.terms || '',
       notes: invoice.notes || '',
       paymentTerms: invoice.payment_terms || '',
+      upiId: profile?.upi_id || undefined,
     })
 
     return new NextResponse(Buffer.from(pdfBytes), {
@@ -109,8 +88,9 @@ export async function GET(
         'Content-Disposition': `attachment; filename="invoice-${invoice.invoice_number}.pdf"`,
       },
     })
-  } catch (err: any) {
-    console.error('Invoice PDF error:', err?.message || err)
-    return NextResponse.json({ error: err?.message || 'Internal server error' }, { status: 500 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Internal server error'
+    logger.error('Invoice PDF error', { error: message })
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

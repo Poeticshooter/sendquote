@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase"
 import { useEffect, useState } from "react"
+import Button from "@/components/ui/button"
 
 const navItems = [
   {
@@ -36,6 +37,15 @@ const navItems = [
     ),
   },
   {
+    name: "Clients",
+    href: "/clients",
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+      </svg>
+    ),
+  },
+  {
     name: "Settings",
     href: "/settings",
     icon: (
@@ -57,6 +67,7 @@ function checkActive(href: string, pathname: string): boolean {
 export default function Sidebar() {
   const pathname = usePathname()
   const [profile, setProfile] = useState<{ business_name: string; plan: string } | null>(null)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -67,8 +78,16 @@ export default function Sidebar() {
     })
   }, [supabase])
 
-  return (
-    <aside className="w-60 bg-white border-r border-slate-200 flex flex-col shrink-0">
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth >= 768) setMobileOpen(false)
+    }
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
+
+  const sidebarContent = (
+    <>
       <div className="p-4 border-b border-slate-100">
         <Link href="/dashboard" className="flex items-center gap-2.5 group">
           <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-transform group-hover:scale-105">
@@ -80,20 +99,21 @@ export default function Sidebar() {
         </Link>
       </div>
 
-      <nav className="flex-1 p-3 space-y-0.5">
+      <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
         {navItems.map((item) => {
           const active = checkActive(item.href, pathname)
           return (
             <Link
               key={item.name}
               href={item.href}
+              onClick={() => setMobileOpen(false)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
                 active
                   ? "bg-indigo-50 text-indigo-700"
                   : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
               }`}
             >
-              <span className={`transition-colors ${active ? "text-indigo-600" : "text-slate-400 group-hover:text-slate-600"}`}>
+              <span className={`transition-colors ${active ? "text-indigo-600" : "text-slate-400"}`}>
                 {item.icon}
               </span>
               {item.name}
@@ -106,31 +126,37 @@ export default function Sidebar() {
         <Link
           href="/quote/new"
           data-tour="new-quote"
-          className="flex items-center justify-center gap-2 w-full bg-indigo-600 text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-indigo-700 transition-all hover:shadow-md active:scale-[0.98]"
+          onClick={() => setMobileOpen(false)}
+          className="block"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          New Quote
+          <Button variant="primary" size="md" fullWidth>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            New Quote
+          </Button>
         </Link>
         <Link
           href="/quote/voice"
           data-tour="voice-quote"
-          className="flex items-center justify-center gap-2 w-full bg-white text-slate-700 text-sm font-medium px-4 py-2.5 rounded-lg border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 transition-all"
+          onClick={() => setMobileOpen(false)}
+          className="block"
         >
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-            <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z" strokeLinecap="round"/>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2" strokeLinecap="round"/>
-            <line x1="12" y1="19" x2="12" y2="22" strokeLinecap="round"/>
-          </svg>
-          Voice Quote
+          <Button variant="secondary" size="md" fullWidth>
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+              <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z" strokeLinecap="round"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2" strokeLinecap="round"/>
+              <line x1="12" y1="19" x2="12" y2="22" strokeLinecap="round"/>
+            </svg>
+            Voice Quote
+          </Button>
         </Link>
       </div>
 
       {profile && (
         <div className="p-3 border-t border-slate-100">
           <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
-            onClick={() => window.location.href = "/settings"}>
+            onClick={() => { setMobileOpen(false); window.location.href = "/settings" }}>
             <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-700 shrink-0">
               {profile.business_name?.charAt(0)?.toUpperCase() || "B"}
             </div>
@@ -141,6 +167,45 @@ export default function Sidebar() {
           </div>
         </div>
       )}
-    </aside>
+    </>
+  )
+
+  return (
+    <>
+      {/* Mobile hamburger button */}
+      <button
+        onClick={() => setMobileOpen(!mobileOpen)}
+        className="md:hidden fixed top-3 left-3 z-50 w-10 h-10 bg-white rounded-lg shadow-md border border-slate-200 flex items-center justify-center"
+        aria-label="Toggle menu"
+      >
+        <svg className="w-5 h-5 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          {mobileOpen ? (
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          ) : (
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          )}
+        </svg>
+      </button>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/30 z-40"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`
+        fixed md:relative
+        top-0 left-0 bottom-0
+        w-60 bg-white border-r border-slate-200 flex flex-col shrink-0
+        z-50 md:z-auto
+        transition-transform duration-300 ease-in-out
+        ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
+        {sidebarContent}
+      </aside>
+    </>
   )
 }

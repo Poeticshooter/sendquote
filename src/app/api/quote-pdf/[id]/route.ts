@@ -1,29 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
-import { createServerClient } from '@supabase/ssr'
 import { generateQuotePDF } from '@/lib/pdf'
+import { getUser } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
-async function getUser(request: NextRequest) {
-  const authHeader = request.headers.get('Authorization')
-  if (authHeader?.startsWith('Bearer ')) {
-    const token = authHeader.slice(7)
-    const supabase = createAdminClient()
-    const { data: { user }, error } = await supabase.auth.getUser(token)
-    if (!error && user) return user
-  }
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return request.cookies.getAll() },
-        setAll() {},
-      },
-    }
-  )
-  const { data: { user } } = await supabase.auth.getUser()
-  return user
-}
+type QuoteItem = { description: string; spec?: string; quantity: number; unit: string; rate: number; amount: number }
 
 export async function GET(
   request: NextRequest,
@@ -38,7 +19,6 @@ export async function GET(
     const { id } = await params
     const supabase = createAdminClient()
 
-    // Get quote directly
     const { data: quote, error: qErr } = await supabase
       .from('quotes')
       .select('*')
@@ -52,14 +32,12 @@ export async function GET(
       return NextResponse.json({ error: 'forbidden' }, { status: 403 })
     }
 
-    // Get profile
     const { data: profile } = await supabase
       .from('profiles')
-      .select('business_name, logo_url, phone, gst_number, address')
+      .select('business_name, logo_url, phone, gst_number, address, plan')
       .eq('user_id', quote.user_id)
       .single()
 
-    // Get items
     const { data: items } = await supabase
       .from('quote_items')
       .select('*')
@@ -74,13 +52,13 @@ export async function GET(
       address: profile?.address || '',
       quoteNumber: quote.quote_number,
       date: new Date(quote.created_at).toLocaleDateString('en-IN'),
-      validTill: quote.valid_till ? new Date(quote.valid_till).toLocaleDateString('en-IN') : 'N/A',
+      validTill: quote.valid_until ? new Date(quote.valid_until).toLocaleDateString('en-IN') : 'N/A',
       status: quote.status,
       clientName: quote.client_name,
       clientAddress: quote.client_address || '',
       clientPhone: quote.client_phone || '',
       clientEmail: quote.client_email || '',
-      items: (items || []).map((i: any) => ({
+      items: (items || []).map((i: QuoteItem) => ({
         description: i.description,
         spec: i.spec || '',
         quantity: i.quantity,
@@ -97,6 +75,7 @@ export async function GET(
       terms: quote.terms || '',
       notes: quote.notes || '',
       paymentTerms: quote.payment_terms || '',
+      isFreePlan: profile?.plan === 'free',
     })
 
     return new NextResponse(Buffer.from(pdfBytes), {
@@ -105,8 +84,9 @@ export async function GET(
         'Content-Disposition': `attachment; filename="quote-${quote.quote_number}.pdf"`,
       },
     })
-  } catch (err: any) {
-    console.error('PDF error:', err.message, err.stack)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Internal server error'
+    logger.error('Quote PDF error', { error: message })
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

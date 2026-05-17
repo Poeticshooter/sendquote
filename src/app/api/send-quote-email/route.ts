@@ -192,6 +192,11 @@ export async function POST(request: NextRequest) {
             </p>
           </td>
         </tr>
+        <tr>
+          <td style="padding:0; margin:0; line-height:0; font-size:0;">
+            <img src="${siteUrl}/api/track?token=${quote.unique_token}" width="1" height="1" alt="" style="display:block; width:1px; height:1px;" />
+          </td>
+        </tr>
       </table>
     `
 

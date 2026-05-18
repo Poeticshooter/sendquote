@@ -6,6 +6,7 @@ import ChatBot from "@/components/chat-bot"
 import VoiceAssistant from "@/components/voice-assistant"
 import I18nWrapper from "@/components/i18n-wrapper"
 import ErrorBoundary from "@/components/error-boundary"
+import { Analytics } from "@vercel/analytics/next"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -184,6 +185,7 @@ export default function RootLayout({
             <ChatBot />
           </ToastProvider>
         </I18nWrapper>
+        <Analytics />
       </body>
     </html>
   )

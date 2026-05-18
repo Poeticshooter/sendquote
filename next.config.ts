@@ -63,14 +63,18 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
-  org: process.env.SENTRY_ORG,
-  project: process.env.SENTRY_PROJECT,
-  authToken: process.env.SENTRY_AUTH_TOKEN,
-  silent: !process.env.CI,
-  widenClientFileUpload: true,
-  sourcemaps: {
-    deleteSourcemapsAfterUpload: true,
-  },
-  disableLogger: true,
-});
+const sentryConfig = (process.env.SENTRY_ORG && process.env.SENTRY_PROJECT && process.env.SENTRY_AUTH_TOKEN)
+  ? {
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      silent: !process.env.CI,
+      widenClientFileUpload: true,
+      sourcemaps: {
+        deleteSourcemapsAfterUpload: true,
+      },
+      disableLogger: true,
+    }
+  : { silent: true, disableLogger: true }
+
+export default withSentryConfig(nextConfig, sentryConfig);

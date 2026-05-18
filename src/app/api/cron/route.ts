@@ -101,10 +101,18 @@ export async function GET(request: NextRequest) {
   const now = new Date()
   const results: string[] = []
   const startTime = Date.now()
+  const MAX_DURATION_MS = 25000
 
   logger.info('Cron job started', { timestamp: now.toISOString() })
 
+  function shouldStop(): boolean {
+    return Date.now() - startTime > MAX_DURATION_MS
+  }
+
+  const todayStr = now.toISOString().split('T')[0]
+
   // 1. Follow-up reminders for quotes sent 2+ days ago, not yet opened
+  if (!shouldStop()) {
   const twoDaysAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000).toISOString()
   const unopenedRes = await fetch(`${SUPABASE_URL}/rest/v1/quotes?status=eq.sent&created_at=lt.${twoDaysAgo}&select=id,quote_number,client_name,user_id`, {
     headers: SUPABASE_HEADERS,
@@ -129,8 +137,10 @@ export async function GET(request: NextRequest) {
     }
     await batchMarkReminders(toRemind.map(q => ({ quote_id: q.id, reminder_type: 'follow_up' })))
   }
+  } else { results.push('Skipped follow-up (timeout approaching)') }
 
   // 2. After-open reminders (24h after opening, no action taken)
+  if (!shouldStop()) {
   const openedRes = await fetch(`${SUPABASE_URL}/rest/v1/quotes?status=eq.opened&select=id,quote_number,client_name,user_id`, {
     headers: SUPABASE_HEADERS,
   })
@@ -170,8 +180,10 @@ export async function GET(request: NextRequest) {
     }
     await batchMarkReminders(toRemind.map(q => ({ quote_id: q.id, reminder_type: 'after_open' })))
   }
+  } else { results.push('Skipped after-open (timeout approaching)') }
 
   // 3. Expiry warnings for quotes expiring tomorrow
+  if (!shouldStop()) {
   const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000)
   const tomorrowStr = tomorrow.toISOString().split('T')[0]
   const expiringRes = await fetch(`${SUPABASE_URL}/rest/v1/quotes?valid_until=eq.${tomorrowStr}&status=in.(sent,opened)&select=id,quote_number,client_name,user_id`, {
@@ -197,9 +209,10 @@ export async function GET(request: NextRequest) {
     }
     await batchMarkReminders(toRemind.map(q => ({ quote_id: q.id, reminder_type: 'expiry_warning' })))
   }
+  } else { results.push('Skipped expiry (timeout approaching)') }
 
   // 4. Auto-expire past-due quotes
-  const todayStr = now.toISOString().split('T')[0]
+  if (!shouldStop()) {
   const expiredRes = await fetch(`${SUPABASE_URL}/rest/v1/quotes?valid_until=lt.${todayStr}&status=in.(sent,opened)&select=id`, {
     method: 'PATCH',
     headers: { ...SUPABASE_HEADERS, 'Prefer': 'return=representation' },
@@ -208,8 +221,10 @@ export async function GET(request: NextRequest) {
   const expired = await expiredRes.json()
   const expiredCount = expired?.length || 0
   results.push(`Expired ${expiredCount} past-due quotes`)
+  } else { results.push('Skipped auto-expire (timeout approaching)') }
 
   // 5. Overdue invoice reminders (skip if already reminded within last 7 days)
+  if (!shouldStop()) {
   const overdueInvoicesRes = await fetch(`${SUPABASE_URL}/rest/v1/invoices?status=eq.unpaid&due_date=lt.${todayStr}&select=id,invoice_number,client_name,user_id,total`, {
     headers: SUPABASE_HEADERS,
   })
@@ -236,8 +251,10 @@ export async function GET(request: NextRequest) {
     }
     await batchMarkReminders(toRemind.map(inv => ({ quote_id: inv.id, reminder_type: 'invoice_overdue' })))
   }
+  } else { results.push('Skipped overdue invoices (timeout approaching)') }
 
   // 6. Archive old quote_events (older than 90 days)
+  if (!shouldStop()) {
   const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString()
   try {
     await supabasePatch('quote_events', `created_at=lt.${ninetyDaysAgo}`, {})
@@ -249,8 +266,10 @@ export async function GET(request: NextRequest) {
   } catch (e) {
     results.push(`Failed to archive quote_events: ${e}`)
   }
+  } else { results.push('Skipped archive (timeout approaching)') }
 
   // 7. Prune activity_logs (older than 30 days)
+  if (!shouldStop()) {
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString()
   try {
     await fetch(`${SUPABASE_URL}/rest/v1/activity_logs?created_at=lt.${thirtyDaysAgo}`, {
@@ -261,8 +280,10 @@ export async function GET(request: NextRequest) {
   } catch (e) {
     results.push(`Failed to prune activity_logs: ${e}`)
   }
+  } else { results.push('Skipped prune (timeout approaching)') }
 
   // 8. Clean expired admin sessions
+  if (!shouldStop()) {
   try {
     await fetch(`${SUPABASE_URL}/rest/v1/rpc/cleanup_expired_admin_sessions`, {
       method: 'POST',
@@ -272,8 +293,10 @@ export async function GET(request: NextRequest) {
   } catch (e) {
     results.push(`Failed to clean admin sessions: ${e}`)
   }
+  } else { results.push('Skipped admin sessions (timeout approaching)') }
 
   // 9. Purge soft-deleted quotes older than 24 hours
+  if (!shouldStop()) {
   try {
     await fetch(`${SUPABASE_URL}/rest/v1/rpc/purge_soft_deleted_quotes`, {
       method: 'POST',
@@ -283,8 +306,10 @@ export async function GET(request: NextRequest) {
   } catch (e) {
     results.push(`Failed to purge soft-deleted quotes: ${e}`)
   }
+  } else { results.push('Skipped purge (timeout approaching)') }
 
   // 10. Downgrade expired plans
+  if (!shouldStop()) {
   try {
     await fetch(`${SUPABASE_URL}/rest/v1/rpc/downgrade_expired_plans`, {
       method: 'POST',
@@ -294,6 +319,7 @@ export async function GET(request: NextRequest) {
   } catch (e) {
     results.push(`Failed to downgrade expired plans: ${e}`)
   }
+  } else { results.push('Skipped downgrade (timeout approaching)') }
 
   const duration = Date.now() - startTime
   logger.info('Cron job completed', { durationMs: duration, resultCount: results.length })

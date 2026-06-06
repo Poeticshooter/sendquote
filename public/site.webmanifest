@@ -1,0 +1,11 @@
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "SendQuote",
+  "url": "https://sendquote.in",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://sendquote.in/dashboard?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}

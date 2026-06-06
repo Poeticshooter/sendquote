@@ -1,0 +1,54 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { generateContractHtml } from "@/lib/contracts/generate";
+
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ quoteId: string }> }
+) {
+  try {
+    const { quoteId } = await params;
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+
+    const adminDb = createAdminClient();
+    const { data: quote } = await adminDb
+      .from("quotes")
+      .select("*, quote_items(*), quote_signatures(*), profiles(business_name)")
+      .eq("id", quoteId)
+      .single();
+
+    if (!quote) return NextResponse.json({ error: "Quote not found" }, { status: 404 });
+
+    const signature = (quote as any).quote_signatures?.[0];
+    const html = generateContractHtml({
+      quoteNumber: quote.quote_number,
+      clientName: quote.client_name,
+      clientEmail: quote.client_email,
+      businessName: (quote as any).profiles?.business_name || "Provider",
+      items: ((quote as any).quote_items || []).map((i: any) => ({
+        description: i.description,
+        quantity: i.quantity,
+        rate: i.rate,
+        amount: i.amount,
+      })),
+      subtotal: quote.subtotal,
+      gstRate: quote.gst_rate,
+      gstAmount: quote.gst_amount,
+      total: quote.total,
+      notes: quote.notes,
+      terms: quote.terms,
+      signatoryName: signature?.signatory_name || "Client",
+      signedAt: signature?.created_at || quote.updated_at,
+      validUntil: quote.valid_until,
+    });
+
+    return new NextResponse(html, {
+      headers: { "Content-Type": "text/html" },
+    });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

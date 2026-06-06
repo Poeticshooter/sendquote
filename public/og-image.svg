@@ -1,9 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <rect width="1200" height="630" fill="#1A1A1A"/>
+  <rect width="1200" height="630" fill="#0A0A0A"/>
   <rect x="80" y="80" width="48" height="48" rx="12" fill="white"/>
-  <path d="M95 110l18-4M95 118l12-2M95 126l14-3" stroke="#1A1A1A" stroke-width="3" stroke-linecap="round"/>
-  <text x="145" y="117" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="36" fill="white">SendQuote</text>
-  <text x="80" y="310" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="64" fill="white">The Fastest Path From</text>
-  <text x="80" y="390" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="64" fill="rgba(255,255,255,0.6)">Conversation to Contract</text>
-  <text x="80" y="450" font-family="system-ui, -apple-system, sans-serif" font-weight="400" font-size="24" fill="rgba(255,255,255,0.4)">sendquote.in</text>
+  <path d="M95 110l18-4M95 118l12-2M95 126l14-3" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round"/>
+  <text x="145" y="117" font-family="system-ui" font-weight="700" font-size="36" fill="white">SendQuote</text>
+  <text x="80" y="310" font-family="system-ui" font-weight="800" font-size="64" fill="white">Close Deals</text>
+  <text x="80" y="390" font-family="system-ui" font-weight="800" font-size="64" fill="#00D4AA">Instantly.</text>
+  <text x="80" y="450" font-family="system-ui" font-weight="400" font-size="24" fill="rgba(255,255,255,0.4)">Not in Weeks. AI-powered revenue workflow platform.</text>
+  <rect x="80" y="480" width="80" height="4" rx="2" fill="#00D4AA"/>
 </svg>

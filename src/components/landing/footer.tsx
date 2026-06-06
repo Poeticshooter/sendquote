@@ -14,27 +14,23 @@ const footerLinks = {
     { href: "/terms", label: "Terms of Service" },
   ],
   Resources: [
-    { href: "/docs/api", label: "API Reference" },
+    { href: "/docs/api", label: "API" },
     { href: "/glossary", label: "Glossary" },
-    { href: "/comparisons", label: "Comparisons" },
   ],
 };
 
 export function Footer() {
   return (
-    <footer className="border-t px-4 py-16 sm:px-6 lg:px-8 bg-muted/30">
+    <footer className="border-t px-4 py-16 sm:px-6 lg:px-8 bg-muted/20">
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-secondary text-sm font-bold text-white shadow-lg shadow-primary/25">
-                SQ
-              </div>
+            <Link href="/" className="flex items-center gap-2.5">
+              <img src="/logo-icon.svg" alt="" className="h-8 w-8" />
               <span className="text-lg font-bold">SendQuote</span>
             </Link>
             <p className="mt-4 text-sm text-muted-foreground max-w-xs leading-relaxed">
-              The fastest path from conversation to contract. AI-powered quoting 
-              and revenue workflow platform for modern businesses.
+              The fastest path from conversation to contract. AI-powered quoting platform for modern businesses.
             </p>
           </div>
           {Object.entries(footerLinks).map(([title, links]) => (
@@ -43,12 +39,7 @@ export function Footer() {
               <ul className="mt-4 space-y-3">
                 {links.map((link) => (
                   <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {link.label}
-                    </Link>
+                    <Link href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{link.label}</Link>
                   </li>
                 ))}
               </ul>
@@ -60,7 +51,6 @@ export function Footer() {
           <div className="flex gap-6">
             <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
-            <Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link>
           </div>
         </div>
       </div>

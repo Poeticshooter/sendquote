@@ -53,9 +53,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto flex items-center justify-center gap-2 mb-4">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
-              SQ
-            </div>
+            <img src="/logo-icon.svg" alt="" className="h-8 w-8" />
             <span className="text-xl font-bold">SendQuote</span>
           </Link>
           <CardTitle className="text-2xl">Welcome back</CardTitle>

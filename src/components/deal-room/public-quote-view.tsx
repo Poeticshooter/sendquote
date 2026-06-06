@@ -18,9 +18,7 @@ export function PublicQuoteView({ quote, publicToken }: PublicQuoteViewProps) {
       <div className="rounded-xl border bg-white p-6 sm:p-8 shadow-sm">
         <div className="flex items-center justify-between border-b pb-6">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
-              SQ
-            </div>
+            <img src="/logo-icon.svg" alt="" className="h-8 w-8" />
             <span className="text-xl font-bold">SendQuote</span>
           </div>
           <span className="text-sm text-gray-500">{quote.quote_number}</span>

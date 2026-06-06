@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { PostHogProvider } from "@/components/shared/posthog-provider";
+import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Suspense } from "react";
 
 const interSans = Inter({
@@ -141,10 +142,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <PostHogProvider>
-          <Suspense fallback={null}>{children}</Suspense>
-          <Toaster richColors position="top-right" />
-        </PostHogProvider>
+        <ThemeProvider>
+          <PostHogProvider>
+            <Suspense fallback={null}>{children}</Suspense>
+            <Toaster richColors position="top-right" />
+          </PostHogProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -5,6 +5,7 @@ import { detectBot, rateLimitCheck } from "@/lib/security";
 const publicPaths = [
   "/", "/login", "/signup", "/forgot-password", "/pricing", "/blog",
   "/docs", "/changelog", "/faq", "/contact", "/privacy", "/terms",
+  "/features",
 ];
 
 export async function middleware(request: NextRequest) {

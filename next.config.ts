@@ -16,29 +16,52 @@ const cspHeader = `
 `;
 
 const nextConfig: NextConfig = {
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
+
   async headers() {
     return [
       {
         source: "/(.*)",
         headers: [
-          {
-            key: "Content-Security-Policy",
-            value: cspHeader.replace(/\n/g, " ").trim(),
-          },
+          { key: "Content-Security-Policy", value: cspHeader.replace(/\n/g, " ").trim() },
           { key: "X-Frame-Options", value: "DENY" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
         ],
       },
+      {
+        source: "/:path(.+\\.(?:svg|png|jpg|jpeg|gif|webp|woff2?)$)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        source: "/blog/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=3600, s-maxage=86400" },
+        ],
+      },
+      {
+        source: "/api/llmstxt",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=3600" },
+          { key: "Content-Type", value: "text/plain; charset=utf-8" },
+        ],
+      },
     ];
   },
+
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "*.supabase.co" },
       { protocol: "https", hostname: "*.supabase.in" },
     ],
+    formats: ["image/avif", "image/webp"],
   },
+
   async rewrites() {
     return [
       { source: "/llms.txt", destination: "/api/llmstxt" },

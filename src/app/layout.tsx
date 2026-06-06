@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { PostHogProvider } from "@/components/shared/posthog-provider";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { CookieConsent } from "@/components/shared/cookie-consent";
+import { SkipNav } from "@/components/shared/skip-nav";
 import { Suspense } from "react";
 
 const interSans = Inter({ variable: "--font-sans", subsets: ["latin"], display: "swap" });
@@ -90,6 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
       <body className="min-h-full flex flex-col">
+        <SkipNav />
         <ThemeProvider>
           <PostHogProvider>
             <Suspense fallback={null}>{children}</Suspense>

@@ -1,0 +1,10 @@
+{
+  "projectId": "yabsujbilznpoayueokq",
+  "settings": {
+    "db": { "schema": "public" },
+    "auth": {
+      "providers": ["email", "google"],
+      "redirect_urls": ["https://sendquote.in/auth/callback", "http://localhost:3000/auth/callback"]
+    }
+  }
+}

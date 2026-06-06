@@ -22,18 +22,19 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="border-t px-4 py-12 sm:px-6 lg:px-8">
+    <footer className="border-t px-4 py-16 sm:px-6 lg:px-8 bg-muted/30">
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">
+          <div className="col-span-2 md:col-span-1">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-secondary text-sm font-bold text-white shadow-lg shadow-primary/25">
                 SQ
               </div>
               <span className="text-lg font-bold">SendQuote</span>
-            </div>
-            <p className="mt-3 text-sm text-muted-foreground">
-              The fastest path from conversation to contract.
+            </Link>
+            <p className="mt-4 text-sm text-muted-foreground max-w-xs leading-relaxed">
+              The fastest path from conversation to contract. AI-powered quoting 
+              and revenue workflow platform for modern businesses.
             </p>
           </div>
           {Object.entries(footerLinks).map(([title, links]) => (
@@ -54,8 +55,13 @@ export function Footer() {
             </div>
           ))}
         </div>
-        <div className="mt-12 border-t pt-8 text-center text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} SendQuote. All rights reserved.
+        <div className="mt-12 border-t pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+          <p>&copy; {new Date().getFullYear()} SendQuote. All rights reserved.</p>
+          <div className="flex gap-6">
+            <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+            <Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link>
+          </div>
         </div>
       </div>
     </footer>

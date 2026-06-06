@@ -1,3 +1,7 @@
+import { NextResponse } from "next/server";
+
+export const dynamic = "force-static";
+
 export async function GET() {
   const content = `# SendQuote
 > The fastest path from conversation to contract. AI-powered revenue workflow platform.
@@ -35,9 +39,10 @@ SendQuote is an AI-powered quotation and revenue workflow platform that helps bu
 ## Contact
 - Website: https://sendquote.in
 - Support: support@sendquote.in`;
-  return new Response(content, {
+
+  return new NextResponse(content, {
     headers: {
-      "Content-Type": "text/plain",
+      "Content-Type": "text/plain; charset=utf-8",
       "Cache-Control": "public, max-age=3600",
     },
   });

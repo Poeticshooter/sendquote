@@ -39,6 +39,11 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.supabase.in" },
     ],
   },
+  async rewrites() {
+    return [
+      { source: "/llms.txt", destination: "/api/llmstxt" },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -7,7 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "ci": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
+    "smoke-test": "curl -s https://sendquote.in/api/health | grep -q 'ok' && echo '✅ Site healthy' || echo '❌ Site down'",
+    "postdeploy": "echo 'Checking deployment...' && sleep 5 && for p in / /pricing /features /login; do code=$(curl -so /dev/null -w '%{http_code}' https://sendquote.in$p); [ $code -eq 200 ] && echo \"✅ $p -> $code\" || echo \"❌ $p -> $code\"; done"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

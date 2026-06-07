@@ -1,17 +1,17 @@
 "use client";
 
 import { m } from "@/components/shared/motion-client";
-import { Zap, BarChart3, MessageSquare, Shield, CreditCard, Bot, FileText, Users } from "lucide-react";
+import { Zap, BarChart3, MessageSquare, Shield, Bot, FileText, Users, Clock } from "lucide-react";
 
 const features = [
-  { icon: Bot, title: "AI Quote Generation", description: "Complete quotes from a brief description in 60 seconds. AI suggests pricing, upsells, and terms automatically." },
-  { icon: BarChart3, title: "Buyer Intent Analytics", description: "Know exactly who opened your quote, what they viewed, and how long they spent on each section." },
-  { icon: MessageSquare, title: "In-Quote Negotiation", description: "Buyers can request changes and counter-offer directly inside the quote. No more email ping-pong." },
-  { icon: FileText, title: "Interactive Deal Room", description: "Every quote is a branded micro-site — not a static PDF. Add video, testimonials, and calculators." },
-  { icon: Shield, title: "One-Click E-Signature", description: "Native signature collection with no redirects. Sign and close in seconds." },
-  { icon: CreditCard, title: "Instant Payment Collection", description: "Accept credit cards, UPI, and bank transfers inside the quote via Razorpay or Stripe." },
-  { icon: Zap, title: "Automated Follow-Ups", description: "AI-drafted personalized follow-ups triggered by buyer behavior. Never lose a deal to silence." },
-  { icon: Users, title: "Team Approvals & CRM", description: "Rule-based approval workflows and bi-directional sync with HubSpot, Salesforce, and Pipedrive." },
+  { icon: Bot, title: "AI Quote Generation", description: "Complete quotes from a brief description in 60 seconds. AI suggests pricing, upsells, and terms." },
+  { icon: BarChart3, title: "Buyer Intent Tracking", description: "Know who opened your quote, what they viewed, and how long they spent on each section." },
+  { icon: MessageSquare, title: "In-Quote Negotiation", description: "Buyers can request changes and counter-offer directly inside the quote." },
+  { icon: FileText, title: "Interactive Deal Room", description: "Every quote is a branded micro-site — not a static PDF. Add video, testimonials, and more." },
+  { icon: Shield, title: "E-Signature", description: "Native signature collection with no redirects. Sign and close in seconds." },
+  { icon: Zap, title: "Automated Follow-Ups", description: "AI-drafted follow-ups triggered by buyer behavior. Never lose a deal." },
+  { icon: Users, title: "Team Approvals & CRM", description: "Rule-based approvals and bi-directional sync with HubSpot and Pipedrive." },
+  { icon: Clock, title: "GST-Ready Invoices", description: "Auto-generate GST-compliant invoices on acceptance. Built for Indian businesses." },
 ];
 
 export function FeaturesGrid() {
@@ -20,7 +20,7 @@ export function FeaturesGrid() {
       <div className="mx-auto max-w-7xl">
         <m.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-white">Everything You Need to Close Deals</h2>
-          <p className="mt-4 text-lg text-white/40">Not just a quote builder — an entire deal-closing workflow in one platform.</p>
+          <p className="mt-4 text-lg text-white/40">Not just a quote builder — a complete deal-closing workflow for Indian businesses.</p>
         </m.div>
 
         <div className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">

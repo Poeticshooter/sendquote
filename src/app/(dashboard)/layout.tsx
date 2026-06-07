@@ -3,19 +3,16 @@
 import { useState } from "react";
 import { Sidebar } from "@/components/shared/sidebar";
 import { UserNav } from "@/components/shared/user-nav";
+import { CommandPalette } from "@/components/shared/command-palette";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen">
       <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(false)} />
       <div className="flex flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background px-4 sm:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/[0.06] bg-background px-4 sm:px-6">
           <div>
             <h1 className="text-lg font-semibold">Dashboard</h1>
           </div>
@@ -25,6 +22,7 @@ export default function DashboardLayout({
           {children}
         </main>
       </div>
+      <CommandPalette />
     </div>
   );
 }

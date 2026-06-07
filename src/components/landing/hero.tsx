@@ -53,7 +53,7 @@ export function Hero() {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="mt-6 text-lg text-white/40 max-w-xl mx-auto leading-relaxed"
           >
-            AI generates complete quotes in 60 seconds. Buyers sign and pay in one click.
+            AI generates complete GST-ready quotes in 60 seconds. Clients e-sign in one click.
             <br />
             <span className="text-white/60 font-medium">From conversation to contract — in hours, not days.</span>
           </m.p>

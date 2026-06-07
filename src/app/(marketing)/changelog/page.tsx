@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 const changes = [
-  { date: "2026-06-06", version: "1.0.0", items: ["AI quote generation with Grok integration", "Interactive Deal Room with real-time chat", "Razorpay and Stripe payment collection", "One-click e-signature", "Approval workflow engine", "CRM sync: HubSpot and Pipedrive", "Client portal with email lookup", "Win/loss analytics dashboard", "AI Deal Copilot with scoring", "Multi-currency support (6 currencies)", "Dark mode support"] },
+  { date: "2026-06-06", version: "1.0.0", items: ["AI quote generation with Grok integration", "Interactive Deal Room with real-time chat", "One-click e-signature", "Approval workflow engine", "CRM sync: HubSpot and Pipedrive", "Client portal with email lookup", "Win/loss analytics dashboard", "AI Deal Copilot with scoring", "GST-ready invoices", "Dark mode support"] },
 ];
 
 export default function ChangelogPage() {

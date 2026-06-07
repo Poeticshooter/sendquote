@@ -6,7 +6,7 @@ export async function GET() {
   const content = `# SendQuote — AI-Powered Revenue Workflow Platform
 
 ## Overview
-SendQuote is an AI-powered quotation and revenue workflow platform that helps businesses generate, negotiate, approve, and close deals in hours instead of weeks. It transforms static PDF quotes into interactive, trackable buying experiences with built-in AI, e-signature, payment collection, and CRM sync.
+SendQuote is an AI-powered quotation platform for Indian businesses. Generate GST-ready quotes, send interactive deal rooms, collect e-signatures, and close deals faster — all in one place.
 
 ## Key Capabilities
 - **AI Quote Generation**: Generate complete quotes from a brief description in under 60 seconds using Groq/LLM
@@ -20,7 +20,7 @@ SendQuote is an AI-powered quotation and revenue workflow platform that helps bu
 - **CRM Sync**: Bi-directional sync with HubSpot, Salesforce, and Pipedrive
 - **Contract Automation**: Signed quotes auto-convert to contracts and invoices
 - **Client Portal**: Single dashboard view of all quotes, contracts, invoices, and payments
-- **Multi-Currency**: INR, USD, EUR, GBP, AED, SGD
+- **Currency**: INR (Indian Rupee)
 - **AI Deal Copilot**: Per-quote scoring (0-100) with contextual suggestions
 
 ## API Reference
@@ -33,7 +33,6 @@ Base URL: https://sendquote.in/api
 - \`PATCH /api/quotes/[id]\` — Update quote status
 - \`POST /api/quotes/send\` — Send quote via email
 - \`POST /api/quotes/accept\` — Accept quote with e-signature
-- \`POST /api/quotes/accept-payment\` — Record payment against accepted quote
 
 ### AI
 - \`POST /api/ai/generate\` — Generate quote from description
@@ -44,9 +43,8 @@ Base URL: https://sendquote.in/api
 - \`POST /api/crm/sync\` — Sync quote to connected CRM
 - \`POST /api/webhooks/n8n\` — Webhook endpoint for n8n automation
 
-### Payments
+### Payments (SendQuote Subscription)
 - \`POST /api/payments/razorpay\` — Create Razorpay order
-- \`POST /api/payments/stripe\` — Create Stripe payment intent
 - \`POST /api/webhook/razorpay\` — Razorpay webhook handler
 
 ### Clients & Invoices
@@ -68,11 +66,10 @@ Base URL: https://sendquote.in/api
 - RBAC: admin, member, viewer roles
 
 ## Key Integrations
-- **Payments**: Razorpay (India), Stripe (Global)
-- **CRM**: HubSpot, Salesforce, Pipedrive
-- **AI**: Groq (Mixtral 8x7B), Gemini (fallback)
-- **Email**: Resend (transactional)
-- **Workflows**: n8n (self-hosted)
+- **CRM**: HubSpot, Pipedrive
+- **AI**: Groq, Gemini (fallback)
+- **Email**: Resend
+- **Workflows**: n8n
 - **Analytics**: PostHog
 - **Monitoring**: Sentry
 - **Auth**: Supabase Auth

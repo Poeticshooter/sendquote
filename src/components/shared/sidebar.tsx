@@ -12,6 +12,7 @@ import {
   Settings,
   PanelRight,
   ExternalLink,
+  ShieldCheck,
 } from "lucide-react";
 
 const navItems = [
@@ -21,6 +22,7 @@ const navItems = [
   { href: "/invoices", label: "Invoices", icon: Receipt },
   { href: "/portal", label: "Client Portal", icon: ExternalLink },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/admin", label: "Admin", icon: ShieldCheck },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 

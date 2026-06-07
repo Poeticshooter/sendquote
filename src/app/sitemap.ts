@@ -28,7 +28,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const features: MetadataRoute.Sitemap = [
     "ai-quote-generation", "interactive-deal-room", "buyer-tracking", "e-signature",
-    "payment-collection", "approval-workflows", "crm-integration", "client-portal",
+    "e-signature", "approval-workflows", "crm-integration", "client-portal",
   ].map((slug) => ({
     url: `${base}/features/${slug}`,
     lastModified: new Date(),

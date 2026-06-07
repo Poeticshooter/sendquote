@@ -70,7 +70,7 @@ export default function ClientsPage() {
               </div>
               <div className="mt-3 flex gap-4 text-xs text-muted-foreground border-t pt-3">
                 <span>{client.total_quotes} quotes</span>
-                <span>${client.total_revenue}</span>
+                <span>₹{client.total_revenue}</span>
               </div>
             </Card>
           ))}

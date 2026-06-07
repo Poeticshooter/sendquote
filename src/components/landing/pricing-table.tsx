@@ -7,17 +7,17 @@ import { cn } from "@/lib/utils";
 
 const tiers = [
   {
-    name: "Starter", price: "19", description: "For freelancers and solopreneurs.",
-    features: ["50 quotes/month", "Basic templates", "Native e-signature", "Buyer tracking", "PDF export", "Email support"],
+    name: "Starter", price: "0", description: "For freelancers getting started.",
+    features: ["50 quotes/month", "Basic templates", "E-signature", "Buyer tracking", "PDF export", "Email support"],
     href: "/signup", featured: false,
   },
   {
-    name: "Growth", price: "79", description: "For small sales teams.",
-    features: ["Unlimited quotes", "AI quote generation", "CRM sync", "Approval workflows", "Smart follow-ups", "In-quote chat & negotiation", "Payment collection", "Priority support"],
+    name: "Growth", price: "6,499", description: "For small sales teams.",
+    features: ["Unlimited quotes", "AI quote generation", "CRM sync", "Approval workflows", "Smart follow-ups", "In-quote chat", "Priority support"],
     href: "/signup", featured: true,
   },
   {
-    name: "Pro", price: "199", description: "For scaling teams.",
+    name: "Pro", price: "16,499", description: "For scaling teams.",
     features: ["Everything in Growth", "Deal Room with portal", "Win/loss analytics", "Contract automation", "Custom branding", "API access", "Multi-team governance", "Dedicated support"],
     href: "/signup", featured: false,
   },
@@ -29,7 +29,7 @@ export function PricingTable() {
       <div className="mx-auto max-w-7xl">
         <m.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-white">Simple, Transparent Pricing</h2>
-          <p className="mt-4 text-lg text-white/40">Start free. Upgrade as you grow. No hidden fees.</p>
+          <p className="mt-4 text-lg text-white/40">Start free. Upgrade as you grow. All prices in INR.</p>
         </m.div>
 
         <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -55,7 +55,7 @@ export function PricingTable() {
               <h3 className="text-lg font-semibold text-white">{tier.name}</h3>
               <p className="mt-1 text-sm text-white/40">{tier.description}</p>
               <div className="mt-6">
-                <span className="text-4xl font-bold text-white">${tier.price}</span>
+                <span className="text-4xl font-bold text-white">₹{tier.price}</span>
                 <span className="ml-1 text-sm text-white/40">/user/month</span>
               </div>
               <ul className="mt-8 space-y-3">

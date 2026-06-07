@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Receipt } from "lucide-react";
 
 const statusColors: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
@@ -47,22 +48,22 @@ export default function InvoicesPage() {
       ) : (
         <div className="space-y-3">
           {invoices.map((inv) => (
-            <div key={inv.id} className="rounded-lg border bg-card p-4">
+            <Link key={inv.id} href={`/invoices/${inv.id}`} className="block rounded-lg border bg-card p-4 hover:bg-white/[0.02] transition-colors">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium">{inv.invoice_number}</p>
                   <p className="text-sm text-muted-foreground">{inv.client_name}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold">${inv.total || inv.amount}</p>
+                  <p className="font-semibold">₹{Number(inv.total || inv.amount).toLocaleString("en-IN")}</p>
                   <Badge variant={statusColors[inv.status] || "outline"}>{inv.status}</Badge>
                 </div>
               </div>
               <div className="mt-2 flex gap-4 text-xs text-muted-foreground">
                 <span>Due: {inv.due_date ? new Date(inv.due_date).toLocaleDateString() : "N/A"}</span>
-                <span>Paid: ${inv.paid_amount || 0}</span>
+                <span>Paid: ₹{Number(inv.paid_amount || 0).toLocaleString("en-IN")}</span>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

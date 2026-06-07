@@ -20,14 +20,14 @@ const reviewSchema = {
       brand: { "@type": "Brand", name: "SendQuote" },
       offers: {
         "@type": "AggregateOffer",
-        priceCurrency: "USD",
+        priceCurrency: "INR",
         lowPrice: 0,
-        highPrice: 199,
+        highPrice: 16499,
         offerCount: 3,
         offers: [
-          { "@type": "Offer", name: "Starter", price: 0, priceCurrency: "USD" },
-          { "@type": "Offer", name: "Growth", price: 79, priceCurrency: "USD" },
-          { "@type": "Offer", name: "Pro", price: 199, priceCurrency: "USD" },
+          { "@type": "Offer", name: "Starter", price: 0, priceCurrency: "INR" },
+          { "@type": "Offer", name: "Growth", price: 6499, priceCurrency: "INR" },
+          { "@type": "Offer", name: "Pro", price: 16499, priceCurrency: "INR" },
         ],
       },
       aggregateRating: {

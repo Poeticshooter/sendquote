@@ -13,6 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ApprovalRulesSettings } from "@/components/settings/approval-rules";
 import { CrmSettings } from "@/components/settings/crm-settings";
 import { SSOSettings } from "@/components/settings/sso-settings";
+import { BillingSettings } from "@/components/settings/billing-settings";
+import { TeamSettings } from "@/components/settings/team-settings";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -102,25 +104,14 @@ export default function SettingsPage() {
           <CrmSettings />
         </TabsContent>
         <TabsContent value="billing" className="mt-4">
-          <Card>
-            <CardHeader><CardTitle>Subscription</CardTitle><CardDescription>You're on the Free plan.</CardDescription></CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">Upgrade to Growth or Pro for unlimited quotes, AI features, and more.</p>
-              <Button onClick={() => toast.info("Billing coming soon")}>View Plans</Button>
-            </CardContent>
-          </Card>
+          <BillingSettings />
         </TabsContent>
 
         <TabsContent value="sso" className="mt-4">
           <SSOSettings />
         </TabsContent>
         <TabsContent value="team" className="mt-4">
-          <Card>
-            <CardHeader><CardTitle>Team Members</CardTitle><CardDescription>Invite your team to collaborate on quotes.</CardDescription></CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Team management coming soon.</p>
-            </CardContent>
-          </Card>
+          <TeamSettings />
         </TabsContent>
       </Tabs>
     </div>

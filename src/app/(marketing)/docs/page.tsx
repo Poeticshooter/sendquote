@@ -12,7 +12,7 @@ const sections = [
   { title: "Getting Started", items: ["Creating your account", "Setting up your business profile", "Your first quote", "Understanding the dashboard"] },
   { title: "Quotes", items: ["Creating a quote", "Using AI to generate quotes", "Adding line items", "Setting pricing and discounts", "Quote templates"] },
   { title: "Deal Room", items: ["What is a Deal Room?", "Sharing quotes with clients", "Client chat and negotiation", "Tracking buyer activity"] },
-  { title: "Payments & Signatures", items: ["Setting up payments", "E-signature collection", "Accept & Pay flow", "Invoice generation"] },
+  { title: "E-Signature & Invoices", items: ["E-signature collection", "Invoice generation", "GST-compliant invoices"] },
   { title: "Workflows", items: ["Approval rules", "AI follow-ups", "Quote expiry settings"] },
   { title: "Integrations", items: ["CRM sync (HubSpot, Pipedrive)", "Webhook configuration", "n8n workflow automation"] },
 ];

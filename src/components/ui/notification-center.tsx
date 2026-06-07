@@ -22,7 +22,7 @@ interface NotificationCenterProps {
 
 const defaultNotifications: Notification[] = [
   { id: "1", title: "Quote Opened", message: "Acme Corp viewed their quote", type: "deal", read: false, createdAt: new Date().toISOString() },
-  { id: "2", title: "Payment Received", message: "$19,500 payment confirmed", type: "payment", read: false, createdAt: new Date(Date.now() - 3600000).toISOString() },
+  { id: "2", title: "Quote Accepted", message: "Client accepted your quote", type: "deal", read: false, createdAt: new Date(Date.now() - 3600000).toISOString() },
 ];
 
 export function NotificationCenter({ notifications = defaultNotifications }: NotificationCenterProps) {

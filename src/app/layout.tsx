@@ -6,6 +6,8 @@ import { PostHogProvider } from "@/components/shared/posthog-provider";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { CookieConsent } from "@/components/shared/cookie-consent";
 import { SkipNav } from "@/components/shared/skip-nav";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Suspense } from "react";
 
 const interSans = Inter({ variable: "--font-sans", subsets: ["latin"], display: "swap" });
@@ -18,21 +20,21 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: { default: "SendQuote — AI-Powered Quotes That Close Deals Faster", template: "%s | SendQuote" },
-  description: "SendQuote transforms quotations into interactive, AI-powered deal rooms. Generate quotes in 60 seconds, track buyer intent, collect payments, and close deals faster.",
-  keywords: ["quote software", "proposal software", "AI quotes", "quoting platform", "e-signature", "invoice software", "B2B quoting", "SendQuote"],
+  title: { default: "SendQuote — AI-Powered Quoting for Indian Businesses", template: "%s | SendQuote" },
+  description: "SendQuote helps Indian businesses create GST-ready quotes in 60 seconds. AI-powered quoting, e-signature, buyer tracking, and CRM sync in one platform.",
+  keywords: ["quote software India", "GST invoice generator", "AI quotes", "quoting platform", "e-signature", "quotation software", "Indian business tools", "SendQuote"],
   metadataBase: new URL("https://sendquote.in"),
   authors: [{ name: "SendQuote" }], creator: "SendQuote", publisher: "SendQuote", category: "Business Tools",
   openGraph: {
-    title: "SendQuote — AI-Powered Quotes That Close Deals Faster",
-    description: "Transform quotations into interactive, AI-powered deal rooms. Generate, negotiate, and close deals in hours.",
+    title: "SendQuote — AI-Powered Quoting for Indian Businesses",
+    description: "Create GST-ready quotes in 60 seconds with AI. Send interactive deal rooms, collect e-signatures, and close deals faster.",
     url: "https://sendquote.in", siteName: "SendQuote", locale: "en_IN", type: "website",
     images: [{ url: "https://sendquote.in/og-image.svg", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image", site: "@sendquote", creator: "@sendquote",
-    title: "SendQuote — AI-Powered Quotes That Close Deals Faster",
-    description: "Transform quotations into interactive, AI-powered deal rooms.",
+    title: "SendQuote — AI-Powered Quoting for Indian Businesses",
+    description: "Create GST-ready quotes in 60 seconds with AI. Send interactive deal rooms, collect e-signatures, close deals faster.",
     images: ["https://sendquote.in/og-image.svg"],
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 } },
@@ -55,11 +57,11 @@ const jsonLd = {
       "@type": "SoftwareApplication", "@id": "https://sendquote.in/#software",
       name: "SendQuote", applicationCategory: "BusinessApplication", operatingSystem: "Web",
       offers: [
-        { "@type": "Offer", price: "0", priceCurrency: "USD", name: "Starter" },
-        { "@type": "Offer", price: "79", priceCurrency: "USD", name: "Growth" },
-        { "@type": "Offer", price: "199", priceCurrency: "USD", name: "Pro" },
+        { "@type": "Offer", price: "0", priceCurrency: "INR", name: "Starter" },
+        { "@type": "Offer", price: "6499", priceCurrency: "INR", name: "Growth" },
+        { "@type": "Offer", price: "16499", priceCurrency: "INR", name: "Pro" },
       ],
-      featureList: ["AI quote generation", "Interactive deal rooms", "Buyer intent tracking", "E-signature", "Payment collection", "CRM integration"],
+      featureList: ["AI quote generation", "Interactive deal rooms", "Buyer intent tracking", "E-signature", "GST invoices", "CRM integration"],
     },
     {
       "@type": "WebSite", "@id": "https://sendquote.in/#website",
@@ -83,7 +85,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-IN" className={`${interSans.variable} ${jetbrainsMono.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
-        <meta name="google-site-verification" content="YOUR_GOOGLE_SEARCH_CONSOLE_VERIFICATION_CODE" />
+        {/* Google Search Console: Add your verification meta tag here */}
         <link rel="search" type="application/opensearchdescription+xml" title="SendQuote" href="/opensearch.xml" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="preconnect" href="https://yabsujbilznpoayueokq.supabase.co" crossOrigin="anonymous" />
@@ -97,6 +99,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Suspense fallback={null}>{children}</Suspense>
             <CookieConsent />
             <Toaster richColors position="top-right" />
+            <Analytics />
+            <SpeedInsights />
           </PostHogProvider>
         </ThemeProvider>
       </body>

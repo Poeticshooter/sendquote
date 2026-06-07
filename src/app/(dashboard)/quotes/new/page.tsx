@@ -29,7 +29,6 @@ export default function NewQuotePage() {
   const [notes, setNotes] = useState("");
   const [terms, setTerms] = useState("");
   const [gstRate, setGstRate] = useState(0);
-  const [currency, setCurrency] = useState("INR");
   const [sending, setSending] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
@@ -281,21 +280,6 @@ export default function NewQuotePage() {
               <div className="flex justify-between text-sm">
                 <span>Subtotal</span>
                 <span>${subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-sm items-center">
-                <span>Currency</span>
-                <select
-                  className="h-7 rounded border bg-background px-2 text-sm"
-                  value={currency}
-                  onChange={(e) => setCurrency(e.target.value)}
-                >
-                  <option value="INR">₹ INR</option>
-                  <option value="USD">$ USD</option>
-                  <option value="EUR">€ EUR</option>
-                  <option value="GBP">£ GBP</option>
-                  <option value="AED">د.إ AED</option>
-                  <option value="SGD">S$ SGD</option>
-                </select>
               </div>
               <div className="flex justify-between text-sm items-center">
                 <span>GST</span>

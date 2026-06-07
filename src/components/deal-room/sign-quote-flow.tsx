@@ -49,10 +49,10 @@ export function SignQuoteFlow({ publicToken, quoteNumber, onSigned }: SignQuoteF
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) reset(); else setOpen(true); }}>
       <DialogTrigger>
-        <Button size="lg" className="w-full sm:w-auto">
+        <button className="inline-flex h-10 items-center justify-center rounded-xl bg-[#00D4AA] px-5 text-sm font-semibold text-black hover:bg-[#00D4AA]/90 transition-colors w-full sm:w-auto" type="button">
           <Check className="mr-2 h-4 w-4" />
           Accept Quote
-        </Button>
+        </button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         {step === "details" && (

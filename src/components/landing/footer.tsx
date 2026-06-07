@@ -3,7 +3,7 @@ import Link from "next/link";
 const footerLinks = {
   Product: [{ href: "/pricing", label: "Pricing" }, { href: "/#features", label: "Features" }, { href: "/changelog", label: "Changelog" }, { href: "/docs", label: "Documentation" }],
   Company: [{ href: "/blog", label: "Blog" }, { href: "/contact", label: "Contact" }, { href: "/privacy", label: "Privacy" }, { href: "/terms", label: "Terms" }],
-  Resources: [{ href: "/docs/api", label: "API" }, { href: "/faq", label: "FAQ" }],
+  Resources: [{ href: "/docs", label: "Documentation" }, { href: "/faq", label: "FAQ" }],
 };
 
 export function Footer() {

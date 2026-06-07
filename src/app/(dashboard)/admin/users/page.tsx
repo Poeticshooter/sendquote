@@ -24,7 +24,7 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     supabase.from("profiles").select("*, users:auth.users!inner(email)").order("created_at", { ascending: false }).limit(100)
-      .then(({ data }) => { setUsers((data || []) as AdminUser[]); setLoading(false); });
+      .then(({ data }) => { setUsers((data || []) as unknown as AdminUser[]); setLoading(false); });
   }, [supabase]);
 
   const filtered = search

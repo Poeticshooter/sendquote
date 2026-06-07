@@ -9,6 +9,9 @@ export function createAdminClient() {
         autoRefreshToken: false,
         persistSession: false,
       },
+      global: {
+        fetch: (url, opts) => fetch(url, { ...opts, signal: AbortSignal.timeout(10000) }),
+      },
     }
   )
 }

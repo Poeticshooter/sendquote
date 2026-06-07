@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import crypto from "crypto";
+import * as Sentry from "@sentry/nextjs";
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,7 +19,8 @@ export async function POST(request: NextRequest) {
       .update(body)
       .digest("hex");
 
-    if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
+    if (signature.length !== expectedSignature.length ||
+        !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
@@ -43,6 +45,35 @@ export async function POST(request: NextRequest) {
       case "payment.captured": {
         const payment = event.payload.payment.entity;
         const orderId = payment.order_id;
+        const paymentAmount = payment.amount / 100; // paise to rupees
+        const orderNotes = event.payload.payment.entity.notes || {};
+
+        // Verify amount against quote via order notes
+        const quoteId = orderNotes.quote_id;
+        if (quoteId) {
+          const { data: invoice } = await supabase
+            .from("invoices")
+            .select("id, amount, paid_amount, balance_due")
+            .eq("quote_id", quoteId)
+            .single();
+
+          if (invoice) {
+            if (Math.abs(paymentAmount - Number(invoice.balance_due)) > 1) {
+              Sentry.captureMessage(`Payment amount mismatch: received ${paymentAmount}, expected ${invoice.balance_due}`, "warning");
+            }
+            const newPaid = (invoice.paid_amount || 0) + paymentAmount;
+            const newStatus = newPaid >= Number(invoice.amount) ? "paid" : "pending";
+            await supabase
+              .from("invoices")
+              .update({
+                paid_amount: newPaid,
+                balance_due: Math.max(0, Number(invoice.amount) - newPaid),
+                status: newStatus,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", invoice.id);
+          }
+        }
 
         const { data: subscriptions } = await supabase
           .from("subscriptions")
@@ -58,27 +89,6 @@ export async function POST(request: NextRequest) {
               last_payment_attempt: new Date().toISOString(),
             })
             .eq("razorpay_order_id", orderId);
-        }
-
-        const { data: invoices } = await supabase
-          .from("invoices")
-          .select("id, paid_amount, amount")
-          .eq("razorpay_order_id", orderId);
-
-        if (invoices && invoices.length > 0) {
-          for (const invoice of invoices) {
-            const newPaidAmount = (invoice.paid_amount || 0) + (payment.amount / 100);
-            const newStatus = newPaidAmount >= invoice.amount ? "paid" : "pending";
-            await supabase
-              .from("invoices")
-              .update({
-                paid_amount: newPaidAmount,
-                balance_due: Math.max(0, invoice.amount - newPaidAmount),
-                status: newStatus,
-                updated_at: new Date().toISOString(),
-              })
-              .eq("id", invoice.id);
-          }
         }
 
         await supabase.from("webhook_events").insert({
@@ -128,8 +138,8 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    console.error("Webhook error:", error);
+  } catch (error: unknown) {
+    Sentry.captureException(error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

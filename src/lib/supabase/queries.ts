@@ -7,7 +7,7 @@ function requireUser<T>(user: T | null): asserts user is T {
   if (!user) throw new Error("Not authenticated");
 }
 
-export async function getQuotes(orgId?: string) {
+export async function getQuotes(orgId?: string, page = 0, pageSize = 50) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   requireUser(user);
@@ -23,7 +23,10 @@ export async function getQuotes(orgId?: string) {
     query = query.eq("user_id", user.id);
   }
 
-  const { data, error } = await query;
+  const from = page * pageSize;
+  const to = from + pageSize - 1;
+
+  const { data, error } = await query.range(from, to);
   if (error) throw error;
   return data;
 }

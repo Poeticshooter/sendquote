@@ -20,8 +20,10 @@ export function CrmSettings() {
     if (stored) {
       try {
         const keys = JSON.parse(stored);
-        setHubspotKey(keys.hubspot || "");
-        setPipedriveKey(keys.pipedrive || "");
+        queueMicrotask(() => {
+          setHubspotKey(keys.hubspot || "");
+          setPipedriveKey(keys.pipedrive || "");
+        });
       } catch {}
     }
   }, []);

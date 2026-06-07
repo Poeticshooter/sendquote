@@ -109,7 +109,7 @@ export function BillingSettings() {
         <CardHeader>
           <CardTitle>Current Plan</CardTitle>
           <CardDescription>
-            You're on the <span className="font-medium text-white capitalize">{profile?.plan || "starter"}</span> plan
+            You&apos;re on the <span className="font-medium text-white capitalize">{profile?.plan || "starter"}</span> plan
             <Badge variant="outline" className="ml-2">
               {profile?.subscription_status === "active" ? "Active" : profile?.plan === "starter" ? "Free" : "Inactive"}
             </Badge>

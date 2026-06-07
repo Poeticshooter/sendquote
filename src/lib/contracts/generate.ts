@@ -58,7 +58,7 @@ export function generateContractHtml(data: ContractData): string {
     </div>
     <div style="text-align:right">
       <p style="font-weight:bold;font-size:18px">${escapeHtml(data.quoteNumber)}</p>
-      <p style="color:#64748b;font-size:12px">Date: ${new Date(data.signedAt).toLocaleDateString()}</p>
+      <p style="color:#64748b;font-size:12px">Date: ${new Date(data.signedAt).toISOString().split('T')[0]}</p>
     </div>
   </div>
 

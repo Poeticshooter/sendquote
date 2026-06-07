@@ -1,12 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { RazorpayPaymentSchema } from "@/lib/api-validation";
+import { createClient } from "@/lib/supabase/server";
 import { parseError, requireAuth } from "@/lib/api-helper";
+import { z } from "zod";
+
+const PaymentRequestSchema = z.object({
+  quote_id: z.string().uuid("Invalid quote ID"),
+  currency: z.string().max(10).optional(),
+});
 
 export async function POST(request: NextRequest) {
   try {
-    await requireAuth();
+    const user = await requireAuth();
     const body = await request.json();
-    const { amount, currency } = RazorpayPaymentSchema.parse(body);
+    const { quote_id, currency } = PaymentRequestSchema.parse(body);
+
+    const supabase = await createClient();
+    const { data: quote } = await supabase
+      .from("quotes")
+      .select("total, user_id, quote_number, status")
+      .eq("id", quote_id)
+      .single();
+
+    if (!quote) return NextResponse.json({ error: "Quote not found" }, { status: 404 });
+    if (quote.user_id !== user.id) return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+    if (quote.status === "accepted") return NextResponse.json({ error: "Quote already accepted" }, { status: 409 });
+
+    const verifiedAmount = Math.round(Number(quote.total) * 100);
 
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
@@ -24,9 +43,10 @@ export async function POST(request: NextRequest) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        amount: Math.round(amount * 100),
+        amount: verifiedAmount,
         currency: currency || "INR",
-        receipt: `rcpt_${Date.now()}`,
+        receipt: `${quote.quote_number}_${Date.now()}`,
+        notes: { quote_id, user_id: user.id },
       }),
     });
 

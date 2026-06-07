@@ -67,10 +67,11 @@ async function syncToPipedrive(apiKey: string | undefined, quote: CrmQuote): Pro
       add_time: quote.created_at,
     };
 
-    const res = await fetch(`https://api.pipedrive.com/v1/deals?api_token=${apiKey}`, {
+    const res = await fetch("https://api.pipedrive.com/v1/deals", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "X-API-Token": apiKey,
       },
       body: JSON.stringify(dealData),
     });

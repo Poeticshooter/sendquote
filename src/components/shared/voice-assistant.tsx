@@ -35,6 +35,39 @@ export function VoiceAssistant() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
+  async function handleUserMessage(text: string) {
+    if (!text.trim()) return;
+    setMessages((prev) => [...prev, { role: "user", text }]);
+    setTranscript("");
+    setProcessing(true);
+
+    try {
+      const res = await fetch("/api/voice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text }),
+      });
+
+      const data = await res.json();
+      const reply = data.response || "I'm not sure how to respond to that.";
+
+      setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
+
+      if ("speechSynthesis" in window) {
+        setSpeaking(true);
+        const utterance = new SpeechSynthesisUtterance(reply);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        utterance.lang = "en-IN";
+        utterance.onend = () => setSpeaking(false);
+        utterance.onerror = () => setSpeaking(false);
+        speechSynthesis.speak(utterance);
+      }
+    } catch {
+      setMessages((prev) => [...prev, { role: "assistant", text: "Sorry, I couldn't process that. Please try again." }]);
+    }
+    setProcessing(false);
+  }
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
@@ -70,39 +103,6 @@ export function VoiceAssistant() {
     }
   }, []);
 
-  async function handleUserMessage(text: string) {
-    if (!text.trim()) return;
-    setMessages((prev) => [...prev, { role: "user", text }]);
-    setTranscript("");
-    setProcessing(true);
-
-    try {
-      const res = await fetch("/api/voice", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text }),
-      });
-
-      const data = await res.json();
-      const reply = data.response || "I'm not sure how to respond to that.";
-
-      setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
-
-      if ("speechSynthesis" in window) {
-        setSpeaking(true);
-        const utterance = new SpeechSynthesisUtterance(reply);
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
-        utterance.lang = "en-IN";
-        utterance.onend = () => setSpeaking(false);
-        utterance.onerror = () => setSpeaking(false);
-        speechSynthesis.speak(utterance);
-      }
-    } catch {
-      setMessages((prev) => [...prev, { role: "assistant", text: "Sorry, I couldn't process that. Please try again." }]);
-    }
-    setProcessing(false);
-  }
 
   function toggleListening() {
     if (listening) {

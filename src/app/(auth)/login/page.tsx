@@ -21,9 +21,17 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) { toast.error(error.message); setLoading(false); return; }
-    router.push("/dashboard");
+    if (error) {
+      if (error.message.includes("Email not confirmed")) {
+        toast.error("Please check your email and confirm your account before signing in.");
+      } else {
+        toast.error(error.message);
+      }
+      setLoading(false);
+      return;
+    }
     router.refresh();
+    router.push("/dashboard");
   }
 
   async function handleGoogle() {

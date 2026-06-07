@@ -7,18 +7,18 @@ import { cn } from "@/lib/utils";
 
 const tiers = [
   {
-    name: "Starter", price: "0", description: "For freelancers getting started.",
-    features: ["50 quotes/month", "Basic templates", "E-signature", "Buyer tracking", "PDF export", "Email support"],
+    name: "Starter", price: "0", period: "/month free", description: "For freelancers and solopreneurs.",
+    features: ["50 quotes/month", "Basic templates", "E-signature collection", "Buyer activity tracking", "PDF export", "Email support"],
     href: "/signup", featured: false,
   },
   {
-    name: "Growth", price: "6,499", description: "For small sales teams.",
-    features: ["Unlimited quotes", "AI quote generation", "CRM sync", "Approval workflows", "Smart follow-ups", "In-quote chat", "Priority support"],
+    name: "Growth", price: "6,499", period: "/year", description: "For growing sales teams.",
+    features: ["Unlimited quotes", "AI quote generation", "CRM sync (HubSpot + Pipedrive)", "Approval workflows", "AI-powered follow-ups", "In-quote buyer chat", "Priority email & chat support"],
     href: "/signup", featured: true,
   },
   {
-    name: "Pro", price: "16,499", description: "For scaling teams.",
-    features: ["Everything in Growth", "Deal Room with portal", "Win/loss analytics", "Contract automation", "Custom branding", "API access", "Multi-team governance", "Dedicated support"],
+    name: "Pro", price: "16,499", period: "/year", description: "For scaling businesses.",
+    features: ["Everything in Growth", "Branded deal rooms", "Win/loss analytics", "Contract automation", "Custom branding & domain", "API access & webhooks", "Multi-team governance", "Dedicated account manager"],
     href: "/signup", featured: false,
   },
 ];
@@ -56,7 +56,7 @@ export function PricingTable() {
               <p className="mt-1 text-sm text-white/40">{tier.description}</p>
               <div className="mt-6">
                 <span className="text-4xl font-bold text-white">₹{tier.price}</span>
-                <span className="ml-1 text-sm text-white/40">/user/month</span>
+                <span className="ml-1 text-sm text-white/40">{tier.period}</span>
               </div>
               <ul className="mt-8 space-y-3">
                 {tier.features.map((feat) => (

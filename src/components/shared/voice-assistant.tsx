@@ -28,6 +28,7 @@ export function VoiceAssistant() {
     { role: "assistant", text: "Hi! I'm your SendQuote AI assistant. Ask me anything about creating quotes, closing deals, or using the platform." },
   ]);
   const [transcript, setTranscript] = useState("");
+  const [textInput, setTextInput] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
 
@@ -177,20 +178,36 @@ export function VoiceAssistant() {
         <div ref={chatEndRef} />
       </div>
 
-      <div className="border-t border-white/[0.06] p-3">
+      <div className="border-t border-white/[0.06] p-3 space-y-2">
+        <form onSubmit={(e) => { e.preventDefault(); if (textInput.trim()) handleUserMessage(textInput); }} className="flex items-center gap-2">
+          <input
+            value={textInput}
+            onChange={(e) => setTextInput(e.target.value)}
+            placeholder="Type a message..."
+            className="flex-1 rounded-lg bg-white/5 border border-white/[0.06] px-3 py-2 text-sm text-white outline-none focus:border-[#00D4AA]/50 placeholder:text-white/20"
+            disabled={processing}
+          />
+          <button
+            type="submit"
+            disabled={!textInput.trim() || processing}
+            className="flex items-center justify-center rounded-lg bg-[#00D4AA] p-2 text-black disabled:opacity-30 hover:bg-[#00D4AA]/90 transition-all"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+          </button>
+        </form>
         <div className="flex items-center gap-2">
           {hasSpeechSupport ? (
             <button
               onClick={toggleListening}
               disabled={processing}
-              className={`flex items-center justify-center rounded-full p-2.5 transition-all ${
+              className={`flex items-center justify-center rounded-full p-2 transition-all ${
                 listening
                   ? "bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/30"
                   : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white"
               } disabled:opacity-50`}
               aria-label={listening ? "Stop listening" : "Start listening"}
             >
-              {listening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+              {listening ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
             </button>
           ) : (
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 text-xs text-white/40">
@@ -204,19 +221,14 @@ export function VoiceAssistant() {
           )}
           {!listening && !transcript && (
             <div className="flex-1 text-xs text-white/30">
-              {hasSpeechSupport ? "Tap the mic and ask anything" : "Type your question below"}
+              {hasSpeechSupport ? "Or tap the mic" : ""}
             </div>
           )}
           {transcript && !listening && (
             <div className="flex-1 text-xs text-white/50 truncate">{transcript}</div>
           )}
           {speaking && (
-            <button
-              onClick={stopSpeaking}
-              className="text-xs text-white/40 hover:text-white underline"
-            >
-              Stop
-            </button>
+            <button onClick={stopSpeaking} className="text-xs text-white/40 hover:text-white underline">Stop</button>
           )}
         </div>
       </div>

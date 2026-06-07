@@ -1,3 +1,4 @@
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 "use client";
 
 import Link from "next/link";

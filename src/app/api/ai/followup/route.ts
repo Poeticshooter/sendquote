@@ -21,12 +21,15 @@ export async function POST(request: NextRequest) {
 
     if (!quote) return NextResponse.json({ error: "Quote not found" }, { status: 404 });
 
+    type QuoteWithProfile = typeof quote & { profiles: { business_name: string } | null };
+    const q = quote as QuoteWithProfile;
+
     const { data: events } = await supabase
       .from("quote_events")
       .select("event_type")
       .eq("quote_id", quote_id);
 
-    const viewedEvents = events?.filter((e: any) => e.event_type === "viewed") || [];
+    const viewedEvents = events?.filter((e: { event_type: string }) => e.event_type === "viewed") || [];
     const viewedCount = viewedEvents.length;
     const daysSinceSent = quote.sent_at
       ? Math.floor((Date.now() - new Date(quote.sent_at).getTime()) / (1000 * 60 * 60 * 24))
@@ -40,7 +43,7 @@ export async function POST(request: NextRequest) {
       daysSinceSent,
       viewedCount,
       sectionsViewed: [],
-      businessName: (quote as any).profiles?.business_name || "SendQuote",
+      businessName: q.profiles?.business_name || "SendQuote",
     };
 
     const result = await generateFollowUp(input);

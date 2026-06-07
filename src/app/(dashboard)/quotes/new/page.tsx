@@ -68,7 +68,7 @@ export default function NewQuotePage() {
 
   const updateItem = (index: number, field: keyof LineItem, value: string | number) => {
     const newItems = [...items];
-    (newItems[index] as any)[field] = value;
+    (newItems[index] as Record<string, string | number>)[field] = value;
     if (field === "quantity" || field === "rate") {
       newItems[index].quantity = Number(newItems[index].quantity) || 0;
       newItems[index].rate = Number(newItems[index].rate) || 0;

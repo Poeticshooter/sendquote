@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export default function DashboardError({
   error,
   reset,

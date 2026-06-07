@@ -170,7 +170,7 @@ export function SignQuoteFlow({ publicToken, quoteNumber, total = 0, onSigned }:
                 <Check className="h-5 w-5 text-green-500" /> Accepted!
               </DialogTitle>
               <DialogDescription className="text-center">
-                Quote {quoteNumber} has been accepted. You'll receive the invoice via email.
+                Quote {quoteNumber} has been accepted. You&apos;ll receive the invoice via email.
               </DialogDescription>
             </DialogHeader>
             <Button className="w-full" onClick={reset}>Close</Button>

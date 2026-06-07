@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     }));
 
     return NextResponse.json({ quotes: portalData });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Portal error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

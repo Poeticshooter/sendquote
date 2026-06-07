@@ -18,7 +18,7 @@ const statusColors: Record<string, "default" | "secondary" | "outline" | "destru
 
 export default function InvoicesPage() {
   const router = useRouter();
-  const [invoices, setInvoices] = useState<any[]>([]);
+  const [invoices, setInvoices] = useState<{ id: string; invoice_number: string; client_name: string; total: number; amount: number; status: string; due_date: string; paid_amount: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

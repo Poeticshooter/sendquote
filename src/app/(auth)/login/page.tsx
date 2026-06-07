@@ -75,7 +75,7 @@ export default function LoginPage() {
             Continue with Google
           </Button>
 
-          <p className="mt-6 text-center text-sm text-white/40">Don't have an account? <Link href="/signup" className="text-[#00D4AA] hover:underline">Sign up</Link></p>
+            <p className="mt-6 text-center text-sm text-white/40">Don&apos;t have an account? <Link href="/signup" className="text-[#00D4AA] hover:underline">Sign up</Link></p>
         </CardContent>
       </Card>
     </div>

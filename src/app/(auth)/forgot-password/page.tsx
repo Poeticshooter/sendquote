@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,7 +33,7 @@ export default function ForgotPasswordPage() {
         <Card className="w-full max-w-sm bg-[#141414] border-white/[0.06] text-white">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl text-white">Check your email</CardTitle>
-            <CardDescription className="text-white/40">We've sent a password reset link to {email}</CardDescription>
+            <CardDescription className="text-white/40">We&apos;ve sent a password reset link to {email}</CardDescription>
           </CardHeader>
           <CardContent className="text-center">
             <Link href="/login" className={buttonVariants({ variant: "outline", className: "border-white/10 text-white/70 hover:bg-white/5" })}>Back to Sign In</Link>
@@ -47,11 +48,11 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-sm bg-[#141414] border-white/[0.06] text-white">
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto flex items-center justify-center gap-2 mb-4">
-            <img src="/logo-icon.svg" alt="" className="h-8 w-8" />
+            <Image src="/logo-icon.svg" alt="" width={32} height={32} className="h-8 w-8" />
             <span className="text-xl font-bold text-white">SendQuote</span>
           </Link>
           <CardTitle className="text-2xl text-white">Reset password</CardTitle>
-          <CardDescription className="text-white/40">Enter your email and we'll send you a reset link</CardDescription>
+          <CardDescription className="text-white/40">Enter your email and we&apos;ll send you a reset link</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleReset} className="space-y-4">

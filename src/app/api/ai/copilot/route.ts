@@ -20,8 +20,10 @@ export async function POST(request: NextRequest) {
 
     if (!quote) return NextResponse.json({ error: "Quote not found" }, { status: 404 });
 
-    const events = (quote as any).quote_events || [];
-    const viewedCount = events.filter((e: any) => e.event_type === "viewed").length;
+    type QuoteEvent = { event_type: string };
+    const quoteWithEvents = quote as typeof quote & { quote_events?: QuoteEvent[] };
+    const events = quoteWithEvents.quote_events || [];
+    const viewedCount = events.filter((e: QuoteEvent) => e.event_type === "viewed").length;
     const daysSinceCreation = Math.floor((Date.now() - new Date(quote.created_at).getTime()) / (1000 * 60 * 60 * 24));
 
     const suggestions: { type: string; message: string; priority: "high" | "medium" | "low" }[] = [];

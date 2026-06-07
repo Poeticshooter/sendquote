@@ -14,7 +14,7 @@ import { ArrowLeft, Copy, Send, FileDown, MessageSquare, Eye, Smartphone, Monito
 import { FollowUpPanel } from "@/components/quotes/follow-up-panel";
 import { DealCopilot } from "@/components/quotes/deal-copilot";
 import Link from "next/link";
-import type { Quote } from "@/types";
+import type { Quote, QuoteItem } from "@/types";
 
 const statusColors: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   draft: "secondary", sent: "outline", opened: "default", accepted: "default",
@@ -45,7 +45,7 @@ function EventIcon({ type }: { type: string }) {
 export default function QuoteDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const [quote, setQuote] = useState<Quote | null>(null);
+  const [quote, setQuote] = useState<(Quote & { quote_items?: QuoteItem[] }) | null>(null);
   const [loading, setLoading] = useState(true);
   const [chatMsg, setChatMsg] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -166,7 +166,7 @@ export default function QuoteDetailPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {(quote as any).quote_items?.map((item: any) => (
+                  {quote.quote_items?.map((item) => (
                     <tr key={item.id} className="border-b last:border-0">
                       <td className="py-2">{item.description}</td>
                       <td className="py-2 text-right">{item.quantity}</td>

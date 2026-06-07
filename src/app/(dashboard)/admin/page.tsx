@@ -7,7 +7,7 @@ import { Users, FileText, Activity, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 
 export default function AdminPage() {
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<{ userCount: number; auditLogCount: number; quoteCount: number; errorCount: number } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

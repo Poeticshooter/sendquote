@@ -32,13 +32,20 @@ export async function GET(
 
     if (!quote) return NextResponse.json({ error: "Quote not found" }, { status: 404 });
 
-    const signature = (quote as any).quote_signatures?.[0];
+    type QuoteWithJoins = typeof quote & {
+      quote_signatures?: { signatory_name: string; created_at: string }[];
+      quote_items?: { description: string; quantity: number; rate: number; amount: number }[];
+      profiles?: { business_name: string } | null;
+    };
+    const q = quote as QuoteWithJoins;
+
+    const signature = q.quote_signatures?.[0];
     const html = generateContractHtml({
-      quoteNumber: quote.quote_number,
-      clientName: quote.client_name,
-      clientEmail: quote.client_email,
-      businessName: (quote as any).profiles?.business_name || "Provider",
-      items: ((quote as any).quote_items || []).map((i: any) => ({
+      quoteNumber: q.quote_number,
+      clientName: q.client_name,
+      clientEmail: q.client_email,
+      businessName: q.profiles?.business_name || "Provider",
+      items: (q.quote_items || []).map((i) => ({
         description: i.description,
         quantity: i.quantity,
         rate: i.rate,
@@ -51,8 +58,8 @@ export async function GET(
       notes: quote.notes,
       terms: quote.terms,
       signatoryName: signature?.signatory_name || "Client",
-      signedAt: signature?.created_at || quote.updated_at,
-      validUntil: quote.valid_until,
+      signedAt: signature?.created_at || q.updated_at,
+      validUntil: q.valid_until,
     });
 
     return new NextResponse(html, {

@@ -4,8 +4,8 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageSquare, Send, Check, ChevronDown, ChevronUp } from "lucide-react";
+// Tabs import skipped - not used
+import { MessageSquare, Send, ChevronDown } from "lucide-react";
 
 interface DealRoomClientProps {
   quoteId: string;
@@ -22,7 +22,7 @@ interface Message {
   created_at: string;
 }
 
-export function DealRoomClient({ quoteId, publicToken, quoteNumber, clientName }: DealRoomClientProps) {
+export function DealRoomClient({ quoteId, publicToken, quoteNumber, clientName: _clientName }: DealRoomClientProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [chatOpen, setChatOpen] = useState(false);

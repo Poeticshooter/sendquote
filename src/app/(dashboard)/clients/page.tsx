@@ -11,7 +11,7 @@ import { buttonVariants } from "@/components/ui/button";
 
 export default function ClientsPage() {
   const router = useRouter();
-  const [clients, setClients] = useState<any[]>([]);
+  const [clients, setClients] = useState<{ id: string; name: string; email: string | null; phone: string | null; total_quotes: number; total_revenue: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

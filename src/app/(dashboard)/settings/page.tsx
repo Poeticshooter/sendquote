@@ -19,7 +19,7 @@ import { TeamSettings } from "@/components/settings/team-settings";
 export default function SettingsPage() {
   const router = useRouter();
   const supabase = createClient();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<{ id: string; business_name: string | null; phone: string | null; gst_number: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [businessName, setBusinessName] = useState("");
   const [phone, setPhone] = useState("");

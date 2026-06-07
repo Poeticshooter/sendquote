@@ -15,7 +15,7 @@ export default function ContactPage() {
       <main className="px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Contact Us</h1>
-          <p className="mt-3 text-muted-foreground">We'd love to hear from you.</p>
+          <p className="mt-3 text-muted-foreground">We&apos;d love to hear from you.</p>
           <div className="mt-10 grid gap-6">
             <div className="rounded-xl border bg-card p-6">
               <h3 className="font-semibold">Email</h3>

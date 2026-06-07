@@ -12,7 +12,12 @@ import { useRouter } from "next/navigation";
 export default function DashboardPage() {
   const router = useRouter();
   const supabase = createClient();
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<{
+    totalQuotes: number; accepted: number; opened: number;
+    totalRevenue: number; winRate: number;
+    recentQuotes: { id: string; client_name: string; quote_number: string; total: number; status: string }[];
+    plan: string; monthlyLimit: number; usedThisMonth: number;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,7 +33,7 @@ export default function DashboardPage() {
           totalQuotes: quotes.length,
           accepted: quotes.filter((q) => q.status === "accepted").length,
           opened: quotes.filter((q) => q.status === "opened" || q.status === "sent").length,
-          totalRevenue: quotes.filter((q) => q.status === "accepted").reduce((s: number, q: any) => s + Number(q.total), 0),
+          totalRevenue: quotes.filter((q) => q.status === "accepted").reduce((s: number, q: { total: number }) => s + Number(q.total), 0),
           winRate: quotes.length > 0 ? Math.round((quotes.filter((q) => q.status === "accepted").length / quotes.length) * 100) : 0,
           recentQuotes: quotes.slice(0, 5),
           plan: profile?.plan || "starter",
@@ -126,7 +131,7 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {data.recentQuotes.map((q: any) => (
+                {data.recentQuotes.map((q) => (
                   <Link key={q.id} href={`/quotes/${q.id}`} className="flex items-center justify-between rounded-lg border border-white/5 p-3 hover:bg-white/[0.02] transition-colors">
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium truncate">{q.client_name}</p>

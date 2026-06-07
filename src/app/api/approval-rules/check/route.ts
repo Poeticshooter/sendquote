@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ needs_approval: false, rules_triggered: [] });
     }
 
-    const triggered: any[] = [];
+    const triggered: { id: string; name: string; trigger_type: string; trigger_value: number; approver_role: string; action: string }[] = [];
 
     for (const rule of rules) {
       if (rule.trigger_type === "discount_percent" && quote.discount > rule.trigger_value) {

@@ -8,7 +8,7 @@ import { Activity } from "lucide-react";
 
 export default function AdminLogsPage() {
   const supabase = createClient();
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<{ id: string; admin_action: string; target_type: string | null; target_id: string | null; details: Record<string, unknown> | null; created_at: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

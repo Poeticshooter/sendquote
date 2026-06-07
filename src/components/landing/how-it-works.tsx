@@ -72,7 +72,7 @@ export function HowItWorks() {
                       </div>
                       <div className="flex items-start gap-3 justify-end">
                         <div className="flex-1 rounded-lg bg-gradient-to-r from-[#00D4AA] to-[#06D6A0] p-2.5 text-xs text-black max-w-[80%]">
-                          <p>Absolutely! I've updated the terms.</p>
+                          <p>Absolutely! I&apos;ve updated the terms.</p>
                         </div>
                         <div className="h-6 w-6 rounded-full bg-[#00D4AA] flex items-center justify-center text-[9px] font-bold text-black">Y</div>
                       </div>

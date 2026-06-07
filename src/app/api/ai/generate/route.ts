@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { generateQuoteAI } from "@/lib/ai/generate-quote";
 import { AIGenerateSchema } from "@/lib/api-validation";
 import { requireAuth, parseError, success } from "@/lib/api-helper";

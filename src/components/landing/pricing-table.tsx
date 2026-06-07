@@ -7,19 +7,31 @@ import { cn } from "@/lib/utils";
 
 const tiers = [
   {
-    name: "Starter", price: "0", period: "/month free", description: "For freelancers and solopreneurs.",
-    features: ["50 quotes/month", "Basic templates", "E-signature collection", "Buyer activity tracking", "PDF export", "Email support"],
-    href: "/signup", featured: false,
+    name: "Starter", price: "0", period: "/mo", description: "Try before you buy.",
+    features: [
+      "5 quotes/month", "Basic templates", "E-signature",
+      "Email support",
+    ],
+    disabled: ["AI quote generation", "CRM sync", "Approval workflows", "AI follow-ups", "Buyer chat", "Analytics", "API access"],
+    href: "/signup", featured: false, cta: "Get Started",
   },
   {
-    name: "Growth", price: "6,499", period: "/year", description: "For growing sales teams.",
-    features: ["Unlimited quotes", "AI quote generation", "CRM sync (HubSpot + Pipedrive)", "Approval workflows", "AI-powered follow-ups", "In-quote buyer chat", "Priority email & chat support"],
-    href: "/signup", featured: true,
+    name: "Growth", price: "6,499", period: "/yr", description: "For serious sales teams.",
+    features: [
+      "Unlimited quotes", "AI quote generation", "CRM sync (HubSpot + Pipedrive)",
+      "Approval workflows", "AI-powered follow-ups", "In-quote buyer chat",
+      "Win/loss analytics", "Priority support",
+    ],
+    href: "/signup", featured: true, cta: "Start Free Trial",
   },
   {
-    name: "Pro", price: "16,499", period: "/year", description: "For scaling businesses.",
-    features: ["Everything in Growth", "Branded deal rooms", "Win/loss analytics", "Contract automation", "Custom branding & domain", "API access & webhooks", "Multi-team governance", "Dedicated account manager"],
-    href: "/signup", featured: false,
+    name: "Pro", price: "16,499", period: "/yr", description: "For scaling businesses.",
+    features: [
+      "Everything in Growth", "Branded deal rooms", "Contract automation",
+      "Custom branding & domain", "API access & webhooks",
+      "Multi-team governance", "Dedicated account manager",
+    ],
+    href: "/signup", featured: false, cta: "Contact Sales",
   },
 ];
 

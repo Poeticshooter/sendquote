@@ -1,4 +1,3 @@
-import { ThemeToggle } from "@/components/shared/theme-toggle";
 "use client";
 
 import { useRouter } from "next/navigation";

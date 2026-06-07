@@ -1,9 +1,9 @@
-import { ThemeToggle } from "@/components/shared/theme-toggle";
 "use client";
 
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 

@@ -90,7 +90,7 @@ export function PublicQuoteView({ quote, publicToken }: PublicQuoteViewProps) {
               <p className="font-medium">Quote Accepted</p>
             </div>
           ) : (
-            <SignQuoteFlow publicToken={publicToken} quoteNumber={quote.quote_number} onSigned={() => setSigned(true)} />
+            <SignQuoteFlow publicToken={publicToken} quoteNumber={quote.quote_number} total={Number(quote.total)} onSigned={() => setSigned(true)} />
           )}
         </div>
       </div>

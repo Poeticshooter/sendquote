@@ -137,9 +137,11 @@ Respond with ONLY valid JSON (no markdown, no explanations):
 Guidelines:
 - 3-6 line items with realistic B2B pricing
 - Items should cover the full scope implied by the description
-- Notes should explain what's included/excluded
+- Notes should explain what's included/excluded, and suggest a "good/better/best" tier if applicable
 - Terms should specify payment schedule
-- Use professional, detailed descriptions`;
+- Use professional, detailed descriptions
+- Include a "recommended" flag (boolean) on one item to suggest best value
+- If team/enterprise scale is implied, suggest a package discount`;
 
     const res = await fetch(GROQ_BASE, {
       method: "POST",
@@ -148,7 +150,7 @@ Guidelines:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: process.env.GROQ_MODEL || "mixtral-8x7b-32768",
+        model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
         messages: [{ role: "user", content: prompt }],
         temperature: 0.2,
         max_tokens: 1000,

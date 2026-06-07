@@ -85,7 +85,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-IN" className={`${interSans.variable} ${jetbrainsMono.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
-        {/* Google Search Console: Add your verification meta tag here */}
+        <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE" />
+        {/* TODO: Replace YOUR_VERIFICATION_CODE with actual code from Google Search Console */}
         <link rel="search" type="application/opensearchdescription+xml" title="SendQuote" href="/opensearch.xml" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="preconnect" href="https://yabsujbilznpoayueokq.supabase.co" crossOrigin="anonymous" />

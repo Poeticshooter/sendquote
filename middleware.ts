@@ -11,15 +11,15 @@ const publicPaths = [
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Bot detection - allow AI crawlers but log them
   const ua = request.headers.get("user-agent") || "";
-  if (detectBot(ua)) {
+  const botResult = detectBot(ua);
+
+  if (botResult.isBot && !botResult.isAiCrawler) {
     const response = NextResponse.next();
     response.headers.set("X-Robots-Tag", "index, follow, max-snippet:-1");
     return response;
   }
 
-  // Rate limiting for API routes
   if (pathname.startsWith("/api/")) {
     const allowed = await rateLimitCheck(request);
     if (!allowed) {

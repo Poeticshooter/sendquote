@@ -3,10 +3,14 @@ import { createClient } from "./server";
 import { createAdminClient } from "./admin";
 import { v4 as uuid } from "uuid";
 
+function requireUser<T>(user: T | null): asserts user is T {
+  if (!user) throw new Error("Not authenticated");
+}
+
 export async function getQuotes(orgId?: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
+  requireUser(user);
 
   let query = supabase
     .from("quotes")
@@ -26,6 +30,9 @@ export async function getQuotes(orgId?: string) {
 
 export async function getQuote(id: string) {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  requireUser(user);
+
   const { data, error } = await supabase
     .from("quotes")
     .select("*, quote_items(*)")
@@ -33,6 +40,9 @@ export async function getQuote(id: string) {
     .single();
 
   if (error) throw error;
+  if (!data) throw new Error("Quote not found");
+  if (data.user_id !== user.id) throw new Error("Not authorized");
+
   return data;
 }
 
@@ -42,7 +52,7 @@ export async function getQuoteByToken(token: string) {
     .from("quotes")
     .select("*, quote_items(*)")
     .eq("public_token", token)
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
   return data;
@@ -64,6 +74,8 @@ export async function createQuote(quote: {
   organization_id?: string;
 }) {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  requireUser(user);
 
   const subtotal = quote.items.reduce((s, i) => s + i.quantity * i.rate, 0);
   const gstAmount = quote.gst_rate ? subtotal * (quote.gst_rate / 100) : 0;
@@ -94,28 +106,66 @@ export async function createQuote(quote: {
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    throw new Error(error.message);
+  }
 
-  for (const item of quote.items) {
-    await supabase.from("quote_items").insert({
-      quote_id: data.id,
-      description: item.description,
-      quantity: item.quantity,
-      rate: item.rate,
-      unit: item.unit || "pc",
-      amount: item.quantity * item.rate,
-    });
+  const itemsToInsert = quote.items.map((item) => ({
+    quote_id: data.id,
+    description: item.description,
+    quantity: item.quantity,
+    rate: item.rate,
+    unit: item.unit || "pc",
+    amount: item.quantity * item.rate,
+  }));
+
+  const { error: itemsError } = await supabase
+    .from("quote_items")
+    .insert(itemsToInsert);
+
+  if (itemsError) {
+    await supabase.from("quotes").delete().eq("id", data.id);
+    throw new Error(`Failed to create quote items: ${itemsError.message}`);
   }
 
   return data;
 }
 
+const VALID_STATUS_TRANSITIONS: Record<string, string[]> = {
+  draft: ["sent", "archived"],
+  sent: ["opened", "accepted", "lost", "archived"],
+  opened: ["accepted", "changes_requested", "lost", "archived"],
+  changes_requested: ["draft", "sent", "lost", "archived"],
+  accepted: ["archived"],
+  expired: ["archived"],
+  archived: [],
+  lost: [],
+};
+
 export async function updateQuoteStatus(id: string, status: string) {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  requireUser(user);
+
+  const { data: existing } = await supabase
+    .from("quotes")
+    .select("status, user_id")
+    .eq("id", id)
+    .single();
+
+  if (!existing) throw new Error("Quote not found");
+  if (existing.user_id !== user.id) throw new Error("Not authorized");
+
+  const allowed = VALID_STATUS_TRANSITIONS[existing.status];
+  if (!allowed || !allowed.includes(status)) {
+    throw new Error(`Cannot transition from "${existing.status}" to "${status}"`);
+  }
+
   const { data, error } = await supabase
     .from("quotes")
     .update({ status, updated_at: new Date().toISOString() })
     .eq("id", id)
+    .eq("user_id", user.id)
     .select()
     .single();
 
@@ -144,7 +194,7 @@ export async function generateQuoteNumber(userId: string): Promise<string> {
     .from("profiles")
     .select("quote_counter")
     .eq("user_id", userId)
-    .single();
+    .maybeSingle();
 
   const nextNum = (profile?.quote_counter || 0) + 1;
 

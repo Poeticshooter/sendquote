@@ -1,44 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getQuotes, createQuote, generateQuoteNumber } from "@/lib/supabase/queries";
+import { CreateQuoteSchema } from "@/lib/api-validation";
+import { success, parseError, requireAuth } from "@/lib/api-helper";
 
 export async function GET() {
   try {
     const quotes = await getQuotes();
-    return NextResponse.json(quotes);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 401 });
+    return success(quotes);
+  } catch (e) {
+    return parseError(e);
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
+    const user = await requireAuth();
     const body = await request.json();
+    const data = CreateQuoteSchema.parse(body);
     const quoteNumber = await generateQuoteNumber(user.id);
 
     const quote = await createQuote({
       user_id: user.id,
       quote_number: quoteNumber,
-      client_name: body.client_name,
-      client_email: body.client_email,
-      client_phone: body.client_phone,
-      items: body.items || [],
-      notes: body.notes,
-      terms: body.terms,
-      payment_terms: body.payment_terms,
-      valid_until: body.valid_until,
-      gst_rate: body.gst_rate,
-      organization_id: body.organization_id,
+      client_name: data.client_name,
+      client_email: data.client_email || undefined,
+      client_phone: data.client_phone || undefined,
+      items: data.items,
+      notes: data.notes || undefined,
+      terms: data.terms || undefined,
+      payment_terms: data.payment_terms || undefined,
+      valid_until: data.valid_until || undefined,
+      gst_rate: data.gst_rate,
+      organization_id: data.organization_id || undefined,
     });
 
-    return NextResponse.json(quote, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return success(quote, 201);
+  } catch (e) {
+    return parseError(e);
   }
 }

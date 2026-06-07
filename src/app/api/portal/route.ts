@@ -1,23 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+const MAX_RETURNED_QUOTES = 50;
+
 export async function POST(request: NextRequest) {
   try {
     const { email } = await request.json();
-    if (!email) return NextResponse.json({ error: "Email required" }, { status: 400 });
+    if (!email || typeof email !== "string" || !email.includes("@")) {
+      return NextResponse.json({ error: "Valid email required" }, { status: 400 });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
 
     const supabase = createAdminClient();
     const { data: quotes } = await supabase
       .from("quotes")
-      .select("*, invoices(*), payments(invoice_id, amount)")
-      .eq("client_email", email)
-      .order("created_at", { ascending: false });
+      .select("id, quote_number, client_name, status, total, created_at, public_token")
+      .eq("client_email", normalizedEmail)
+      .order("created_at", { ascending: false })
+      .limit(MAX_RETURNED_QUOTES);
 
     if (!quotes || quotes.length === 0) {
       return NextResponse.json({ quotes: [], message: "No records found for this email" });
     }
 
-    const portalData = quotes.map((q: any) => ({
+    const portalData = quotes.map((q) => ({
       id: q.id,
       quoteNumber: q.quote_number,
       clientName: q.client_name,
@@ -25,18 +32,11 @@ export async function POST(request: NextRequest) {
       total: q.total,
       createdAt: q.created_at,
       publicUrl: `/q/${q.public_token}`,
-      contractUrl: q.status === "accepted" ? `/api/contracts/${q.id}` : null,
-      invoices: (q.invoices || []).map((inv: any) => ({
-        number: inv.invoice_number,
-        amount: inv.amount,
-        status: inv.status,
-        paidAmount: inv.paid_amount,
-      })),
-      paymentCount: (q.payments || []).length,
     }));
 
     return NextResponse.json({ quotes: portalData });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Portal error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

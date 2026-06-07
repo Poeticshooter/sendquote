@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { BuyerChatSchema } from "@/lib/api-validation";
+import { parseError } from "@/lib/api-helper";
 
 export async function POST(request: NextRequest) {
   try {
-    const { public_token, message, sender_name } = await request.json();
-    if (!public_token || !message?.trim()) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
-    }
+    const body = await request.json();
+    const { public_token, message, sender_name } = BuyerChatSchema.parse(body);
 
     const supabase = createAdminClient();
+
     const { data: quote } = await supabase
       .from("quotes")
       .select("id")
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     if (error) throw error;
     return NextResponse.json(data, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (e) {
+    return parseError(e);
   }
 }

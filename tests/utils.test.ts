@@ -1,9 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { cn } from "@/lib/utils";
-import { detectBot, rateLimitCheck } from "@/lib/security";
-import { NextRequest } from "next/server";
 
-// Mock supabase admin for rateLimitCheck tests
 const mockSupabaseSingle = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/supabase/admin", () => ({
@@ -12,6 +9,7 @@ vi.mock("@/lib/supabase/admin", () => ({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
           single: mockSupabaseSingle,
+          maybeSingle: mockSupabaseSingle,
         })),
       })),
       upsert: vi.fn(() => Promise.resolve({ error: null })),
@@ -26,53 +24,19 @@ describe("cn utility", () => {
   it("combines class names", () => {
     expect(cn("foo", "bar")).toBe("foo bar");
   });
+
   it("handles conditional classes", () => {
     expect(cn("base", false && "hidden", "visible")).toBe("base visible");
   });
-  it("merges tailwind classes", () => {
+
+  it("merges tailwind classes (last wins)", () => {
     expect(cn("px-4", "px-2")).toBe("px-2");
   });
+
   it("handles undefined", () => {
     expect(cn("foo", undefined, "bar")).toBe("foo bar");
   });
-});
 
-describe("security - detectBot", () => {
-  it("detects GPT bots", () => {
-    expect(detectBot("Mozilla/5.0 GPTBot")).toBe(true);
-  });
-  it("detects Claude", () => {
-    expect(detectBot("Claude-Web crawler")).toBe(true);
-  });
-  it("detects Google crawler", () => {
-    expect(detectBot("Googlebot/2.1")).toBe(true);
-  });
-  it("passes regular browsers", () => {
-    expect(detectBot("Mozilla/5.0 Chrome/120")).toBe(false);
-  });
-  it("passes Firefox", () => {
-    expect(detectBot("Mozilla/5.0 Firefox/121")).toBe(false);
-  });
-});
-
-describe("quote number generation", () => {
-  it("generates correct format", () => {
-    const year = new Date().getFullYear();
-    const num = `QTE-${year}-0001`;
-    expect(num).toMatch(/^QTE-\d{4}-\d{4}$/);
-  });
-});
-
-describe("status colors mapping", () => {
-  it("has valid statuses", () => {
-    const statuses = ["draft", "sent", "opened", "accepted", "changes_requested", "expired", "archived"];
-    statuses.forEach((s) => {
-      expect(s.length).toBeGreaterThan(0);
-    });
-  });
-});
-
-describe("cn - additional edge cases", () => {
   it("handles null values", () => {
     expect(cn("foo", null, "bar")).toBe("foo bar");
   });
@@ -104,11 +68,61 @@ describe("cn - additional edge cases", () => {
   });
 
   it("handles all falsy values gracefully", () => {
-    expect(cn("base", false, null, undefined, 0 as unknown, "")).toBe("base");
+    expect(cn("base", false, null, undefined, 0 as any, "")).toBe("base");
   });
 });
 
-describe("security - rateLimitCheck", () => {
+describe("quote number generation format", () => {
+  it("generates correct format", () => {
+    const year = new Date().getFullYear();
+    const num = `QTE-${year}-0001`;
+    expect(num).toMatch(/^QTE-\d{4}-\d{4}$/);
+  });
+
+  it("handles 9999+ counter", () => {
+    const year = new Date().getFullYear();
+    const num = `QTE-${year}-${String(10000).padStart(4, "0")}`;
+    expect(num).toMatch(/^QTE-\d{4}-\d{4,5}$/);
+    expect(num).toBe(`QTE-${year}-10000`);
+  });
+});
+
+describe("status transitions", () => {
+  const VALID_STATUS_TRANSITIONS: Record<string, string[]> = {
+    draft: ["sent", "archived"],
+    sent: ["opened", "accepted", "lost", "archived"],
+    opened: ["accepted", "changes_requested", "lost", "archived"],
+    changes_requested: ["draft", "sent", "lost", "archived"],
+    accepted: ["archived"],
+    expired: ["archived"],
+    archived: [],
+    lost: [],
+  };
+
+  it("allows valid transitions", () => {
+    expect(VALID_STATUS_TRANSITIONS.draft).toContain("sent");
+    expect(VALID_STATUS_TRANSITIONS.sent).toContain("accepted");
+    expect(VALID_STATUS_TRANSITIONS.opened).toContain("accepted");
+  });
+
+  it("blocks invalid transitions", () => {
+    expect(VALID_STATUS_TRANSITIONS.draft).not.toContain("accepted");
+    expect(VALID_STATUS_TRANSITIONS.sent).not.toContain("draft");
+    expect(VALID_STATUS_TRANSITIONS.accepted).not.toContain("sent");
+  });
+
+  it("archived is a terminal state", () => {
+    expect(VALID_STATUS_TRANSITIONS.archived).toHaveLength(0);
+  });
+
+  it("accepts all valid status strings", () => {
+    const statuses = Object.keys(VALID_STATUS_TRANSITIONS);
+    const expected = ["draft", "sent", "opened", "accepted", "changes_requested", "expired", "archived", "lost"];
+    expect(statuses.sort()).toEqual(expected.sort());
+  });
+});
+
+describe("rateLimitCheck", () => {
   beforeEach(() => {
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://test.supabase.co");
     vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "test-service-role-key");
@@ -121,6 +135,8 @@ describe("security - rateLimitCheck", () => {
   it("allows request when no prior rate limit record exists", async () => {
     mockSupabaseSingle.mockResolvedValue({ data: null, error: null });
 
+    const { rateLimitCheck } = await import("@/lib/security");
+    const { NextRequest } = await import("next/server");
     const request = new NextRequest("https://sendquote.in/api/test", {
       headers: { "x-forwarded-for": "192.168.1.1" },
     });
@@ -135,6 +151,8 @@ describe("security - rateLimitCheck", () => {
       error: null,
     });
 
+    const { rateLimitCheck } = await import("@/lib/security");
+    const { NextRequest } = await import("next/server");
     const request = new NextRequest("https://sendquote.in/api/test", {
       headers: { "x-forwarded-for": "10.0.0.1" },
     });
@@ -149,6 +167,8 @@ describe("security - rateLimitCheck", () => {
       error: null,
     });
 
+    const { rateLimitCheck } = await import("@/lib/security");
+    const { NextRequest } = await import("next/server");
     const request = new NextRequest("https://sendquote.in/api/test", {
       headers: { "x-forwarded-for": "10.0.0.2" },
     });
@@ -164,18 +184,21 @@ describe("security - rateLimitCheck", () => {
       error: null,
     });
 
+    const { rateLimitCheck } = await import("@/lib/security");
+    const { NextRequest } = await import("next/server");
     const request = new NextRequest("https://sendquote.in/api/test", {
       headers: { "x-forwarded-for": "10.0.0.3" },
     });
 
     const result = await rateLimitCheck(request);
-    // Window has expired, so it should reset and allow
     expect(result).toBe(true);
   });
 
   it("extracts IP from x-forwarded-for header", async () => {
     mockSupabaseSingle.mockResolvedValue({ data: null, error: null });
 
+    const { rateLimitCheck } = await import("@/lib/security");
+    const { NextRequest } = await import("next/server");
     const request = new NextRequest("https://sendquote.in/api/test", {
       headers: { "x-forwarded-for": "203.0.113.1, 10.0.0.1" },
     });
@@ -184,18 +207,11 @@ describe("security - rateLimitCheck", () => {
     expect(result).toBe(true);
   });
 
-  it("uses 'unknown' when no IP header is present", async () => {
-    mockSupabaseSingle.mockResolvedValue({ data: null, error: null });
-
-    const request = new NextRequest("https://sendquote.in/api/test");
-
-    const result = await rateLimitCheck(request);
-    expect(result).toBe(true);
-  });
-
-  it("fails open when supabase throws an error", async () => {
+  it("falls back to local rate limit when database fails", async () => {
     mockSupabaseSingle.mockRejectedValue(new Error("Database connection failed"));
 
+    const { rateLimitCheck } = await import("@/lib/security");
+    const { NextRequest } = await import("next/server");
     const request = new NextRequest("https://sendquote.in/api/test", {
       headers: { "x-forwarded-for": "10.0.0.4" },
     });

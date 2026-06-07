@@ -1,22 +1,23 @@
 import { NextResponse } from "next/server";
+import { SeoPingSchema } from "@/lib/api-validation";
+import { parseError } from "@/lib/api-helper";
 
 export async function POST(request: Request) {
   try {
-    const { url } = await request.json();
-    if (!url) return NextResponse.json({ error: "Missing url" }, { status: 400 });
+    const body = await request.json();
+    const { url } = SeoPingSchema.parse(body);
 
     const fullUrl = url.startsWith("http") ? url : `https://sendquote.in${url.startsWith("/") ? url : `/${url}`}`;
 
-    const results: Record<string, any> = {};
-
-    // IndexNow (Bing + Yandex)
-    const indexNowKey = "sendquote-in-indexnow";
+    const indexNowKey = process.env.INDEXNOW_KEY || "sendquote-in-indexnow";
     const indexNowPayload = {
       host: "sendquote.in",
       key: indexNowKey,
       keyLocation: `https://sendquote.in/${indexNowKey}.txt`,
       urlList: [fullUrl],
     };
+
+    const results: Record<string, any> = {};
 
     try {
       const idxRes = await fetch("https://api.indexnow.org/indexnow", {
@@ -29,7 +30,6 @@ export async function POST(request: Request) {
       results.indexNow = { error: "IndexNow unavailable" };
     }
 
-    // Google Indexing API via sitemap ping
     try {
       const googleUrl = `https://www.google.com/ping?sitemap=https://sendquote.in/sitemap.xml`;
       const gRes = await fetch(googleUrl);
@@ -38,7 +38,6 @@ export async function POST(request: Request) {
       results.google = { error: "Google ping unavailable" };
     }
 
-    // Bing webmaster
     try {
       const bingUrl = `https://www.bing.com/ping?sitemap=https://sendquote.in/sitemap.xml`;
       const bRes = await fetch(bingUrl);
@@ -48,7 +47,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, url: fullUrl, results });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (e) {
+    return parseError(e);
   }
 }

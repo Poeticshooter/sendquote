@@ -1,95 +1,141 @@
-# SendQuote
+# SendQuote.in — AI-Powered Quoting for Indian Businesses
 
-**The fastest path from conversation to contract.**
-
-SendQuote is an AI-powered revenue workflow platform that transforms quotations into interactive deal rooms. Generate quotes in 60 seconds, track buyer intent, collect payments, and close deals — all in one place.
-
-## Features
-
-- **AI Quote Generation** — Generate complete quotes from a brief description in under 60 seconds
-- **Interactive Deal Room** — Branded, responsive quote pages with real-time buyer tracking
-- **Buyer Intent Analytics** — Know exactly who opened your quote, what they viewed, and for how long
-- **In-Quote Negotiation** — Buyers can request changes and counter-offer directly inside the quote
-- **One-Click E-Signature** — Native signature collection with no redirects
-- **Payment Collection** — Accept credit cards, UPI, and bank transfers (Razorpay + Stripe)
-- **Approval Workflows** — Rule-based routing for discounts and deal approvals
-- **AI Auto Follow-Ups** — Personalized follow-ups triggered by buyer behavior
-- **CRM Sync** — Bi-directional sync with HubSpot, Salesforce, and Pipedrive
-- **Client Portal** — Single view of all quotes, contracts, invoices, and payments
+SendQuote is a production-grade SaaS platform that lets businesses create GST-ready quotes in 60 seconds using AI. Send interactive deal rooms, collect e-signatures, process payments, and close deals faster.
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
 | Framework | Next.js 16 (App Router) |
-| Language | TypeScript (strict) |
-| Styling | Tailwind CSS v4 + shadcn/ui |
-| Database | Supabase PostgreSQL |
-| Auth | Supabase Auth (email + Google SSO) |
-| Payments | Razorpay (India) + Stripe (Global) |
-| AI | Groq + Gemini |
+| Language | TypeScript 5 (strict mode) |
+| Styling | Tailwind CSS 4 |
+| Database | Supabase PostgreSQL 17 |
+| Auth | Supabase SSR (email + Google OAuth) |
+| AI | Groq (LLaMA 70B), Gemini (fallback) |
+| Payments | Razorpay (India — UPI, cards, netbanking) |
 | Email | Resend |
 | Monitoring | Sentry |
-| Hosting | Vercel |
+| Analytics | PostHog |
+| Testing | Vitest (unit) + Playwright (E2E) |
+| Deployment | Vercel |
 
-## Getting Started
+## Quick Start
 
 ```bash
-git clone https://github.com/Poeticshooter/sendquote.git
-cd sendquote
+# 1. Install dependencies
 pnpm install
+
+# 2. Copy env vars
 cp .env.local.example .env.local
+# Fill in your Supabase, Razorpay, Groq, etc. keys
+
+# 3. Run dev server
 pnpm dev
+
+# 4. Run tests
+pnpm test
+
+# 5. Type check
+pnpm typecheck
 ```
-
-### Environment Variables
-
-See `.env.local.example` for all required variables. Key ones:
-
-- `NEXT_PUBLIC_SUPABASE_URL` — Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase anonymous key
-- `GROQ_API_KEY` — Groq API key for AI features
-- `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` — Razorpay live keys
-- `RESEND_API_KEY` — Resend API key for email
 
 ## Project Structure
 
 ```
 src/
-├── app/                 # Next.js App Router
-│   ├── (marketing)/    # Public pages
-│   ├── (auth)/         # Auth pages
-│   ├── (dashboard)/    # Protected app
-│   ├── q/[token]/      # Public quote view
-│   └── api/            # API routes
-├── components/         # React components
-│   ├── ui/             # shadcn/ui components
-│   ├── landing/        # Landing page
-│   ├── deal-room/      # Deal Room components
-│   └── shared/         # Shared components
-├── lib/                # Utilities
-│   ├── supabase/       # Supabase clients
-│   ├── ai/             # AI integration
-│   └── crm/            # CRM sync
-└── types/              # TypeScript types
+├── app/
+│   ├── (auth)/          # Login, signup, forgot password
+│   ├── (dashboard)/     # Dashboard, quotes, clients, invoices, analytics, admin, settings
+│   ├── (marketing)/     # Landing, pricing, features, blog, docs, FAQ
+│   ├── api/             # 18 REST API routes with Zod validation
+│   │   ├── ai/          # AI quote generation, copilot, follow-up, voice
+│   │   ├── quotes/      # CRUD, send, accept with e-signature
+│   │   ├── webhook/     # Razorpay webhook with idempotency
+│   │   └── ...          # Analytics, CRM, payments, chat, portal, health
+│   ├── auth/            # Supabase auth callback
+│   ├── q/               # Public quote view (deal room)
+│   ├── layout.tsx       # Root layout with theme, PostHog, Sentry, voice assistant
+│   └── error.tsx        # Global error boundary
+├── components/
+│   ├── deal-room/       # Public quote view, sign flow, signature pad
+│   ├── landing/         # Marketing page sections
+│   ├── quotes/          # Activity timeline, follow-up, deal copilot
+│   ├── settings/        # Approval rules, CRM, billing, SSO, team
+│   ├── shared/          # Sidebar, theme, PostHog, cookie consent, voice assistant
+│   └── ui/              # shadcn/ui components (button, card, dialog, etc.)
+├── lib/
+│   ├── supabase/        # Server/client/admin clients + typed queries
+│   ├── ai/              # Generate quote, follow-up, voice
+│   ├── contracts/       # HTML contract generation with XSS escaping
+│   └── crm/             # HubSpot + Pipedrive sync
+├── types/               # TypeScript interfaces
+└── instrumentation.ts   # Sentry initialization
 ```
 
 ## API Routes
 
+All routes have **Zod schema validation**, **ownership checks**, and **consistent error handling**.
+
 | Route | Method | Description |
 |-------|--------|-------------|
-| `/api/quotes` | GET, POST | List and create quotes |
-| `/api/quotes/[id]` | GET, PATCH | Get and update quote |
-| `/api/quotes/send` | POST | Send quote via email |
-| `/api/quotes/accept` | POST | Accept quote with signature |
-| `/api/clients` | GET, POST | List and create clients |
-| `/api/invoices` | GET | List invoices |
-| `/api/ai/generate` | POST | AI quote generation |
-| `/api/ai/followup` | POST | AI follow-up email |
-| `/api/payments/razorpay` | POST | Create Razorpay order |
-| `/api/analytics` | GET | Quote analytics |
 | `/api/health` | GET | Health check |
+| `/api/quotes` | GET/POST | List/create quotes |
+| `/api/quotes/[id]` | GET/PATCH/DELETE | Get/update/delete quote |
+| `/api/quotes/send` | POST | Send quote via email |
+| `/api/quotes/accept` | POST | Accept with e-signature |
+| `/api/ai/generate` | POST | AI quote from description |
+| `/api/ai/copilot` | POST | Deal analysis & suggestions |
+| `/api/ai/followup` | POST | AI follow-up email |
+| `/api/voice` | POST | Voice assistant response |
+| `/api/payments/razorpay` | POST | Create Razorpay order |
+| `/api/webhook/razorpay` | POST | Razorpay webhook (idempotent) |
+| `/api/analytics` | GET | Quote analytics |
+| `/api/clients` | GET/POST | Client management |
+| `/api/portal` | POST | Client portal by email |
+| `/api/crm/sync` | POST | Sync to HubSpot/Pipedrive |
+| `/api/subscriptions` | GET | User subscription info |
+| `/api/events` | POST | Track quote events |
+
+## Security
+
+- **CSP headers** — restrictive Content-Security-Policy
+- **Rate limiting** — DB-backed with in-memory fallback, 100 req/min/IP
+- **Bot detection** — curated list (Googlebot, GPTBot, Claude-Web, etc.)
+- **IDOR protection** — all quote/data routes verify ownership
+- **XSS prevention** — HTML escaping in contract generation
+- **Webhook idempotency** — duplicate event detection via unique constraint
+- **Input validation** — Zod schemas on every API route
+- **Strict TypeScript** — `strict: true` in tsconfig
+
+## Testing
+
+```bash
+pnpm test              # Run 86 tests
+pnpm test:watch        # Watch mode
+pnpm typecheck         # TypeScript check
+pnpm lint              # ESLint
+pnpm ci                # Full CI pipeline
+```
+
+## Features
+
+- [x] AI Quote Generation (60s)
+- [x] Interactive Deal Rooms
+- [x] Buyer Intent Tracking
+- [x] E-Signature Collection
+- [x] Razorpay Payment Integration
+- [x] Automated Invoicing
+- [x] AI Deal Copilot
+- [x] AI Follow-Up Emails
+- [x] AI Voice Assistant
+- [x] CRM Sync (HubSpot, Pipedrive)
+- [x] Approval Workflows
+- [x] Client Portal
+- [x] Team Management
+- [x] Multi-language (EN, HI, MR)
+- [ ] Stripe Integration
+- [ ] Salesforce CRM Sync
 
 ## License
 
-MIT
+Private — SendQuote.in

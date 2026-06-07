@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { v4 as uuid } from "uuid";
+import { TeamInviteSchema } from "@/lib/api-validation";
+import { success, parseError, requireAuth } from "@/lib/api-helper";
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    const user = await requireAuth();
+    const body = await request.json();
+    const { email, role } = TeamInviteSchema.parse(body);
 
-    const { email, role } = await request.json();
-    if (!email) return NextResponse.json({ error: "Email required" }, { status: 400 });
+    const supabase = await createClient();
 
     const { data, error } = await supabase.from("team_members").insert({
       account_user_id: user.id,
@@ -20,8 +21,8 @@ export async function POST(request: NextRequest) {
     }).select().single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-    return NextResponse.json({ success: true, member: data }, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return success({ success: true, member: data }, 201);
+  } catch (e) {
+    return parseError(e);
   }
 }

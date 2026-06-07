@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { success, parseError, requireAuth } from "@/lib/api-helper";
 
 export async function GET() {
   try {
+    const user = await requireAuth();
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
     const { data: quotes } = await supabase
       .from("quotes")
       .select("id, status, total, created_at, client_name")
       .eq("user_id", user.id);
 
-    if (!quotes) return NextResponse.json({ totals: { all: 0 } });
+    if (!quotes) return success({ totals: { all: 0 } });
 
     const total = quotes.length;
     const accepted = quotes.filter((q) => q.status === "accepted").length;
@@ -41,7 +41,7 @@ export async function GET() {
       monthlyRevenue[month] = (monthlyRevenue[month] || 0) + q.total;
     });
 
-    return NextResponse.json({
+    return success({
       totals: { total, accepted, lost, pending },
       revenue: { total: totalRevenue, avgQuoteValue },
       winRate,
@@ -49,7 +49,7 @@ export async function GET() {
       quotesByStatus,
       monthlyRevenue: Object.entries(monthlyRevenue).map(([month, amount]) => ({ month, amount })),
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (e) {
+    return parseError(e);
   }
 }

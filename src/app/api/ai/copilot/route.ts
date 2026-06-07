@@ -1,19 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { AICopilotSchema } from "@/lib/api-validation";
+import { parseError, success, requireAuth } from "@/lib/api-helper";
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    const user = await requireAuth();
+    const body = await request.json();
+    const { quote_id } = AICopilotSchema.parse(body);
 
-    const { quote_id } = await request.json();
-    if (!quote_id) return NextResponse.json({ error: "Missing quote_id" }, { status: 400 });
+    const supabase = await createClient();
 
     const { data: quote } = await supabase
       .from("quotes")
       .select("*, quote_events(*)")
       .eq("id", quote_id)
+      .eq("user_id", user.id)
       .single();
 
     if (!quote) return NextResponse.json({ error: "Quote not found" }, { status: 404 });
@@ -36,7 +38,7 @@ export async function POST(request: NextRequest) {
       suggestions.push({ type: "alert", message: `Client viewed this quote ${viewedCount} times. Call them now.`, priority: "high" });
     }
 
-    if (quote.status === "accepted" && !(quote as any).invoices?.length) {
+    if (quote.status === "accepted") {
       suggestions.push({ type: "action", message: "Quote accepted! Generate an invoice to collect payment.", priority: "high" });
     }
 
@@ -48,14 +50,14 @@ export async function POST(request: NextRequest) {
       suggestions.push({ type: "tip", message: "Client hasn't opened this quote yet. Try sending via WhatsApp for faster visibility.", priority: "low" });
     }
 
-    return NextResponse.json({
+    return success({
       quoteNumber: quote.quote_number,
       daysSinceCreation,
       viewedCount,
       suggestions,
       score: quote.status === "accepted" ? 90 : quote.status === "opened" ? 60 : quote.status === "sent" ? 30 : 10,
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (e) {
+    return parseError(e);
   }
 }

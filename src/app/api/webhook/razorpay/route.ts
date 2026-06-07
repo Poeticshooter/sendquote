@@ -6,19 +6,38 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.text();
     const signature = request.headers.get("x-razorpay-signature") || "";
-    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || "";
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+
+    if (!webhookSecret) {
+      console.error("RAZORPAY_WEBHOOK_SECRET is not configured");
+      return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
+    }
 
     const expectedSignature = crypto
       .createHmac("sha256", webhookSecret)
       .update(body)
       .digest("hex");
 
-    if (signature !== expectedSignature) {
+    if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
     const event = JSON.parse(body);
     const supabase = createAdminClient();
+
+    const eventId = event.event === "payment.captured"
+      ? event.payload.payment.entity.id
+      : `${event.event}_${event.payload?.payment?.entity?.order_id || Date.now()}`;
+
+    const { data: existing } = await supabase
+      .from("webhook_events")
+      .select("id")
+      .eq("razorpay_event_id", eventId)
+      .maybeSingle();
+
+    if (existing) {
+      return NextResponse.json({ success: true, duplicate: true });
+    }
 
     switch (event.event) {
       case "payment.captured": {
@@ -41,8 +60,29 @@ export async function POST(request: NextRequest) {
             .eq("razorpay_order_id", orderId);
         }
 
+        const { data: invoices } = await supabase
+          .from("invoices")
+          .select("id, paid_amount, amount")
+          .eq("razorpay_order_id", orderId);
+
+        if (invoices && invoices.length > 0) {
+          for (const invoice of invoices) {
+            const newPaidAmount = (invoice.paid_amount || 0) + (payment.amount / 100);
+            const newStatus = newPaidAmount >= invoice.amount ? "paid" : "pending";
+            await supabase
+              .from("invoices")
+              .update({
+                paid_amount: newPaidAmount,
+                balance_due: Math.max(0, invoice.amount - newPaidAmount),
+                status: newStatus,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", invoice.id);
+          }
+        }
+
         await supabase.from("webhook_events").insert({
-          razorpay_event_id: payment.id || event.event,
+          razorpay_event_id: eventId,
           event_type: event.event,
           payload: event,
           outcome: "processed",
@@ -53,7 +93,7 @@ export async function POST(request: NextRequest) {
 
       case "payment.failed": {
         await supabase.from("webhook_events").insert({
-          razorpay_event_id: event.event,
+          razorpay_event_id: eventId,
           event_type: event.event,
           payload: event,
           outcome: "failed",
@@ -79,7 +119,7 @@ export async function POST(request: NextRequest) {
 
       default: {
         await supabase.from("webhook_events").insert({
-          razorpay_event_id: event.event,
+          razorpay_event_id: eventId,
           event_type: event.event,
           payload: event,
           outcome: "ignored",
@@ -89,6 +129,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Webhook error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

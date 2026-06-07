@@ -9,7 +9,13 @@ export interface CrmQuote {
   created_at: string;
 }
 
-export async function syncToHubspot(apiKey: string, quote: CrmQuote): Promise<{ success: boolean; deal_id?: string; error?: string }> {
+interface SyncResult {
+  success: boolean;
+  deal_id?: string;
+  error?: string;
+}
+
+async function syncToHubspot(apiKey: string | undefined, quote: CrmQuote): Promise<SyncResult> {
   if (!apiKey || apiKey === "placeholder") {
     return { success: false, error: "HubSpot API key not configured" };
   }
@@ -47,7 +53,7 @@ export async function syncToHubspot(apiKey: string, quote: CrmQuote): Promise<{ 
   }
 }
 
-export async function syncToPipedrive(apiKey: string, quote: CrmQuote): Promise<{ success: boolean; deal_id?: string; error?: string }> {
+async function syncToPipedrive(apiKey: string | undefined, quote: CrmQuote): Promise<SyncResult> {
   if (!apiKey || apiKey === "placeholder") {
     return { success: false, error: "Pipedrive API key not configured" };
   }
@@ -59,18 +65,14 @@ export async function syncToPipedrive(apiKey: string, quote: CrmQuote): Promise<
       currency: "INR",
       status: quote.status === "accepted" ? "won" : "open",
       add_time: quote.created_at,
-      notes: [
-        { content: `Quote URL: ${quote.public_url}` },
-        { content: `Quote Number: ${quote.quote_number}` },
-      ],
     };
 
-    const res = await fetch("https://api.pipedrive.com/v1/deals", {
+    const res = await fetch(`https://api.pipedrive.com/v1/deals?api_token=${apiKey}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ ...dealData, api_token: apiKey }),
+      body: JSON.stringify(dealData),
     });
 
     if (!res.ok) {
@@ -85,15 +87,25 @@ export async function syncToPipedrive(apiKey: string, quote: CrmQuote): Promise<
   }
 }
 
-export async function syncQuoteToCrm(quote: CrmQuote): Promise<{ hubspot?: any; pipedrive?: any }> {
-  const results: any = {};
+export async function syncQuoteToCrm(quote: CrmQuote): Promise<{
+  hubspot?: SyncResult;
+  pipedrive?: SyncResult;
+  errors: string[];
+}> {
+  const results: { hubspot?: SyncResult; pipedrive?: SyncResult; errors: string[] } = { errors: [] };
 
   if (process.env.HUBSPOT_API_KEY) {
     results.hubspot = await syncToHubspot(process.env.HUBSPOT_API_KEY, quote);
+    if (!results.hubspot.success && results.hubspot.error) {
+      results.errors.push(`HubSpot: ${results.hubspot.error}`);
+    }
   }
 
   if (process.env.PIPEDRIVE_API_KEY) {
     results.pipedrive = await syncToPipedrive(process.env.PIPEDRIVE_API_KEY, quote);
+    if (!results.pipedrive.success && results.pipedrive.error) {
+      results.errors.push(`Pipedrive: ${results.pipedrive.error}`);
+    }
   }
 
   return results;

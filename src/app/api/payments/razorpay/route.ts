@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
+import { RazorpayPaymentSchema } from "@/lib/api-validation";
+import { parseError, requireAuth } from "@/lib/api-helper";
 
 export async function POST(request: NextRequest) {
   try {
-    const { amount, currency } = await request.json();
-    const keyId = process.env.RAZORPAY_KEY_ID!;
-    const keySecret = process.env.RAZORPAY_KEY_SECRET!;
+    await requireAuth();
+    const body = await request.json();
+    const { amount, currency } = RazorpayPaymentSchema.parse(body);
+
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!keyId || !keySecret) {
+      return NextResponse.json({ error: "Payment not configured" }, { status: 500 });
+    }
 
     const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
 
@@ -34,7 +43,7 @@ export async function POST(request: NextRequest) {
       currency: data.currency,
       key: keyId,
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (e) {
+    return parseError(e);
   }
 }

@@ -9,6 +9,7 @@ import { SkipNav } from "@/components/shared/skip-nav";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Suspense } from "react";
+import { VoiceAssistant } from "@/components/shared/voice-assistant";
 
 const interSans = Inter({ variable: "--font-sans", subsets: ["latin"], display: "swap" });
 const jetbrainsMono = JetBrains_Mono({ variable: "--font-mono", subsets: ["latin"], display: "swap" });
@@ -85,8 +86,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-IN" className={`${interSans.variable} ${jetbrainsMono.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
-        <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE" />
-        {/* TODO: Replace YOUR_VERIFICATION_CODE with actual code from Google Search Console */}
+        {process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION && (
+          <meta name="google-site-verification" content={process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION} />
+        )}
         <link rel="search" type="application/opensearchdescription+xml" title="SendQuote" href="/opensearch.xml" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="preconnect" href="https://yabsujbilznpoayueokq.supabase.co" crossOrigin="anonymous" />
@@ -102,6 +104,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Toaster richColors position="top-right" />
             <Analytics />
             <SpeedInsights />
+            <VoiceAssistant />
           </PostHogProvider>
         </ThemeProvider>
       </body>

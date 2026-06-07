@@ -4,7 +4,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export async function POST(request: NextRequest) {
   try {
     const authHeader = request.headers.get("authorization");
-    const expectedToken = process.env.N8N_WEBHOOK_SECRET || "sendquote-n8n-secret";
+    const expectedToken = process.env.N8N_WEBHOOK_SECRET;
+
+    if (!expectedToken) {
+      console.error("N8N_WEBHOOK_SECRET is not configured");
+      return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
+    }
 
     if (authHeader !== `Bearer ${expectedToken}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -21,10 +26,18 @@ export async function POST(request: NextRequest) {
 
     let quote;
     if (quote_id) {
-      const { data } = await supabase.from("quotes").select("*, profiles(business_name, phone)").eq("id", quote_id).single();
+      const { data } = await supabase
+        .from("quotes")
+        .select("*, profiles(business_name, phone)")
+        .eq("id", quote_id)
+        .single();
       quote = data;
     } else if (quote_token) {
-      const { data } = await supabase.from("quotes").select("*, profiles(business_name, phone)").eq("public_token", quote_token).single();
+      const { data } = await supabase
+        .from("quotes")
+        .select("*, profiles(business_name, phone)")
+        .eq("public_token", quote_token)
+        .single();
       quote = data;
     }
 
@@ -70,6 +83,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: `Unknown event: ${event}` }, { status: 400 });
     }
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("n8n webhook error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

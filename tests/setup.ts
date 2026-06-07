@@ -7,5 +7,13 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
-process.env.NEXT_PUBLIC_SUPABASE_URL = "https://yabsujbilznpoayueokq.supabase.co";
+vi.mock("next/headers", () => ({
+  cookies: () => ({
+    getAll: () => [],
+    set: vi.fn(),
+  }),
+}));
+
+process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test-project.supabase.co";
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-anon-key";
+process.env.SUPABASE_SERVICE_ROLE_KEY = "test-service-role-key";

@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { CreateClientSchema } from "@/lib/api-validation";
+import { success, parseError, requireAuth } from "@/lib/api-helper";
 
 export async function GET() {
   try {
+    const user = await requireAuth();
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
 
     const { data, error } = await supabase
       .from("clients")
@@ -16,40 +15,38 @@ export async function GET() {
       .order("created_at", { ascending: false });
 
     if (error) throw error;
-    return NextResponse.json(data);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return success(data);
+  } catch (e) {
+    return parseError(e);
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
+    const user = await requireAuth();
     const body = await request.json();
+    const data = CreateClientSchema.parse(body);
 
-    const { data, error } = await supabase
+    const supabase = await createClient();
+
+    const { data: client, error } = await supabase
       .from("clients")
       .insert({
         user_id: user.id,
-        name: body.name,
-        email: body.email,
-        phone: body.phone,
-        address: body.address,
-        gst_number: body.gst_number,
-        notes: body.notes,
-        organization_id: body.organization_id,
+        name: data.name,
+        email: data.email || null,
+        phone: data.phone || null,
+        address: data.address || null,
+        gst_number: data.gst_number || null,
+        notes: data.notes || null,
+        organization_id: data.organization_id || null,
       })
       .select()
       .single();
 
     if (error) throw error;
-    return NextResponse.json(data, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return success(client, 201);
+  } catch (e) {
+    return parseError(e);
   }
 }

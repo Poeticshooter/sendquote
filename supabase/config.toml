@@ -1,10 +1,33 @@
-{
-  "projectId": "yabsujbilznpoayueokq",
-  "settings": {
-    "db": { "schema": "public" },
-    "auth": {
-      "providers": ["email", "google"],
-      "redirect_urls": ["https://sendquote.in/auth/callback", "http://localhost:3000/auth/callback"]
-    }
-  }
-}
+[project]
+id = "yabsujbilznpoayueokq"
+name = "SendQuote India"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "auth", "storage"]
+
+[db]
+schema = "public"
+migration_dir = "supabase/migrations"
+
+[auth]
+enabled = true
+site_url = "https://sendquote.in"
+additional_redirect_urls = ["https://sendquote.in/auth/callback", "http://localhost:3000/auth/callback"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_confirmations = false
+enable_autoconfirm = true
+secure_password = true
+
+[auth.external.google]
+enabled = true
+client_id = ""
+client_secret = ""
+redirect_uris = ["https://sendquote.in/auth/callback", "http://localhost:3000/auth/callback"]
+
+[storage]
+enabled = false

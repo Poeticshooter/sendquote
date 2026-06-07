@@ -15,11 +15,20 @@ export default function ErrorPage({
       <AlertCircle className="h-12 w-12 text-destructive" />
       <h1 className="mt-4 text-2xl font-bold">Something went wrong</h1>
       <p className="mt-2 text-muted-foreground">
-        {error.message || "An unexpected error occurred"}
+        An unexpected error occurred. Our team has been notified.
       </p>
       <Button className="mt-6" onClick={reset}>
         Try again
       </Button>
+      {process.env.NODE_ENV === "development" && (
+        <details className="mt-4 text-left text-sm text-muted-foreground">
+          <summary className="cursor-pointer">Error details</summary>
+          <pre className="mt-2 whitespace-pre-wrap rounded bg-muted p-4 text-xs">
+            {error.message}
+            {error.stack && `\n\n${error.stack}`}
+          </pre>
+        </details>
+      )}
     </div>
   );
 }

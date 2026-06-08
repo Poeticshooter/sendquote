@@ -64,7 +64,8 @@ export function VoiceAssistant() {
         utterance.onerror = () => setSpeaking(false);
         speechSynthesis.speak(utterance);
       }
-    } catch {
+    } catch (e) {
+      console.error("Voice assistant error:", e);
       setMessages((prev) => [...prev, { role: "assistant", text: "Sorry, I couldn't process that. Please try again." }]);
     }
     setProcessing(false);

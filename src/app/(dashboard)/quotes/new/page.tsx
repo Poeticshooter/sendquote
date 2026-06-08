@@ -120,7 +120,7 @@ export default function NewQuotePage() {
     const date = new Date();
     const quoteNumber = `QTE-${date.getFullYear()}-${String(nextNum).padStart(4, "0")}`;
 
-    const publicToken = crypto.randomUUID ? crypto.randomUUID() : uuid();
+    const publicToken = uuid();
     const thirtyDays = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
     const { data: quote, error } = await supabase

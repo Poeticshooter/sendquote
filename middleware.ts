@@ -35,7 +35,8 @@ export async function middleware(request: NextRequest) {
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method) &&
         !pathname.startsWith("/api/webhook") &&
         !pathname.startsWith("/api/webhooks") &&
-        !pathname.startsWith("/api/health")) {
+        !pathname.startsWith("/api/health") &&
+        !pathname.startsWith("/api/voice")) {
       const csrfResult = verifyCsrfToken(request);
       if (!csrfResult.ok) {
         return NextResponse.json({ error: csrfResult.message }, { status: csrfResult.status });

@@ -82,16 +82,16 @@ export default function OnboardingPage() {
                 Create Your First Quote
               </h2>
               <p className="text-white/60 mb-8">
-                Let's create a quote together. You'll see how fast and easy it is.
+                {"Let's"} create a quote together. You&apos;ll see how fast and easy it is.
               </p>
 
               <div className="space-y-4 mb-8 bg-white/[0.02] border border-white/[0.06] rounded-lg p-4">
                 <p className="text-sm text-white/60">
-                  You'll be guided through:
+                  You&apos;ll be guided through:
                 </p>
                 <ul className="space-y-2 text-sm text-white/80">
                   <li className="flex gap-2">1. Add client details</li>
-                  <li className="flex gap-2">2. Describe what you're quoting</li>
+                  <li className="flex gap-2">2. Describe what you&apos;re quoting</li>
                   <li className="flex gap-2">3. Let AI generate the full quote</li>
                   <li className="flex gap-2">4. Share with your client</li>
                 </ul>

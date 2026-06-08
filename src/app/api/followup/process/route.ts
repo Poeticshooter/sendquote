@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { timingSafeEqual } from "crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/send";
 import { wrapEmail } from "@/lib/email/templates";
@@ -8,25 +9,22 @@ export const dynamic = "force-dynamic";
 function verifyCronSecret(request: Request): boolean {
   const authHeader = request.headers.get("authorization") || "";
   const expectedToken = process.env.CRON_SECRET;
-  if (!expectedToken) {
-    console.error("CRON_SECRET not configured");
-    return false;
-  }
+  if (!expectedToken) return false;
   const expected = `Bearer ${expectedToken}`;
   if (authHeader.length !== expected.length) return false;
-  try {
-    const { timingSafeEqual } = require("crypto");
-    return timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
-  } catch {
-    return authHeader === expected;
-  }
+  return timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
+}
+
+  const expected = `Bearer ${expectedToken}`;
+  if (authHeader.length !== expected.length) return false;
+  return timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
 }
 
 export async function GET(request: Request) {
   if (!verifyCronSecret(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  try {
+  
     const admin = createAdminClient();
     const now = new Date().toISOString();
     let processed = 0;

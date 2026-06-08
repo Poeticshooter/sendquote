@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { timingSafeEqual } from "crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function POST(request: NextRequest) {
-  try {
+  
     const authHeader = request.headers.get("authorization") || "";
     const expectedToken = process.env.N8N_WEBHOOK_SECRET;
 
@@ -12,7 +13,7 @@ export async function POST(request: NextRequest) {
     }
 
     const expected = `Bearer ${expectedToken}`;
-    const { timingSafeEqual } = require("crypto");
+    
     const safe = authHeader.length === expected.length &&
       timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
     if (!safe) {

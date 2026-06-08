@@ -24,36 +24,61 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const onboardingDone = localStorage.getItem("sq_onboarding_done");
-    if (!onboardingDone) {
-      router.push("/onboarding");
-      return;
-    }
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    let cancelled = false;
+    async function load() {
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/login"); return; }
-      Promise.all([
-        supabase.from("quotes").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-        supabase.from("profiles").select("*").eq("user_id", user.id).single(),
-      ]).then(([quotesRes, profileRes]) => {
-        const quotes = quotesRes.data || [];
-        const profile = profileRes.data;
-        setData({
-          totalQuotes: quotes.length,
-          accepted: quotes.filter((q) => q.status === "accepted").length,
-          opened: quotes.filter((q) => q.status === "opened" || q.status === "sent").length,
-          totalRevenue: quotes.filter((q) => q.status === "accepted").reduce((s: number, q: { total: number }) => s + Number(q.total), 0),
-          winRate: quotes.length > 0 ? Math.round((quotes.filter((q) => q.status === "accepted").length / quotes.length) * 100) : 0,
-          recentQuotes: quotes.slice(0, 5),
-          plan: profile?.plan || "starter",
-          monthlyLimit: profile?.plan === "starter" ? 50 : profile?.plan === "growth" ? 9999 : 99999,
-          usedThisMonth: profile?.monthly_quote_count || 0,
-        });
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("onboarding_completed, plan, monthly_quote_count")
+        .eq("user_id", user.id)
+        .single();
+
+      if (!profile) {
+        router.push("/onboarding");
+        return;
+      }
+
+      if (!profile.onboarding_completed) {
+        localStorage.removeItem("sq_onboarding_done");
+        router.push("/onboarding");
+        return;
+      }
+
+      localStorage.setItem("sq_onboarding_done", "true");
+
+      const { data: quotes } = await supabase
+        .from("quotes")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (cancelled) return;
+
+      if (!quotes) {
         setLoading(false);
-      }).catch((e) => {
-        console.error("Dashboard data fetch error:", e);
-        setLoading(false);
+        return;
+      }
+
+      setData({
+        totalQuotes: quotes.length,
+        accepted: quotes.filter((q) => q.status === "accepted").length,
+        opened: quotes.filter((q) => q.status === "opened" || q.status === "sent").length,
+        totalRevenue: quotes.filter((q) => q.status === "accepted").reduce((s: number, q: { total: number }) => s + Number(q.total), 0),
+        winRate: quotes.length > 0 ? Math.round((quotes.filter((q) => q.status === "accepted").length / quotes.length) * 100) : 0,
+        recentQuotes: quotes.slice(0, 5),
+        plan: profile?.plan || "starter",
+        monthlyLimit: profile?.plan === "free" ? 5 : profile?.plan === "starter" ? 50 : 99999,
+        usedThisMonth: profile?.monthly_quote_count || 0,
       });
+      setLoading(false);
+    }
+    load().catch((e) => {
+      console.error("Dashboard data fetch error:", e);
+      setLoading(false);
     });
+    return () => { cancelled = true; };
   }, [router, supabase]);
 
   if (loading) {

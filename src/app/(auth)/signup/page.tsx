@@ -78,17 +78,22 @@ export default function SignupPage() {
     if (data.user.email_confirmed_at) {
       toast.success("Account created! Welcome to SendQuote.");
       router.refresh();
-      router.push("/dashboard");
+      router.push("/onboarding");
     } else {
       toast.success("Check your email to confirm your account!");
-      router.push("/login");
+      router.push("/login?email=" + encodeURIComponent(email));
     }
   }
 
   async function handleGoogle() {
+    const state = crypto.randomUUID();
+    document.cookie = `oauth_state=${state}; path=/; max-age=600; secure; samesite=lax`;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: { state },
+      },
     });
     if (error) toast.error(error.message);
   }

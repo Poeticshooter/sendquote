@@ -6,7 +6,7 @@ import { verifyCsrfToken, verifyOrigin } from "@/lib/security/csrf";
 const publicPaths = [
   "/", "/login", "/signup", "/onboarding", "/forgot-password", "/pricing", "/blog",
   "/docs", "/changelog", "/faq", "/contact", "/privacy", "/terms",
-  "/features",
+  "/features", "/comparisons",
 ];
 
 export async function middleware(request: NextRequest) {

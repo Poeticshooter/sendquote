@@ -87,6 +87,7 @@ export function OnboardingWizard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ onboarding_completed: true }),
       });
+      localStorage.setItem("sq_onboarding_done", "true");
       router.push("/dashboard");
     } finally {
       setLoading(false);

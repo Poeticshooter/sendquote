@@ -18,12 +18,12 @@ export async function GET() {
       { src: "/og-image.svg", sizes: "1200x630", type: "image/svg+xml", form_factor: "wide", label: "SendQuote Dashboard" },
     ],
     icons: [
-      { src: "/favicon.svg", sizes: "any", type: "image/svg+xml" },
-      { src: "/logo-icon.svg", sizes: "96x96", type: "image/svg+xml" },
+      { src: "/favicon-v2.svg", sizes: "any", type: "image/svg+xml" },
+      { src: "/logo-icon-v2.svg", sizes: "96x96", type: "image/svg+xml" },
     ],
     shortcuts: [
-      { name: "New Quote", url: "/quotes/new", icons: [{ src: "/favicon.svg", sizes: "any" }] },
-      { name: "Dashboard", url: "/dashboard", icons: [{ src: "/favicon.svg", sizes: "any" }] },
+      { name: "New Quote", url: "/quotes/new", icons: [{ src: "/favicon-v2.svg", sizes: "any" }] },
+      { name: "Dashboard", url: "/dashboard", icons: [{ src: "/favicon-v2.svg", sizes: "any" }] },
     ],
   });
 }

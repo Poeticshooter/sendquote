@@ -31,17 +31,17 @@ export const metadata: Metadata = {
     title: "SendQuote — AI-Powered Quoting for Indian Businesses",
     description: "Create GST-ready quotes in 60 seconds with AI. Send interactive deal rooms, collect e-signatures, and close deals faster.",
     url: "https://sendquote.in", siteName: "SendQuote", locale: "en_IN", type: "website",
-    images: [{ url: "https://sendquote.in/og-image.svg", width: 1200, height: 630, alt: "SendQuote - AI Quote Generation Platform" }],
+    images: [{ url: "https://sendquote.in/og-image-v2.svg", width: 1200, height: 630, alt: "SendQuote - AI Quote Generation Platform" }],
   },
   twitter: {
     card: "summary_large_image", site: "@sendquote", creator: "@sendquote",
     title: "SendQuote — AI-Powered Quoting for Indian Businesses",
     description: "Create GST-ready quotes in 60 seconds with AI. Send interactive deal rooms, collect e-signatures, close deals faster.",
-    images: ["https://sendquote.in/og-image.svg"],
+    images: ["https://sendquote.in/og-image-v2.svg"],
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 } },
   alternates: { canonical: "https://sendquote.in", languages: { "en-IN": "https://sendquote.in" } },
-  icons: { icon: "/favicon.svg", apple: "/favicon.svg" },
+  icons: { icon: "/favicon-v2.svg", apple: "/favicon-v2.svg" },
   manifest: "/manifest.json",
   other: { "google-site-verification": process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION || "" },
 };
@@ -52,7 +52,7 @@ const jsonLd = {
     {
       "@type": "Organization", "@id": "https://sendquote.in/#organization",
       name: "SendQuote", alternateName: "SendQuote India", url: "https://sendquote.in",
-      logo: { "@type": "ImageObject", url: "https://sendquote.in/logo-white.svg", width: 512, height: 512 },
+      logo: { "@type": "ImageObject", url: "https://sendquote.in/logo-white-v2.svg", width: 512, height: 512 },
       address: { "@type": "PostalAddress", addressCountry: "IN" },
       sameAs: ["https://twitter.com/sendquote", "https://sendquote.in"],
       contactPoint: [
@@ -71,7 +71,7 @@ const jsonLd = {
         { "@type": "Offer", price: "16499", priceCurrency: "INR", name: "Pro", description: "Unlimited everything + priority support" },
       ],
       featureList: ["AI quote generation", "Interactive deal rooms", "Buyer intent tracking", "E-signature", "GST invoices", "CRM integration", "Approval workflows", "Team collaboration"],
-      screenshot: "https://sendquote.in/og-image.svg",
+      screenshot: "https://sendquote.in/og-image-v2.svg",
       softwareVersion: "2.0",
       aggregateRating: { "@type": "AggregateRating", ratingValue: "4.8", ratingCount: "127", bestRating: "5" },
     },

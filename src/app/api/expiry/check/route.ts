@@ -10,14 +10,18 @@ export async function GET() {
     const admin = createAdminClient();
     const now = new Date().toISOString();
 
-    // Find quotes expiring in 3 days
-    const threeDaysFromNow = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+    // Find quotes expiring in 3 days (full day range)
+    const targetDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+    targetDate.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(targetDate);
+    dayEnd.setHours(23, 59, 59, 999);
 
     const { data: expiringQuotes } = await admin
       .from("quotes")
       .select("id, quote_number, client_name, client_email, total, public_token, user_id, valid_until")
       .eq("status", "sent")
-      .eq("valid_until", threeDaysFromNow);
+      .gte("valid_until", targetDate.toISOString())
+      .lte("valid_until", dayEnd.toISOString());
 
     if (expiringQuotes) {
       for (const quote of expiringQuotes) {

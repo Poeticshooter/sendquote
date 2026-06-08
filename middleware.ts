@@ -54,9 +54,9 @@ export async function middleware(request: NextRequest) {
 
   if (isPublic) {
     const publicResponse = NextResponse.next();
-    // Set CSRF cookie on all public page loads
     if (!pathname.startsWith("/api/") && !pathname.startsWith("/_next/")) {
-      const csrfToken = crypto.randomUUID();
+      const existingToken = request.cookies.get("__csrf")?.value;
+      const csrfToken = existingToken || crypto.randomUUID();
       publicResponse.cookies.set("__csrf", csrfToken, {
         httpOnly: false, secure: true, sameSite: "strict", path: "/", maxAge: 86400,
       });
@@ -83,8 +83,9 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.redirect(new URL("/login", request.url));
 
-  // Set CSRF cookie for authenticated pages
-  const csrfToken = crypto.randomUUID();
+  // Set CSRF cookie for authenticated pages (preserve existing)
+  const existingToken = request.cookies.get("__csrf")?.value;
+  const csrfToken = existingToken || crypto.randomUUID();
   response.cookies.set("__csrf", csrfToken, {
     httpOnly: false, secure: true, sameSite: "strict", path: "/", maxAge: 86400,
   });

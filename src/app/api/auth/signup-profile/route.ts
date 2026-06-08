@@ -1,16 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function POST(request: NextRequest) {
   try {
     const { userId, businessName, email } = await request.json();
-
     if (!userId || !email) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const admin = createAdminClient();
+    // Verify the caller owns this userId
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || user.id !== userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
+    const admin = createAdminClient();
     const { error } = await admin.from("profiles").insert({
       user_id: userId,
       business_name: businessName || null,

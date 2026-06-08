@@ -54,12 +54,12 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Auto-schedule follow-ups
+    // Auto-schedule follow-ups (fire-and-forget with logging)
     fetch(`${process.env.NEXT_PUBLIC_APP_URL || "https://sendquote.in"}/api/followup/schedule`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ quote_id }),
-    }).catch(() => {});
+    }).catch((e) => console.error("Follow-up scheduling failed:", e));
 
     return success({
       success: true,

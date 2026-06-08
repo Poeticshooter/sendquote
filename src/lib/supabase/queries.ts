@@ -103,7 +103,6 @@ export async function createQuote(quote: {
       payment_terms: quote.payment_terms,
       valid_until: quote.valid_until,
       public_token: token,
-      items: quote.items,
       organization_id: quote.organization_id,
     })
     .select()

@@ -44,6 +44,9 @@ export default function DashboardPage() {
           usedThisMonth: profile?.monthly_quote_count || 0,
         });
         setLoading(false);
+      }).catch((e) => {
+        console.error("Dashboard data fetch error:", e);
+        setLoading(false);
       });
     });
   }, [router, supabase]);

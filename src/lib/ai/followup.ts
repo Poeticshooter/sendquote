@@ -18,7 +18,8 @@ export interface FollowUpResult {
 }
 
 function buildPrompt(input: FollowUpInput): string {
-  let context = `Quote ${input.quoteNumber} for ${input.clientName} — $${input.total}`;
+  const totalFormatted = `₹${input.total.toLocaleString("en-IN")}`;
+  let context = `Quote ${input.quoteNumber} for ${input.clientName} — ${totalFormatted}`;
   context += `\nStatus: ${input.status}`;
   context += `\nDays since sent: ${input.daysSinceSent}`;
   context += `\nTimes viewed: ${input.viewedCount}`;

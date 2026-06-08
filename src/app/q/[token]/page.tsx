@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: `Quote ${quote.quote_number} for ${quote.client_name} | SendQuote`,
-    description: `View quote ${quote.quote_number} for $${quote.total}`,
+    description: `View quote ${quote.quote_number} for ₹${Number(quote.total).toLocaleString("en-IN")}`,
     openGraph: {
       title: `Quote ${quote.quote_number} | SendQuote`,
       description: `View your quote from ${quote.client_name}`,

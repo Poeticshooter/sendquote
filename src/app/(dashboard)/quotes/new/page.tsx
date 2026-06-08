@@ -9,9 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Plus, Trash2, ArrowLeft, Sparkles, Loader2, FileText } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, Sparkles, Loader2, FileText, Calendar } from "lucide-react";
 import Link from "next/link";
 import { TemplateSelector } from "@/components/templates/template-selector";
+import { v4 as uuid } from "uuid";
 
 interface LineItem {
   description: string;
@@ -119,6 +120,9 @@ export default function NewQuotePage() {
     const date = new Date();
     const quoteNumber = `QTE-${date.getFullYear()}-${String(nextNum).padStart(4, "0")}`;
 
+    const publicToken = crypto.randomUUID ? crypto.randomUUID() : uuid();
+    const thirtyDays = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
     const { data: quote, error } = await supabase
       .from("quotes")
       .insert({
@@ -134,6 +138,8 @@ export default function NewQuotePage() {
         total,
         notes: notes || null,
         terms: terms || null,
+        public_token: publicToken,
+        valid_until: thirtyDays.toISOString(),
         organization_id: profile?.organization_id || null,
       })
       .select()
@@ -145,14 +151,21 @@ export default function NewQuotePage() {
       return;
     }
 
-    for (const item of items) {
-      await supabase.from("quote_items").insert({
+    const { error: itemsError } = await supabase.from("quote_items").insert(
+      items.map(item => ({
         quote_id: quote.id,
         description: item.description,
         quantity: item.quantity,
         rate: item.rate,
         amount: item.quantity * item.rate,
-      });
+      }))
+    );
+
+    if (itemsError) {
+      await supabase.from("quotes").delete().eq("id", quote.id);
+      toast.error("Failed to save items. Please try again.");
+      setSending(false);
+      return;
     }
 
     await supabase.from("profiles").update({ quote_counter: nextNum }).eq("user_id", user.id);

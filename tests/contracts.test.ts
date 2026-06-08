@@ -64,14 +64,14 @@ describe("generateContractHtml", () => {
       notes: "<img src=x onerror=alert(1)>",
     }));
     expect(html).toContain("&lt;img src=x onerror=alert(1)&gt;");
-    expect(html).not.toContain("<img");
+    expect(html).not.toContain("<img src=x");
   });
 
   it("escapes HTML in terms (XSS prevention)", () => {
     const html = generateContractHtml(makeContractData({
       terms: "<script>stealCookies()</script>",
     }));
-    expect(html).toContain("&lt;script&gt;");
+    expect(html).toContain("&lt;script&gt;stealCookies");
     expect(html).not.toContain("<script>");
   });
 

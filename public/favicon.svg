@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" fill="none">
-  <rect width="36" height="36" rx="10" fill="white"/>
-  <path d="M10 14l8 8 8-8" stroke="#0A0A0A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <defs>
+    <clipPath id="r">
+      <rect width="48" height="48" rx="6"/>
+    </clipPath>
+  </defs>
+  <image href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAFFklEQVR42u2Ye2wUVRTGv3tnd7tLW7oWWsAKFRNjqSTyKEVQLCogIA8J2SL4QEqCokEqSIghZLvGmPjABjENIFISSIpbiBYJrxbZAjYttOEhj7JCKaXF0tLt9rFtd2fuPf6xlBBD0LDVpcn8kklmkjP33jPnfueeM4COjo6Ojk4vhvXUQE6nTbHZkv9hvCzBGKOH7iuQ3c7/tS0R68m5DSEvnsAYc0i68fVoRMlUaGQCAChK0EAIAArAoTVf1nYwxlqcTpuSnp4vwr6FiOycMYf0Xcxc1yfWvKLT6wfAwRUOcHZnAk0T6PNIBDQ/lf7p7f/qkOErPeS0KawHnHhgB7oXUHN04dTBg6P3/1JY/eUm54UtRqFKoTHZbdcvLtJQV+vTvlibtnrk5Mff9V/3nbylDp32WPKypp6IxINvobigYAMdXTOr3H7PrCV7V9/PPKev0iIb2jQj1DH94D5QV26flpDiuEVELBRh8wf33QUA6OoIRKh+1Udk50Tg5eWbjETOGKJ9fYPXgVgip4n8moVHKga1MwBztEyxKjeKako+SsjKymKhCDtkEUshSIAUxhwSAA7mHhxX3RqTL4kEGBPmqAjTjVrvp7U3W893SXGps7UrIDQSo5KsI4SvPtPhyF6VNdFlAKCFxwGNwElIIjvn3CE/31ZRYYV5vMr9BABGGcFgNXsLCs54AXwPQAKAe+/cJs6ZJexpVNMCTGFKMJU6bUqpJp956onYjRIQIJJRkSZDVW3zlj17zuZI+Ss3KC9JAOAcDJIobA64ghJAdV376cmpAxdfL1o0jU3K3f/ZkqSaq7UDtkqCSsQowqgoDd72CiJCenoOSUkgAFKTgJThLUOIwGanJVoP50w8oZYuoJaSjBx36fq+93unW62VP7/mqfxp1gYAoCNphjBkIRBjQEHxNe/L77teyDtU9U1HW8vSQbK8uv740je7jY7kppnvVWpITUCoYYwAUfAQLNwwYxxdzbYCwGLbk6nHtk45SafepvayjD2VxSuHdtsS2fndETibN9VzevuU78IWAZcrTQGACGrJLC/cV0hOm/JD/h8nJmQcSt28u3LF9brGGQNY3eVbRzOWMcaJMYd0Om135tP8GoRfDWMxd1vEMiB8XcKXyJYUCiJwgIgxlv18SnzB2kXJ6yeMiP/W45q3oLrJ/N6oublngsUfSKgCJETIWYiHOoBQBVcDssvptCmAjeXnp/NzTpvpt4qGqlc+cM3M/rFy/tWaxqTBUS0lZ3bOGYV8GwfA/V0qSVXwu75FeM6BgCpgNiuGvxVld+7XfHt25xrgyO87JrmFRqvYO4fnIzHRbFEostHjb0eIHhhC3EG4Uu87Onlk/4WV22dmUrT1uIlLZuAGqQKQAsaAv8M9fN6um9IvfJpGA9y733hWbbv5sdbREVF2sWkXAORcKKZw9APMbgdzOGDcvCx525hhsa+bLCYoCgc3cBABMX0UHLvoXZ5oNT03yKqk1zcHYDEqaPB0oOxS84pPci9nk93OmcMhw94Tzx4fN2JYYvSj3c8KV2Kmp/TfGGUxyFZfwFp0yrO8rVOr4lJqecUN5+o8nbXdgg5/T3zvcthYsm5sS1n2WPpw9pC5ofTR/0sE7Hbwpy/YWFxDA2uMjye35fTApITIK2Xu5kVf7b6WV75ptLGqqEICwPl8kON2VfrQ/qrJnDNk0FsvJkwPOpdmQG+F7OC9dvH23rx4HR0dHR0dHR2d/56/AJPlfTPJ58DOAAAAAElFTkSuQmCC" width="48" height="48" clip-path="url(#r)"/>
 </svg>

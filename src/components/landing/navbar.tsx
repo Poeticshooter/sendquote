@@ -21,9 +21,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-white/[0.06] bg-black/80 backdrop-blur-2xl supports-[backdrop-filter]:bg-black/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-black text-xs font-bold transition-transform group-hover:scale-105">
-            <svg width="18" height="18" viewBox="0 0 32 32" fill="none"><path d="M10 12h12M10 16h8M10 20h10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/><path d="M22 16l5 5-5 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          </div>
+          <img src="/logo-icon.svg" alt="SendQuote" className="h-9 w-9 transition-transform group-hover:scale-105" />
           <span className="text-lg font-bold tracking-tight text-white">SendQuote</span>
         </Link>
 

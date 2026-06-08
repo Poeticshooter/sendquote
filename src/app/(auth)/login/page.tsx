@@ -44,9 +44,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm bg-[#141414] border-white/[0.06] text-white">
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto flex items-center justify-center gap-2 mb-4">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-black text-xs font-bold">
-              <svg width="16" height="16" viewBox="0 0 32 32" fill="none"><path d="M10 12h12M10 16h8M10 20h10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><path d="M22 16l5 5-5 5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </div>
+            <img src="/logo-icon.svg" alt="SendQuote" className="h-9 w-9" />
             <span className="text-xl font-bold text-white">SendQuote</span>
           </Link>
           <CardTitle className="text-2xl text-white">Welcome back</CardTitle>

@@ -26,6 +26,13 @@ export async function GET() {
     const { count: auditLogCount } = await admin.from("admin_audit_log").select("*", { count: "exact", head: true });
     const { count: errorCount } = await admin.from("error_logs").select("*", { count: "exact", head: true });
 
+    // Audit log this access
+    await admin.from("admin_audit_log").insert({
+      admin_action: "view_admin_stats",
+      target_type: "system",
+      details: { userCount, quoteCount },
+    }).maybeSingle();
+
     return NextResponse.json({
       userCount: userCount || 0,
       quoteCount: quoteCount || 0,

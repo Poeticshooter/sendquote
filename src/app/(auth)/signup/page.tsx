@@ -10,6 +10,19 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 
+async function createProfile(userId: string, businessName: string, email: string) {
+  const res = await fetch("/api/auth/signup-profile", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId, businessName, email }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || "Failed to create profile");
+  }
+  return res.json();
+}
+
 export default function SignupPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -29,8 +42,21 @@ export default function SignupPage() {
 
     if (error) { toast.error(error.message); setLoading(false); return; }
 
+    if (!data?.user) {
+      toast.error("Signup failed. Please try again.");
+      setLoading(false);
+      return;
+    }
+
+    // Create profile row in database
+    try {
+      await createProfile(data.user.id, businessName, email);
+    } catch (profileError) {
+      console.error("Profile creation failed:", profileError);
+    }
+
     // Check if user is auto-confirmed (email confirmation disabled in Supabase)
-    if (data?.user?.identities?.length && data.user.identities.length > 0 && data.user.email_confirmed_at) {
+    if (data.user.email_confirmed_at) {
       toast.success("Account created! Welcome to SendQuote.");
       router.refresh();
       router.push("/dashboard");
@@ -53,9 +79,7 @@ export default function SignupPage() {
       <Card className="w-full max-w-sm bg-[#141414] border-white/[0.06] text-white">
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto flex items-center justify-center gap-2 mb-4">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-black text-xs font-bold">
-              <svg width="16" height="16" viewBox="0 0 32 32" fill="none"><path d="M10 12h12M10 16h8M10 20h10" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><path d="M22 16l5 5-5 5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </div>
+            <img src="/logo-icon.svg" alt="SendQuote" className="h-9 w-9" />
             <span className="text-xl font-bold text-white">SendQuote</span>
           </Link>
           <CardTitle className="text-2xl text-white">Create your account</CardTitle>

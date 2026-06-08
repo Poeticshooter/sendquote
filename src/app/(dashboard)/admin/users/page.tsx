@@ -6,6 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SearchInput } from "@/components/ui/search-input";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight, Mail, Building2, UserCheck } from "lucide-react";
 
 interface AdminUser {
   id: string;
@@ -13,71 +15,130 @@ interface AdminUser {
   business_name: string | null;
   plan: string;
   created_at: string;
+  monthly_quote_count: number;
   users: { email: string };
 }
+
+const PAGE_SIZE = 20;
 
 export default function AdminUsersPage() {
   const supabase = createClient();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
-    supabase.from("profiles").select("*, users:auth.users!inner(email)").order("created_at", { ascending: false }).limit(100)
+    supabase.from("profiles").select("*, users:auth.users!inner(email)")
+      .order("created_at", { ascending: false }).limit(100)
       .then(({ data }) => { setUsers((data || []) as unknown as AdminUser[]); setLoading(false); });
   }, [supabase]);
 
   const filtered = search
-    ? users.filter((u) => u.business_name?.toLowerCase().includes(search.toLowerCase()) || u.users?.email?.includes(search))
+    ? users.filter((u) =>
+        u.business_name?.toLowerCase().includes(search.toLowerCase()) ||
+        u.users?.email?.toLowerCase().includes(search.toLowerCase())
+      )
     : users;
 
-  if (loading) return <div className="space-y-4"><Skeleton className="h-8 w-48" />{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 rounded-lg" />)}</div>;
+  const pageCount = Math.ceil(filtered.length / PAGE_SIZE);
+  const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
+  const planColors: Record<string, string> = {
+    starter: "bg-gray-500/20 text-gray-300 border-gray-500/30",
+    growth: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+    pro: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+    enterprise: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-48" />
+        {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 rounded-lg" />)}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">User Management</h2>
-          <p className="text-muted-foreground">{users.length} registered users</p>
+          <p className="text-muted-foreground text-sm flex items-center gap-1.5 mt-0.5">
+            <UserCheck className="h-3.5 w-3.5" />
+            {users.length} registered user{users.length !== 1 ? "s" : ""}
+          </p>
         </div>
-        <div className="w-64">
-          <SearchInput placeholder="Search users..." onSearch={setSearch} />
+        <div className="w-full sm:w-64">
+          <SearchInput placeholder="Search by name or email..." onSearch={setSearch} />
         </div>
       </div>
 
       <Card>
         <CardContent className="p-0">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/[0.06] text-left text-muted-foreground">
-                <th className="p-4 font-medium">User</th>
-                <th className="p-4 font-medium">Business</th>
-                <th className="p-4 font-medium">Plan</th>
-                <th className="p-4 font-medium">Joined</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((u) => (
-                <tr key={u.id} className="border-b border-white/[0.06] last:border-0">
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-xs font-medium text-white">
-                        {(u.business_name || "?")[0]}
-                      </div>
-                      <div>
-                        <p className="font-medium text-white">{u.users?.email || "N/A"}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="p-4 text-white/60">{u.business_name || "—"}</td>
-                  <td className="p-4"><Badge variant="outline">{u.plan}</Badge></td>
-                  <td className="p-4 text-white/40">{new Date(u.created_at).toLocaleDateString()}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/[0.06] text-left text-muted-foreground text-xs uppercase tracking-wider">
+                  <th className="p-4 font-medium">User</th>
+                  <th className="p-4 font-medium">Business</th>
+                  <th className="p-4 font-medium">Plan</th>
+                  <th className="p-4 font-medium">Quotes</th>
+                  <th className="p-4 font-medium">Joined</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {paged.map((u) => (
+                  <tr key={u.id} className="border-b border-white/[0.06] last:border-0 hover:bg-white/[0.02] transition-colors">
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#00D4AA]/20 to-[#00D4AA]/5 text-xs font-medium text-[#00D4AA]">
+                          {(u.business_name || u.users?.email || "?")[0].toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium text-white truncate max-w-[200px] flex items-center gap-1.5">
+                            <Mail className="h-3 w-3 text-muted-foreground shrink-0" />
+                            {u.users?.email || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex items-center gap-1.5 text-white/60">
+                        {u.business_name ? (
+                          <><Building2 className="h-3 w-3 shrink-0" />{u.business_name}</>
+                        ) : "—"}
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <Badge variant="outline" className={`capitalize ${planColors[u.plan] || ""}`}>{u.plan}</Badge>
+                    </td>
+                    <td className="p-4 text-white/60">{u.monthly_quote_count}</td>
+                    <td className="p-4 text-white/40 text-xs">
+                      {new Date(u.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </CardContent>
       </Card>
+
+      {pageCount > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <Button variant="outline" size="sm" className="border-white/10" disabled={page === 0} onClick={() => setPage(page - 1)}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm text-muted-foreground px-2">
+            Page {page + 1} of {pageCount}
+          </span>
+          <Button variant="outline" size="sm" className="border-white/10" disabled={page >= pageCount - 1} onClick={() => setPage(page + 1)}>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

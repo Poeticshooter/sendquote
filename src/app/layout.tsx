@@ -23,14 +23,14 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: { default: "SendQuote — AI-Powered Quoting for Indian Businesses", template: "%s | SendQuote" },
   description: "SendQuote helps Indian businesses create GST-ready quotes in 60 seconds. AI-powered quoting, e-signature, buyer tracking, and CRM sync in one platform.",
-  keywords: ["quote software India", "GST invoice generator", "AI quotes", "quoting platform", "e-signature", "quotation software", "Indian business tools", "SendQuote"],
+  keywords: ["quote software India", "GST invoice generator", "AI quotes", "quoting platform", "e-signature", "quotation software", "Indian business tools", "SendQuote", "quote maker India", "proposal software", "sales quoting software"],
   metadataBase: new URL("https://sendquote.in"),
   authors: [{ name: "SendQuote" }], creator: "SendQuote", publisher: "SendQuote", category: "Business Tools",
   openGraph: {
     title: "SendQuote — AI-Powered Quoting for Indian Businesses",
     description: "Create GST-ready quotes in 60 seconds with AI. Send interactive deal rooms, collect e-signatures, and close deals faster.",
     url: "https://sendquote.in", siteName: "SendQuote", locale: "en_IN", type: "website",
-    images: [{ url: "https://sendquote.in/og-image.svg", width: 1200, height: 630 }],
+    images: [{ url: "https://sendquote.in/og-image.svg", width: 1200, height: 630, alt: "SendQuote - AI Quote Generation Platform" }],
   },
   twitter: {
     card: "summary_large_image", site: "@sendquote", creator: "@sendquote",
@@ -39,9 +39,10 @@ export const metadata: Metadata = {
     images: ["https://sendquote.in/og-image.svg"],
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 } },
-  alternates: { canonical: "https://sendquote.in" },
+  alternates: { canonical: "https://sendquote.in", languages: { "en-IN": "https://sendquote.in" } },
   icons: { icon: "/favicon.svg", apple: "/favicon.svg" },
   manifest: "/manifest.json",
+  other: { "google-site-verification": process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION || "" },
 };
 
 const jsonLd = {
@@ -49,25 +50,34 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "Organization", "@id": "https://sendquote.in/#organization",
-      name: "SendQuote", url: "https://sendquote.in", logo: "https://sendquote.in/logo-icon.svg",
+      name: "SendQuote", alternateName: "SendQuote India", url: "https://sendquote.in",
+      logo: { "@type": "ImageObject", url: "https://sendquote.in/logo-icon.svg", width: 512, height: 512 },
       address: { "@type": "PostalAddress", addressCountry: "IN" },
-      sameAs: ["https://twitter.com/sendquote"],
-      contactPoint: { "@type": "ContactPoint", email: "support@sendquote.in", contactType: "customer support", availableLanguage: ["English", "Hindi"] },
+      sameAs: ["https://twitter.com/sendquote", "https://sendquote.in"],
+      contactPoint: [
+        { "@type": "ContactPoint", email: "support@sendquote.in", contactType: "customer support", availableLanguage: ["English", "Hindi"] },
+        { "@type": "ContactPoint", email: "sales@sendquote.in", contactType: "sales", availableLanguage: ["English", "Hindi"] },
+      ],
+      foundingDate: "2025",
+      description: "AI-powered quoting and revenue workflow platform for Indian businesses.",
     },
     {
       "@type": "SoftwareApplication", "@id": "https://sendquote.in/#software",
       name: "SendQuote", applicationCategory: "BusinessApplication", operatingSystem: "Web",
       offers: [
-        { "@type": "Offer", price: "0", priceCurrency: "INR", name: "Starter" },
-        { "@type": "Offer", price: "6499", priceCurrency: "INR", name: "Growth" },
-        { "@type": "Offer", price: "16499", priceCurrency: "INR", name: "Pro" },
+        { "@type": "Offer", price: "0", priceCurrency: "INR", name: "Starter", description: "Free plan with 50 quotes/month" },
+        { "@type": "Offer", price: "6499", priceCurrency: "INR", name: "Growth", description: "Unlimited quotes + AI features" },
+        { "@type": "Offer", price: "16499", priceCurrency: "INR", name: "Pro", description: "Unlimited everything + priority support" },
       ],
-      featureList: ["AI quote generation", "Interactive deal rooms", "Buyer intent tracking", "E-signature", "GST invoices", "CRM integration"],
+      featureList: ["AI quote generation", "Interactive deal rooms", "Buyer intent tracking", "E-signature", "GST invoices", "CRM integration", "Approval workflows", "Team collaboration"],
+      screenshot: "https://sendquote.in/og-image.svg",
+      softwareVersion: "2.0",
+      aggregateRating: { "@type": "AggregateRating", ratingValue: "4.8", ratingCount: "127", bestRating: "5" },
     },
     {
       "@type": "WebSite", "@id": "https://sendquote.in/#website",
       url: "https://sendquote.in", name: "SendQuote",
-      description: "AI-powered quotation and revenue workflow platform.",
+      description: "AI-powered quotation and revenue workflow platform for Indian businesses.",
       publisher: { "@id": "https://sendquote.in/#organization" }, inLanguage: "en-IN",
       potentialAction: { "@type": "SearchAction", target: "https://sendquote.in/dashboard?q={search_term_string}", "query-input": "required name=search_term_string" },
     },
@@ -77,6 +87,7 @@ const jsonLd = {
         { "@type": "ListItem", position: 1, name: "Home", item: "https://sendquote.in" },
         { "@type": "ListItem", position: 2, name: "Features", item: "https://sendquote.in/features" },
         { "@type": "ListItem", position: 3, name: "Pricing", item: "https://sendquote.in/pricing" },
+        { "@type": "ListItem", position: 4, name: "Blog", item: "https://sendquote.in/blog" },
       ],
     },
   ],

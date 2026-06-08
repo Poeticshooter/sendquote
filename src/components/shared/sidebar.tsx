@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -15,16 +17,17 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-const navItems = [
+const commonNavItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/quotes", label: "Quotes", icon: FileText },
   { href: "/clients", label: "Clients", icon: Users },
   { href: "/invoices", label: "Invoices", icon: Receipt },
   { href: "/portal", label: "Client Portal", icon: ExternalLink },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/admin", label: "Admin", icon: ShieldCheck },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
+
+const adminNavItem = { href: "/admin", label: "Admin", icon: ShieldCheck };
 
 interface SidebarProps {
   isOpen: boolean;
@@ -33,6 +36,27 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const pathname = usePathname();
+  const supabase = createClient();
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [profile, setProfile] = useState<{ plan: string; used: number; limit: number } | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      supabase.from("profiles").select("plan, monthly_quote_count").eq("user_id", user.id).single()
+        .then(({ data }) => {
+          if (!data) return;
+          const plan = data.plan || "starter";
+          setShowAdmin(plan === "pro" || plan === "enterprise");
+          const limit = plan === "starter" ? 50 : plan === "growth" ? 9999 : 99999;
+          setProfile({ plan, used: data.monthly_quote_count || 0, limit });
+        });
+    });
+  }, [supabase]);
+
+  const planLabel = profile?.plan === "starter" ? "Free" :
+    profile?.plan === "growth" ? "Growth" :
+    profile?.plan === "pro" ? "Pro" : "Enterprise";
 
   return (
     <>
@@ -51,7 +75,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
       >
         <div className="flex h-16 items-center justify-between border-b px-4">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <img src="/logo-icon.svg" alt="" className="h-8 w-8" />
+            <img src="/logo-icon.svg" alt="SendQuote" className="h-8 w-8" />
             <span className="text-lg font-bold">SendQuote</span>
           </Link>
           <button
@@ -64,7 +88,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
         </div>
 
         <nav className="flex-1 space-y-1 p-4">
-          {navItems.map((item) => {
+          {[...commonNavItems, ...(showAdmin ? [adminNavItem] : [])].map((item) => {
             const isActive =
               item.href === "/dashboard"
                 ? pathname === "/dashboard"
@@ -90,12 +114,14 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
 
         <div className="border-t p-4">
           <div className="flex items-center gap-3 text-sm">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary font-medium text-xs">
-              U
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#00D4AA]/10 text-[#00D4AA] font-medium text-xs">
+              {profile ? planLabel[0] : "U"}
             </div>
             <div className="flex-1 truncate">
-              <p className="font-medium">Free Plan</p>
-              <p className="text-xs text-muted-foreground">50/50 quotes this month</p>
+              <p className="font-medium">{profile ? `${planLabel} Plan` : "Free Plan"}</p>
+              <p className="text-xs text-muted-foreground">
+                {profile ? `${profile.used}/${profile.limit} quotes this month` : "Loading..."}
+              </p>
             </div>
           </div>
         </div>

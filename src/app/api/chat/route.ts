@@ -5,6 +5,7 @@ import { success, parseError, requireAuth } from "@/lib/api-helper";
 
 export async function GET(request: NextRequest) {
   try {
+    const user = await requireAuth();
     const { searchParams } = new URL(request.url);
     const quote_id = searchParams.get("quote_id");
 
@@ -21,6 +22,7 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (!quote) return NextResponse.json({ error: "Quote not found" }, { status: 404 });
+    if (quote.user_id !== user.id) return NextResponse.json({ error: "Not authorized" }, { status: 403 });
 
     const { data, error } = await supabase
       .from("deal_room_messages")

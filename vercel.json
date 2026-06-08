@@ -1,4 +1,7 @@
 {
+  "installCommand": "pnpm install",
+  "buildCommand": "next build",
+  "framework": "nextjs",
   "crons": [
     {
       "path": "/api/expiry/check",

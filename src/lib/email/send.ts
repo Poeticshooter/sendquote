@@ -10,23 +10,19 @@ interface SendEmailParams {
 
 export async function sendEmail({ to, subject, html, from, replyTo }: SendEmailParams) {
   const apiKey = process.env.RESEND_API_KEY;
+  const fromAddr = from || process.env.RESEND_FROM || "SendQuote <quotes@sendquote.in>";
+
   if (!apiKey || apiKey === "placeholder") {
-    console.warn("Resend not configured — email not sent");
-    return { success: false, reason: "not_configured" };
+    console.log("[Email] Not configured. Would send:", { to, subject });
+    return { success: false as const, reason: "not_configured" };
   }
 
   try {
     const res = await fetch(RESEND_API, {
       method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
+      headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: from || process.env.RESEND_FROM || "SendQuote <quotes@sendquote.in>",
-        to,
-        subject,
-        html,
+        from: fromAddr, to, subject, html,
         ...(replyTo ? { reply_to: replyTo } : {}),
       }),
     });
@@ -34,13 +30,12 @@ export async function sendEmail({ to, subject, html, from, replyTo }: SendEmailP
     if (!res.ok) {
       const err = await res.text();
       console.error("Resend API error:", err);
-      return { success: false, reason: "api_error", details: err };
+      return { success: false as const, reason: "api_error", details: err };
     }
 
-    const data = await res.json();
-    return { success: true, id: data.id };
+    return { success: true as const, id: ((await res.json()) as { id: string }).id };
   } catch (e) {
     console.error("Failed to send email:", e);
-    return { success: false, reason: "exception", details: String(e) };
+    return { success: false as const, reason: "exception", details: String(e) };
   }
 }

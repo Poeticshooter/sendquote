@@ -10,6 +10,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Suspense } from "react";
 import { VoiceAssistant } from "@/components/shared/voice-assistant";
+import { GoogleAnalytics } from "@/components/shared/google-analytics";
 
 const interSans = Inter({ variable: "--font-sans", subsets: ["latin"], display: "swap" });
 const jetbrainsMono = JetBrains_Mono({ variable: "--font-mono", subsets: ["latin"], display: "swap" });
@@ -115,7 +116,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SkipNav />
         <ThemeProvider>
           <PostHogProvider>
-            <Suspense fallback={null}>{children}</Suspense>
+            <Suspense fallback={null}>
+              <GoogleAnalytics />
+              {children}
+            </Suspense>
             <CookieConsent />
             <Toaster richColors position="top-right" />
             <Analytics />

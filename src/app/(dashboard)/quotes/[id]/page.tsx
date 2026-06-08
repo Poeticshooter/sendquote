@@ -170,16 +170,16 @@ export default function QuoteDetailPage() {
                     <tr key={item.id} className="border-b last:border-0">
                       <td className="py-2">{item.description}</td>
                       <td className="py-2 text-right">{item.quantity}</td>
-                      <td className="py-2 text-right">${item.rate}</td>
-                      <td className="py-2 text-right">${item.amount}</td>
+                      <td className="py-2 text-right">₹{Number(item.rate).toLocaleString("en-IN")}</td>
+                      <td className="py-2 text-right">₹{Number(item.amount).toLocaleString("en-IN")}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              <div className="mt-4 space-y-1 text-right text-sm">
-                <p>Subtotal: <span className="font-medium">${quote.subtotal}</span></p>
-                {quote.gst_rate > 0 && <p>GST ({quote.gst_rate}%): <span className="font-medium">${quote.gst_amount}</span></p>}
-                <p className="text-lg font-bold">Total: ${quote.total}</p>
+              <div className="border-t pt-2 space-y-1">
+                <p>Subtotal: <span className="font-medium">₹{Number(quote.subtotal).toLocaleString("en-IN")}</span></p>
+                {quote.gst_rate > 0 && <p>GST ({quote.gst_rate}%): <span className="font-medium">₹{Number(quote.gst_amount).toLocaleString("en-IN")}</span></p>}
+                <p className="text-lg font-bold">Total: ₹{Number(quote.total).toLocaleString("en-IN")}</p>
               </div>
               {quote.notes && <div className="mt-6 border-t pt-4"><p className="text-sm font-medium">Notes</p><p className="text-sm text-muted-foreground mt-1">{quote.notes}</p></div>}
             </CardContent>

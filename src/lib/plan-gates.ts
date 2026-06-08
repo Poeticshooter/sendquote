@@ -3,7 +3,7 @@ import { createClient } from "./supabase/server";
 
 export type PlanTier = "free" | "starter" | "growth" | "pro" | "enterprise";
 
-const PLAN_LIMITS: Record<string, {
+export const PLAN_LIMITS: Record<string, {
   quotes_per_month: number;
   ai_generation: boolean;
   crm_sync: boolean;

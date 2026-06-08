@@ -1,5 +1,3 @@
-import nodemailer from "nodemailer";
-
 const RESEND_API = "https://api.resend.com/emails";
 
 interface SendEmailParams {
@@ -10,48 +8,31 @@ interface SendEmailParams {
   replyTo?: string;
 }
 
-let smtpTransporter: nodemailer.Transporter | null = null;
-
-function getSmtpTransport(): nodemailer.Transporter | null {
-  if (smtpTransporter) return smtpTransporter;
-  const email = process.env.SMTP_EMAIL;
-  const pass = process.env.SMTP_APP_PASSWORD;
-  if (!email || !pass) return null;
-  smtpTransporter = nodemailer.createTransport({ service: "gmail", auth: { user: email, pass } });
-  return smtpTransporter;
-}
-
 export async function sendEmail({ to, subject, html, from, replyTo }: SendEmailParams) {
+  const apiKey = process.env.RESEND_API_KEY;
   const fromAddr = from || process.env.RESEND_FROM || "SendQuote <quotes@sendquote.in>";
 
-  // Try Resend first
-  const apiKey = process.env.RESEND_API_KEY;
-  if (apiKey && apiKey !== "placeholder") {
-    try {
-      const res = await fetch(RESEND_API, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ from: fromAddr, to, subject, html, ...(replyTo ? { reply_to: replyTo } : {}) }),
-      });
-      if (res.ok) return { success: true as const, id: ((await res.json()) as { id: string }).id };
+  if (!apiKey || apiKey === "placeholder") {
+    console.log("[Email] Not configured. Would send:", { to, subject });
+    return { success: false as const, reason: "not_configured" };
+  }
+
+  try {
+    const res = await fetch(RESEND_API, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: fromAddr, to, subject, html, ...(replyTo ? { reply_to: replyTo } : {}) }),
+    });
+
+    if (!res.ok) {
       const err = await res.text();
-      console.warn("Resend failed, trying SMTP:", err);
-    } catch (e) {
-      console.warn("Resend error, trying SMTP:", e);
+      console.error("Resend error:", err);
+      return { success: false as const, reason: "api_error", details: err };
     }
-  }
 
-  // Fallback to SMTP
-  const smtp = getSmtpTransport();
-  if (smtp) {
-    try {
-      await smtp.sendMail({ from: fromAddr, to, subject, html });
-      return { success: true as const, id: "smtp" };
-    } catch (e) {
-      console.error("SMTP also failed:", e);
-    }
+    return { success: true as const, id: ((await res.json()) as { id: string }).id };
+  } catch (e) {
+    console.error("Email send failed:", e);
+    return { success: false as const, reason: "exception", details: String(e) };
   }
-
-  console.warn("Email delivery failed — no providers available");
-  return { success: false as const, reason: "all_failed" };
 }

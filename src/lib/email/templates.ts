@@ -24,7 +24,7 @@ function header() {
         <table cellpadding="0" cellspacing="0" border="0">
           <tr>
             <td align="center" style="padding-bottom:20px;">
-              <img src="https://sendquote.in/logo-icon.svg" alt="SendQuote" width="48" height="48" style="display:block;width:48px;height:48px;border-radius:12px;" />
+              <img src="https://sendquote.in/logo-white.svg" alt="SendQuote" width="48" height="48" style="display:block;width:48px;height:48px;border-radius:12px;" />
             </td>
           </tr>
           <tr>

@@ -1,15 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00D4AA"/>
-      <stop offset="100%" stop-color="#7C3AED"/>
-    </linearGradient>
+    <clipPath id="r">
+      <rect width="48" height="48" rx="4"/>
+    </clipPath>
   </defs>
-  <rect width="48" height="48" rx="10" fill="#0D0D0D" stroke="url(#g)" stroke-width="1.5"/>
-  <rect x="10" y="8" width="28" height="32" rx="5" fill="white" opacity="0.06"/>
-  <rect x="14" y="16" width="20" height="3" rx="1.5" fill="#00D4AA" opacity="0.6"/>
-  <rect x="14" y="22" width="20" height="3" rx="1.5" fill="#00D4AA" opacity="0.4"/>
-  <rect x="14" y="28" width="12" height="3" rx="1.5" fill="#00D4AA" opacity="0.25"/>
-  <path d="M34 18 L40 24 L34 30" stroke="url(#g)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <path d="M40 24 L18 24" stroke="url(#g)" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <image href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAC10lEQVR42u2YP4hVRxTGf+e+u1lFkdiILmgiIlgELIJ/KgURUqmVRNImTSKolUVERBNcKxVE0FJ7wc4mFoKtIooQSUIgIQbShIAki+69PwvPhcvDrOvb93xPuB8Mw503Z953Zr45c2agQ4cOHcaJWOoA6oJjRIQT6bnaexP57Fe898s8SidiALlERNTq18BXwJr/GafOciUizqklUA1bUuVb9i8iolIvAMeAP4DfgQKwb2JqYAaYVacj4rRaqtVY9kUjA3WTr3BdnXqDzZdqlf2/y7ZyMXtnJJs2631JaFt+Ty1gczgdeJY2ZxYTuUYpofa+KZJIra4ElrdkVAL/pLQKYEW2n8yJOKXWEVEv1YElRYeIMCIqYBb4FXiS5WfgCPAT8CPwEHiUe+ZbYEMGgmIcEtqfctjZOg8+VGfUdVlm1FUt2zLroympjcMKr+WAqyYwl04JfAF8BjxvjXsTuNZHMpa66sOQ0NMksiciqtRxDfzbKnNANax0ZaihVJ1S76aMLqqrF2HXSOhY2m0cS5rRhD91rXojyfypHmr1WZaxvpg4B/r/VD2oPk1SN9SPG0cnzoFWFDqgnldX5Pdq9VISm1O/eQ3xiXCgIXEoSWxvnMr23erD/O2OurW1GiNzYJAB5jPCRCZ2pdqLiDvAp8AJYBfwQD3RF4mGHpGKAW2KVxNoryGVOVEVEWeBT4DbwPfAcaDKvi/y3IhxOjCfBCLPgRetus4U43FE7AXuAUcjos6UY0vaPhtHMtckXvezPqeeBP5rtkHWHwBPIuJvoJcrtQ3YARwGbkXEX2oxjGRu0DvBERfG5+rl17TfU9f3h9l3+iqhRkSobgF2AlOtG9hHmW3+AmwGrqaMAvgN+CEi5psxJu6Srm5u3cDODvIM867zojLLdNY7kvxs6/rYlN7EkF/glN6lXnybd6NJc2S6dfq+X+QnTuMdOnTo0KFDhw4dOowcLwG80MHITWpLUAAAAABJRU5ErkJggg==" width="48" height="48" clip-path="url(#r)"/>
 </svg>

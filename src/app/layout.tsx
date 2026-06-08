@@ -52,7 +52,7 @@ const jsonLd = {
     {
       "@type": "Organization", "@id": "https://sendquote.in/#organization",
       name: "SendQuote", alternateName: "SendQuote India", url: "https://sendquote.in",
-      logo: { "@type": "ImageObject", url: "https://sendquote.in/logo-icon.svg", width: 512, height: 512 },
+      logo: { "@type": "ImageObject", url: "https://sendquote.in/logo-white.svg", width: 512, height: 512 },
       address: { "@type": "PostalAddress", addressCountry: "IN" },
       sameAs: ["https://twitter.com/sendquote", "https://sendquote.in"],
       contactPoint: [

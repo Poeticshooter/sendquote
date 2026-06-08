@@ -61,15 +61,15 @@ export default function InvoiceDetailPage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-muted-foreground">Amount</p>
-              <p className="text-lg font-bold">${invoice.amount}</p>
+              <p className="text-lg font-bold">₹{Number(invoice.amount).toLocaleString("en-IN")}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Paid</p>
-              <p className="text-lg font-bold">${invoice.paid_amount}</p>
+              <p className="text-lg font-bold">₹{Number(invoice.paid_amount).toLocaleString("en-IN")}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Balance Due</p>
-              <p className="text-lg font-bold">${invoice.balance_due}</p>
+              <p className="text-lg font-bold">₹{Number(invoice.balance_due).toLocaleString("en-IN")}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Due Date</p>

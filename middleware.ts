@@ -36,7 +36,11 @@ export async function middleware(request: NextRequest) {
         !pathname.startsWith("/api/webhook") &&
         !pathname.startsWith("/api/webhooks") &&
         !pathname.startsWith("/api/health") &&
-        !pathname.startsWith("/api/voice")) {
+        !pathname.startsWith("/api/voice") &&
+        !pathname.startsWith("/api/quotes/accept") &&
+        !pathname.startsWith("/api/chat/buyer") &&
+        !pathname.startsWith("/api/events") &&
+        !pathname.startsWith("/api/portal")) {
       const csrfResult = verifyCsrfToken(request);
       if (!csrfResult.ok) {
         return NextResponse.json({ error: csrfResult.message }, { status: csrfResult.status });

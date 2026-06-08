@@ -29,8 +29,8 @@ export function generateContractHtml(data: ContractData): string {
     <tr>
       <td style="padding:8px;border-bottom:1px solid #e5e7eb">${escapeHtml(item.description)}</td>
       <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:center">${item.quantity}</td>
-      <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right">$${item.rate.toFixed(2)}</td>
-      <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right">$${item.amount.toFixed(2)}</td>
+      <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right">₹${item.rate.toLocaleString("en-IN")}</td>
+      <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right">₹${item.amount.toLocaleString("en-IN")}</td>
     </tr>
   `).join("");
 
@@ -80,9 +80,9 @@ export function generateContractHtml(data: ContractData): string {
   </table>
 
   <div style="text-align:right;margin-top:8px">
-    <p>Subtotal: <strong>$${data.subtotal.toFixed(2)}</strong></p>
-    ${data.gstRate > 0 ? `<p>GST (${data.gstRate}%): <strong>$${data.gstAmount.toFixed(2)}</strong></p>` : ""}
-    <p style="font-size:18px;font-weight:bold;border-top:2px solid #2563eb;padding-top:8px">Total: $${data.total.toFixed(2)}</p>
+   <p>Subtotal: <strong>₹${data.subtotal.toLocaleString("en-IN")}</strong></p>
+   ${data.gstRate > 0 ? `<p>GST (${data.gstRate}%): <strong>₹${data.gstAmount.toLocaleString("en-IN")}</strong></p>` : ""}
+   <p style="font-size:18px;font-weight:bold;border-top:2px solid #2563eb;padding-top:8px">Total: ₹${data.total.toLocaleString("en-IN")}</p>
   </div>
 
   ${data.notes ? `<h2>Notes</h2><p>${escapeHtml(data.notes)}</p>` : ""}

@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
     if (!quote) return NextResponse.json({ error: "Quote not found" }, { status: 404 });
     if (quote.user_id !== user.id) return NextResponse.json({ error: "Not authorized" }, { status: 403 });
-    if (quote.status === "accepted") return NextResponse.json({ error: "Quote already accepted" }, { status: 409 });
+    if (quote.status !== "accepted") return NextResponse.json({ error: "Quote must be accepted before payment" }, { status: 409 });
 
     const verifiedAmount = Math.round(Number(quote.total) * 100);
 

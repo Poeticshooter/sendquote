@@ -66,8 +66,8 @@ export default function AnalyticsPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${data.revenue.total.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Avg ${data.revenue.avgQuoteValue.toLocaleString()} per quote</p>
+            <div className="text-2xl font-bold">₹{data.revenue.total.toLocaleString("en-IN")}</div>
+            <p className="text-xs text-muted-foreground">Avg ₹{data.revenue.avgQuoteValue.toLocaleString("en-IN")} per quote</p>
           </CardContent>
         </Card>
         <Card>
@@ -130,7 +130,7 @@ export default function AnalyticsPage() {
                 <div key={m.month}>
                   <div className="flex justify-between text-sm mb-1">
                     <span>{m.month}</span>
-                    <span className="font-medium">${m.amount.toLocaleString()}</span>
+                    <span className="font-medium">₹{m.amount.toLocaleString("en-IN")}</span>
                   </div>
                   <div className="h-3 rounded-full bg-muted overflow-hidden">
                     <div className="h-full rounded-full bg-primary" style={{ width: `${(m.amount / maxRevenue) * 100}%` }} />

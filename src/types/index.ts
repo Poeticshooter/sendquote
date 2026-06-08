@@ -1,5 +1,68 @@
 export type QuoteStatus = 'draft' | 'sent' | 'opened' | 'accepted' | 'changes_requested' | 'expired' | 'archived' | 'lost'
 
+export type AchievementType = 'first_quote' | 'ten_quotes' | 'fifty_quotes' | 'first_accepted' | 'five_accepted' | 'twenty_accepted' | 'first_payment' | 'high_win_rate' | 'first_client' | 'ten_clients' | 'streak_7' | 'streak_30' | 'team_player' | 'early_adopter' | 'referral_starter'
+
+export interface Achievement {
+  id: string
+  user_id: string
+  achievement: AchievementType
+  unlocked_at: string
+  metadata: Record<string, unknown> | null
+}
+
+export interface AchievementDefinition {
+  key: AchievementType
+  label: string
+  description: string
+  icon: string
+  category: 'milestone' | 'engagement' | 'social'
+  threshold?: number
+}
+
+export interface Referral {
+  id: string
+  referrer_id: string
+  referred_email: string | null
+  referred_id: string | null
+  status: 'pending' | 'joined' | 'converted' | 'rewarded'
+  reward_months: number
+  created_at: string
+}
+
+export interface QuoteTemplate {
+  id: string
+  name: string
+  description: string
+  industry: string
+  suggested_items: { description: string; quantity: number; rate: number; unit: string }[]
+  suggested_terms: string | null
+  suggested_payment_terms: string | null
+  is_default: boolean
+  created_at: string
+}
+
+export interface FollowupSequence {
+  id: string
+  user_id: string
+  name: string
+  trigger_days: number[]
+  trigger_condition: 'sent' | 'opened_no_response' | 'expiring_soon' | 'expired'
+  subject_template: string
+  body_template: string
+  is_active: boolean
+  created_at: string
+}
+
+export interface FollowupSchedule {
+  id: string
+  quote_id: string
+  sequence_id: string
+  step: number
+  scheduled_at: string
+  sent_at: string | null
+  status: 'pending' | 'sent' | 'cancelled'
+}
+
 export type InvoiceStatus = 'pending' | 'paid' | 'overdue' | 'cancelled'
 
 export type SubscriptionStatus = 'active' | 'inactive' | 'cancelled' | 'expired'

@@ -5,9 +5,12 @@ import { createClient } from "@/lib/supabase/client";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, FileText, TrendingUp, Users, Target, ArrowRight, Clock } from "lucide-react";
+import { Plus, FileText, TrendingUp, Users, Target, ArrowRight, Clock, Zap, Gift } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { HealthScore } from "@/components/gamification/health-score";
+import { AchievementBadges } from "@/components/gamification/achievement-badges";
+import { ReferralWidget } from "@/components/gamification/referral-widget";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -60,14 +63,25 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header with streak */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
-          <p className="text-muted-foreground text-sm">Your quoting activity overview.</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Dashboard</h2>
+            <p className="text-muted-foreground text-sm">{data.totalQuotes > 0 ? `${data.totalQuotes} quotes, ${data.winRate}% win rate` : "Start by creating your first quote"}</p>
+          </div>
         </div>
         <Link href="/quotes/new" className={buttonVariants()}>
           <Plus className="mr-2 h-4 w-4" /> New Quote
         </Link>
+      </div>
+
+      {/* Gamification Row */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="sm:col-span-2">
+          <AchievementBadges />
+        </div>
+        <HealthScore />
       </div>
 
       {/* KPI Cards */}
@@ -114,94 +128,100 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-3">
         {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Recent Quotes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {data.recentQuotes.length === 0 ? (
-              <div className="py-8 text-center">
-                <FileText className="mx-auto h-8 w-8 text-muted-foreground/50" />
-                <p className="mt-3 text-sm text-muted-foreground">No quotes yet. Create your first one!</p>
-                <Link href="/quotes/new" className={buttonVariants({ size: "sm", className: "mt-4" })}>
-                  <Plus className="mr-1 h-3 w-3" /> Create Quote
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {data.recentQuotes.map((q) => (
-                  <Link key={q.id} href={`/quotes/${q.id}`} className="flex items-center justify-between rounded-lg border border-white/5 p-3 hover:bg-white/[0.02] transition-colors">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">{q.client_name}</p>
-                      <p className="text-xs text-muted-foreground">{q.quote_number}</p>
-                    </div>
-                    <div className="text-right ml-4">
-                      <p className="text-sm font-medium">₹{Number(q.total).toLocaleString("en-IN")}</p>
-                      <span className={`text-xs ${
-                        q.status === "accepted" ? "text-[#00D4AA]" :
-                        q.status === "sent" || q.status === "opened" ? "text-blue-400" :
-                        q.status === "draft" ? "text-muted-foreground" : "text-red-400"
-                      }`}>
-                        {q.status}
-                      </span>
-                    </div>
+        <div className="lg:col-span-2 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Recent Quotes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {data.recentQuotes.length === 0 ? (
+                <div className="py-8 text-center">
+                  <FileText className="mx-auto h-8 w-8 text-muted-foreground/50" />
+                  <p className="mt-3 text-sm text-muted-foreground">No quotes yet. Create your first one!</p>
+                  <Link href="/quotes/new" className={buttonVariants({ size: "sm", className: "mt-4" })}>
+                    <Plus className="mr-1 h-3 w-3" /> Create Quote
                   </Link>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {data.recentQuotes.map((q) => (
+                    <Link key={q.id} href={`/quotes/${q.id}`} className="flex items-center justify-between rounded-lg border border-white/5 p-3 hover:bg-white/[0.02] transition-colors">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium truncate">{q.client_name}</p>
+                        <p className="text-xs text-muted-foreground">{q.quote_number}</p>
+                      </div>
+                      <div className="text-right ml-4">
+                        <p className="text-sm font-medium">₹{Number(q.total).toLocaleString("en-IN")}</p>
+                        <span className={`text-xs ${
+                          q.status === "accepted" ? "text-[#00D4AA]" :
+                          q.status === "sent" || q.status === "opened" ? "text-blue-400" :
+                          q.status === "draft" ? "text-muted-foreground" : "text-red-400"
+                        }`}>
+                          {q.status}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Quick Actions & Plan Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Link href="/quotes/new" className="flex items-center gap-3 rounded-lg border border-white/5 p-3 hover:bg-white/[0.02] transition-colors">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#00D4AA]/10 text-[#00D4AA]">
-                <Plus className="h-4 w-4" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium">Create New Quote</p>
-                <p className="text-xs text-muted-foreground">Generate an AI-powered quote</p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground" />
-            </Link>
-            <Link href="/quotes" className="flex items-center gap-3 rounded-lg border border-white/5 p-3 hover:bg-white/[0.02] transition-colors">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
-                <FileText className="h-4 w-4" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium">View All Quotes</p>
-                <p className="text-xs text-muted-foreground">Manage your quotes</p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground" />
-            </Link>
-            <Link href="/analytics" className="flex items-center gap-3 rounded-lg border border-white/5 p-3 hover:bg-white/[0.02] transition-colors">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
-                <TrendingUp className="h-4 w-4" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium">View Analytics</p>
-                <p className="text-xs text-muted-foreground">Track your win rate</p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground" />
-            </Link>
-            <Link href="/settings" className="flex items-center gap-3 rounded-lg border border-white/5 p-3 hover:bg-white/[0.02] transition-colors">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-500/10 text-amber-400">
-                <Clock className="h-4 w-4" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium">Billing & Plan</p>
-                <p className="text-xs text-muted-foreground">Current plan: <span className="capitalize text-white">{data.plan}</span></p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground" />
-            </Link>
-          </CardContent>
-        </Card>
+        {/* Side Panel: Quick Actions + Referral */}
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Link href="/quotes/new" className="flex items-center gap-3 rounded-lg border border-white/5 p-3 hover:bg-white/[0.02] transition-colors">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#00D4AA]/10 text-[#00D4AA]">
+                  <Plus className="h-4 w-4" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Create New Quote</p>
+                  <p className="text-xs text-muted-foreground">AI-powered in 60s</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+              </Link>
+              <Link href="/quotes" className="flex items-center gap-3 rounded-lg border border-white/5 p-3 hover:bg-white/[0.02] transition-colors">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
+                  <FileText className="h-4 w-4" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">All Quotes</p>
+                  <p className="text-xs text-muted-foreground">Manage & track</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+              </Link>
+              <Link href="/analytics" className="flex items-center gap-3 rounded-lg border border-white/5 p-3 hover:bg-white/[0.02] transition-colors">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
+                  <TrendingUp className="h-4 w-4" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Analytics</p>
+                  <p className="text-xs text-muted-foreground">Win rate & revenue</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+              </Link>
+              <Link href="/settings" className="flex items-center gap-3 rounded-lg border border-white/5 p-3 hover:bg-white/[0.02] transition-colors">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-500/10 text-amber-400">
+                  <Zap className="h-4 w-4" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Plan & Billing</p>
+                  <p className="text-xs text-muted-foreground capitalize">Current: {data.plan}</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+              </Link>
+            </CardContent>
+          </Card>
+
+          <ReferralWidget />
+        </div>
       </div>
     </div>
   );

@@ -9,13 +9,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Plus, Trash2, ArrowLeft, Sparkles, Loader2 } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, Sparkles, Loader2, FileText } from "lucide-react";
 import Link from "next/link";
+import { TemplateSelector } from "@/components/templates/template-selector";
 
 interface LineItem {
   description: string;
   quantity: number;
   rate: number;
+  spec?: string;
+}
+
+interface Template {
+  id: string; name: string; description: string; industry: string;
+  suggested_items: { description: string; quantity: number; rate: number; unit: string }[];
+  suggested_terms: string | null; suggested_payment_terms: string | null;
 }
 
 export default function NewQuotePage() {
@@ -28,10 +36,25 @@ export default function NewQuotePage() {
   ]);
   const [notes, setNotes] = useState("");
   const [terms, setTerms] = useState("");
-  const [gstRate, setGstRate] = useState(0);
+  const [gstRate, setGstRate] = useState(18);
   const [sending, setSending] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
+
+  function handleTemplateSelect(template: Template) {
+    setItems(template.suggested_items.map(item => ({
+      description: item.description,
+      quantity: item.quantity,
+      rate: item.rate,
+    })));
+    setTerms(template.suggested_terms || "");
+    if (template.suggested_payment_terms) {
+      setNotes(`Payment Terms: ${template.suggested_payment_terms}`);
+    }
+    setShowTemplates(false);
+    toast.success(`"${template.name}" template applied`);
+  }
 
   async function generateWithAI() {
     if (!aiPrompt.trim()) { toast.error("Describe what you're quoting"); return; }
@@ -61,9 +84,7 @@ export default function NewQuotePage() {
   };
 
   const removeItem = (index: number) => {
-    if (items.length > 1) {
-      setItems(items.filter((_, i) => i !== index));
-    }
+    if (items.length > 1) setItems(items.filter((_, i) => i !== index));
   };
 
   const updateItem = (index: number, field: keyof LineItem, value: string | number) => {
@@ -134,28 +155,39 @@ export default function NewQuotePage() {
       });
     }
 
-    await supabase
-      .from("profiles")
-      .update({ quote_counter: nextNum })
-      .eq("user_id", user.id);
+    await supabase.from("profiles").update({ quote_counter: nextNum }).eq("user_id", user.id);
 
     toast.success("Quote created!");
     router.push(`/quotes/${quote.id}`);
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex items-center gap-4">
-        <Link href="/quotes" className="text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-5 w-5" />
-        </Link>
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">New Quote</h2>
-          <p className="text-muted-foreground">Create a new quote for your client.</p>
+    <div className="mx-auto max-w-4xl space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link href="/quotes" className="text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">New Quote</h2>
+            <p className="text-muted-foreground">Create a quote for your client.</p>
+          </div>
         </div>
+        <Button type="button" variant="outline" size="sm" className="border-white/10 gap-2" onClick={() => setShowTemplates(!showTemplates)}>
+          <FileText className="h-4 w-4" />
+          {showTemplates ? "Hide" : "Templates"}
+        </Button>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-6">
 
+      {showTemplates && (
+        <Card className="border-[#00D4AA]/10 bg-[#00D4AA]/[0.02]">
+          <CardContent className="pt-4">
+            <TemplateSelector onSelect={handleTemplateSelect} />
+          </CardContent>
+        </Card>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-6">
         <Card className="border-primary/20 bg-primary/5">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -188,33 +220,16 @@ export default function NewQuotePage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="clientName">Client Name *</Label>
-              <Input
-                id="clientName"
-                value={clientName}
-                onChange={(e) => setClientName(e.target.value)}
-                placeholder="Acme Corp"
-                required
-              />
+              <Input id="clientName" value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="Acme Corp" required />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="clientEmail">Email</Label>
-                <Input
-                  id="clientEmail"
-                  type="email"
-                  value={clientEmail}
-                  onChange={(e) => setClientEmail(e.target.value)}
-                  placeholder="client@acme.com"
-                />
+                <Input id="clientEmail" type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} placeholder="client@acme.com" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="clientPhone">Phone</Label>
-                <Input
-                  id="clientPhone"
-                  value={clientPhone}
-                  onChange={(e) => setClientPhone(e.target.value)}
-                  placeholder="+1 555-1234"
-                />
+                <Input id="clientPhone" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} placeholder="+91 98765 43210" />
               </div>
             </div>
           </CardContent>
@@ -228,77 +243,43 @@ export default function NewQuotePage() {
             {items.map((item, index) => (
               <div key={index} className="flex gap-3 items-start">
                 <div className="flex-1">
-                  <Input
-                    placeholder="Description"
-                    value={item.description}
-                    onChange={(e) => updateItem(index, "description", e.target.value)}
-                    required
-                  />
+                  <Input placeholder="Description" value={item.description} onChange={(e) => updateItem(index, "description", e.target.value)} required />
                 </div>
                 <div className="w-20">
-                  <Input
-                    type="number"
-                    placeholder="Qty"
-                    value={item.quantity}
-                    onChange={(e) => updateItem(index, "quantity", e.target.value)}
-                    min={1}
-                    required
-                  />
+                  <Input type="number" placeholder="Qty" value={item.quantity} onChange={(e) => updateItem(index, "quantity", e.target.value)} min={1} required />
                 </div>
                 <div className="w-28">
-                  <Input
-                    type="number"
-                    placeholder="Rate"
-                    value={item.rate}
-                    onChange={(e) => updateItem(index, "rate", e.target.value)}
-                    min={0}
-                    step="0.01"
-                    required
-                  />
+                  <Input type="number" placeholder="Rate (₹)" value={item.rate} onChange={(e) => updateItem(index, "rate", e.target.value)} min={0} step="0.01" required />
                 </div>
-                <div className="w-24 pt-2 text-sm text-right text-muted-foreground">
-                  ${(item.quantity * item.rate).toFixed(2)}
+                <div className="w-28 pt-2 text-sm text-right text-muted-foreground">
+                  ₹{(item.quantity * item.rate).toLocaleString("en-IN")}
                 </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeItem(index)}
-                  disabled={items.length === 1}
-                >
+                <Button type="button" variant="ghost" size="icon" onClick={() => removeItem(index)} disabled={items.length === 1}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             ))}
 
             <Button type="button" variant="outline" onClick={addItem} className="w-full">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Item
+              <Plus className="mr-2 h-4 w-4" /> Add Item
             </Button>
 
             <div className="border-t pt-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>₹{subtotal.toLocaleString("en-IN")}</span>
               </div>
               <div className="flex justify-between text-sm items-center">
                 <span>GST</span>
                 <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    className="w-20 h-7 text-sm"
-                    value={gstRate}
-                    onChange={(e) => setGstRate(Number(e.target.value) || 0)}
-                    min={0}
-                    max={100}
-                  />
+                  <Input type="number" className="w-20 h-7 text-sm" value={gstRate} onChange={(e) => setGstRate(Number(e.target.value) || 0)} min={0} max={100} />
                   <span>%</span>
-                  <span className="w-20 text-right">${gstAmount.toFixed(2)}</span>
+                  <span className="w-24 text-right">₹{gstAmount.toLocaleString("en-IN")}</span>
                 </div>
               </div>
               <div className="flex justify-between font-semibold text-lg border-t pt-2">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>₹{total.toLocaleString("en-IN")}</span>
               </div>
             </div>
           </CardContent>
@@ -311,23 +292,11 @@ export default function NewQuotePage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="notes">Notes</Label>
-              <Textarea
-                id="notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Additional notes for the client..."
-                rows={3}
-              />
+              <Textarea id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Additional notes for the client..." rows={3} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="terms">Terms & Conditions</Label>
-              <Textarea
-                id="terms"
-                value={terms}
-                onChange={(e) => setTerms(e.target.value)}
-                placeholder="Payment terms, delivery timelines, etc."
-                rows={3}
-              />
+              <Textarea id="terms" value={terms} onChange={(e) => setTerms(e.target.value)} placeholder="Payment terms, delivery timelines, etc." rows={3} />
             </div>
           </CardContent>
         </Card>

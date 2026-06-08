@@ -15,19 +15,15 @@ function verifyCronSecret(request: Request): boolean {
   return timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
 }
 
-  const expected = `Bearer ${expectedToken}`;
-  if (authHeader.length !== expected.length) return false;
-}
-
 export async function GET(request: Request) {
   if (!verifyCronSecret(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  
+
+  try {
     const admin = createAdminClient();
     const now = new Date().toISOString();
 
-    // Find quotes expiring in 3 days (full day range)
     const targetDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
     targetDate.setHours(0, 0, 0, 0);
     const dayEnd = new Date(targetDate);
@@ -69,7 +65,6 @@ export async function GET(request: Request) {
       }
     }
 
-    // Auto-expire past-due quotes
     const { data: overdueQuotes } = await admin
       .from("quotes")
       .select("id")

@@ -3,7 +3,8 @@ import { timingSafeEqual } from "crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function POST(request: NextRequest) {
-  
+  try {
+  try {
     const authHeader = request.headers.get("authorization") || "";
     const expectedToken = process.env.N8N_WEBHOOK_SECRET;
 
@@ -13,10 +14,8 @@ export async function POST(request: NextRequest) {
     }
 
     const expected = `Bearer ${expectedToken}`;
-    
-    const safe = authHeader.length === expected.length &&
-      timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
-    if (!safe) {
+    if (authHeader.length !== expected.length ||
+        !timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected))) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -56,7 +55,6 @@ export async function POST(request: NextRequest) {
           .from("cron_reminders")
           .insert({ quote_id: quote.id, reminder_type: "follow_up", sent_at: new Date().toISOString() })
           .select();
-
         return NextResponse.json({ success: true, action: "follow_up_created", reminder: reminders?.[0] });
       }
 
@@ -65,7 +63,6 @@ export async function POST(request: NextRequest) {
           .from("cron_reminders")
           .insert({ quote_id: quote.id, reminder_type: "expiry_warning", sent_at: new Date().toISOString() })
           .select();
-
         return NextResponse.json({ success: true, action: "expiry_warning_created", reminder: reminders?.[0] });
       }
 

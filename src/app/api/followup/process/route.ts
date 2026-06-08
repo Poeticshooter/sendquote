@@ -15,21 +15,16 @@ function verifyCronSecret(request: Request): boolean {
   return timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
 }
 
-  const expected = `Bearer ${expectedToken}`;
-  if (authHeader.length !== expected.length) return false;
-  return timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
-}
-
 export async function GET(request: Request) {
   if (!verifyCronSecret(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  
+
+  try {
     const admin = createAdminClient();
     const now = new Date().toISOString();
     let processed = 0;
 
-    // Get pending follow-ups that are due
     const { data: pending } = await admin
       .from("followup_schedule")
       .select("id, quote_id, sequence_id, step, scheduled_at")

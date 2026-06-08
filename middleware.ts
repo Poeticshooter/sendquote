@@ -4,7 +4,7 @@ import { detectBot, rateLimitCheck } from "@/lib/security";
 import { verifyCsrfToken, verifyOrigin } from "@/lib/security/csrf";
 
 const publicPaths = [
-  "/", "/login", "/signup", "/forgot-password", "/pricing", "/blog",
+  "/", "/login", "/signup", "/onboarding", "/forgot-password", "/pricing", "/blog",
   "/docs", "/changelog", "/faq", "/contact", "/privacy", "/terms",
   "/features",
 ];

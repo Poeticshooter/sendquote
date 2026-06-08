@@ -35,7 +35,15 @@ export default function LoginPage() {
   }
 
   async function handleGoogle() {
-    const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/auth/callback` } });
+    const state = crypto.randomUUID();
+    document.cookie = `oauth_state=${state}; path=/; max-age=600; secure; samesite=lax`;
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: { state },
+      },
+    });
     if (error) toast.error(error.message);
   }
 

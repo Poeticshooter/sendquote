@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function POST(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization");
+    const authHeader = request.headers.get("authorization") || "";
     const expectedToken = process.env.N8N_WEBHOOK_SECRET;
 
     if (!expectedToken) {
@@ -11,7 +11,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
     }
 
-    if (authHeader !== `Bearer ${expectedToken}`) {
+    const expected = `Bearer ${expectedToken}`;
+    const { timingSafeEqual } = require("crypto");
+    const safe = authHeader.length === expected.length &&
+      timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
+    if (!safe) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

@@ -24,6 +24,11 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const onboardingDone = localStorage.getItem("sq_onboarding_done");
+    if (!onboardingDone) {
+      router.push("/onboarding");
+      return;
+    }
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) { router.push("/login"); return; }
       Promise.all([
@@ -62,7 +67,22 @@ export default function DashboardPage() {
     );
   }
 
-  if (!data) return null;
+  if (!data) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div className="rounded-full bg-red-500/10 p-4 mb-4">
+          <FileText className="h-8 w-8 text-red-400" />
+        </div>
+        <h3 className="text-lg font-semibold text-white mb-2">Failed to load dashboard</h3>
+        <p className="text-sm text-muted-foreground mb-6 max-w-md">
+          Something went wrong loading your data. This could be a temporary issue.
+        </p>
+        <Link href="/dashboard" className={buttonVariants()}>
+          Try Again
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

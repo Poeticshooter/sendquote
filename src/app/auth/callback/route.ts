@@ -1,11 +1,20 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/dashboard";
+  const state = searchParams.get("state");
+
+  const storedState = request.cookies.get("oauth_state")?.value;
+
+  if (state || storedState) {
+    if (!code || !state || !storedState || state !== storedState) {
+      return NextResponse.redirect(`${origin}/login?error=state_mismatch`);
+    }
+  }
 
   if (code) {
     const supabase = await createClient();
@@ -37,7 +46,9 @@ export async function GET(request: Request) {
           });
         }
       }
-      return NextResponse.redirect(`${origin}${next}`);
+      const response = NextResponse.redirect(`${origin}${next}`);
+      response.cookies.delete("oauth_state");
+      return response;
     }
   }
 

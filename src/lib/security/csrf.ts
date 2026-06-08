@@ -35,6 +35,9 @@ export function verifyCsrfToken(request: {
   if (!cookieToken || !headerToken) {
     return { ok: false, status: 403, message: "CSRF token missing" };
   }
+  if (cookieToken.length !== headerToken.length) {
+    return { ok: false, status: 403, message: "CSRF token mismatch" };
+  }
   if (cookieToken !== headerToken) {
     return { ok: false, status: 403, message: "CSRF token mismatch" };
   }

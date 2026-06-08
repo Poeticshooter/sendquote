@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Search, FileText, Download, ExternalLink } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import { formatINR } from "@/lib/currency";
 
 interface PortalQuote {
   id: string;
@@ -100,7 +101,7 @@ export default function PortalPage() {
                     <p className="text-sm text-muted-foreground">{new Date(q.createdAt).toLocaleDateString()}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold">${q.total}</p>
+                    <p className="font-bold">{formatINR(q.total)}</p>
                     <Badge variant={statusColors[q.status] || "outline"}>{q.status}</Badge>
                   </div>
                 </div>
@@ -122,7 +123,7 @@ export default function PortalPage() {
                     {q.invoices.map((inv, i) => (
                       <div key={i} className="flex justify-between text-sm">
                         <span>{inv.number}</span>
-                        <span>${inv.amount} — <Badge variant="outline" className="text-xs">{inv.status}</Badge></span>
+                        <span>{formatINR(inv.amount)} — <Badge variant="outline" className="text-xs">{inv.status}</Badge></span>
                       </div>
                     ))}
                   </div>

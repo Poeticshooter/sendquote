@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -13,10 +13,23 @@ import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const searchParams = useSearchParams();
+  const emailParam = searchParams.get("email") || "";
+  const errorParam = searchParams.get("error");
+  const [email, setEmail] = useState(emailParam);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
+
+  useEffect(() => {
+    if (errorParam === "state_mismatch") {
+      toast.error("OAuth state mismatch. Please try signing in again.");
+    } else if (errorParam === "auth_failed") {
+      toast.error("Authentication failed. Please try again.");
+    } else if (errorParam === "profile_creation_failed") {
+      toast.error("Account created but profile setup failed. Please contact support.");
+    }
+  }, [errorParam]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();

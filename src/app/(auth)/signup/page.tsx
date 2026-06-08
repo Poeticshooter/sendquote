@@ -72,6 +72,9 @@ export default function SignupPage() {
       await createProfile(data.user.id, businessName, email);
     } catch (profileError) {
       console.error("Profile creation failed:", profileError);
+      toast.error("Failed to create your profile. Please try again.");
+      setLoading(false);
+      return;
     }
 
     // Check if user is auto-confirmed (email confirmation disabled in Supabase)

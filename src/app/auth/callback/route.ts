@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
             user.user_metadata?.full_name ||
             user.email?.split("@")[0] || null;
 
-          await admin.from("profiles").insert({
+          const { error: insertError } = await admin.from("profiles").insert({
             user_id: user.id,
             business_name: businessName,
             plan: "starter",
@@ -44,6 +44,13 @@ export async function GET(request: NextRequest) {
             subscription_status: "inactive",
             quote_counter: 0,
           });
+
+          if (insertError) {
+            console.error("Profile insert error in callback:", insertError);
+            const errorResponse = NextResponse.redirect(`${origin}/login?error=profile_creation_failed`);
+            errorResponse.cookies.delete("oauth_state");
+            return errorResponse;
+          }
         }
       }
       const response = NextResponse.redirect(`${origin}${next}`);

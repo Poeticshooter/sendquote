@@ -22,7 +22,9 @@ export function BottomNav() {
         {items.map((item) => {
           const isActive = item.href === "/dashboard"
             ? pathname === "/dashboard"
-            : pathname.startsWith(item.href);
+            : item.href === "/quotes"
+              ? pathname === "/quotes" || (pathname.startsWith("/quotes/") && !pathname.startsWith("/quotes/new"))
+              : pathname.startsWith(item.href);
           return (
             <Link
               key={item.href}

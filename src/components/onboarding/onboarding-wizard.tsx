@@ -49,9 +49,9 @@ export function OnboardingWizard() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          business_name: businessName,
-          phone: businessPhone,
-          onboarding_completed: false,
+          businessName,
+          businessPhone,
+          onboardingStep: "profile",
         }),
       });
       if (res.ok) setStep(1);

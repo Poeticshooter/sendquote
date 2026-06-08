@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { detectBot, rateLimitCheck } from "@/lib/security";
-import { verifyCsrfToken, verifyOrigin } from "@/lib/security/csrf";
+import { verifyOrigin } from "@/lib/security/csrf";
 
 const publicPaths = [
   "/", "/login", "/signup", "/onboarding", "/forgot-password", "/pricing", "/blog",
@@ -30,21 +30,15 @@ export async function middleware(request: NextRequest) {
       });
     }
 
-    // CSRF protection for state-changing methods (skip webhooks)
     const method = request.method;
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method) &&
         !pathname.startsWith("/api/webhook") &&
         !pathname.startsWith("/api/webhooks") &&
         !pathname.startsWith("/api/health") &&
-        !pathname.startsWith("/api/voice") &&
         !pathname.startsWith("/api/quotes/accept") &&
         !pathname.startsWith("/api/chat/buyer") &&
         !pathname.startsWith("/api/events") &&
         !pathname.startsWith("/api/portal")) {
-      const csrfResult = verifyCsrfToken(request);
-      if (!csrfResult.ok) {
-        return NextResponse.json({ error: csrfResult.message }, { status: csrfResult.status });
-      }
       const originResult = verifyOrigin(request);
       if (!originResult.ok) {
         return NextResponse.json({ error: originResult.message }, { status: originResult.status });
@@ -57,17 +51,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/_next/") || pathname.startsWith("/blog/") ||
     pathname.startsWith("/auth/");
 
-  if (isPublic) {
-    const publicResponse = NextResponse.next();
-    if (!pathname.startsWith("/_next/")) {
-      const existingToken = request.cookies.get("__csrf")?.value;
-      const csrfToken = existingToken || crypto.randomUUID();
-      publicResponse.cookies.set("__csrf", csrfToken, {
-        httpOnly: false, secure: true, sameSite: "strict", path: "/", maxAge: 86400,
-      });
-    }
-    return publicResponse;
-  }
+  if (isPublic) return NextResponse.next();
 
   let response = NextResponse.next({ request });
   const supabase = createServerClient(
@@ -87,13 +71,6 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.redirect(new URL("/login", request.url));
-
-  // Set CSRF cookie for authenticated pages (preserve existing)
-  const existingToken = request.cookies.get("__csrf")?.value;
-  const csrfToken = existingToken || crypto.randomUUID();
-  response.cookies.set("__csrf", csrfToken, {
-    httpOnly: false, secure: true, sameSite: "strict", path: "/", maxAge: 86400,
-  });
 
   return response;
 }

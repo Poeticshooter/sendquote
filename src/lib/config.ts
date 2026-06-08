@@ -6,34 +6,37 @@
 const REQUIRED_VARS = [
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-  "GROQ_API_KEY",
-  "RESEND_API_KEY",
 ] as const;
+const OPTIONAL_VARS = ["GROQ_API_KEY", "RESEND_API_KEY", "OPENROUTER_API_KEY"] as const;
 
-function validateEnv(): void {
+function validateEnv(): { valid: boolean; missing: string[] } {
   const missing: string[] = [];
 
   for (const key of REQUIRED_VARS) {
-    if (!process.env[key] || process.env[key] === "placeholder") {
+    if (!process.env[key]) {
       missing.push(key);
     }
   }
 
   if (missing.length > 0) {
-    throw new Error(
-      `Missing required environment variables: ${missing.join(", ")}. ` +
-        "Set them in .env.local or your deployment environment."
+    console.error(
+      `[Config] Missing required environment variables: ${missing.join(", ")}. ` +
+      "Set them in .env.local or your deployment environment."
     );
   }
+
+  for (const key of OPTIONAL_VARS) {
+    if (!process.env[key]) {
+      console.warn(`[Config] Optional env var ${key} is not set. Related features may be unavailable.`);
+    }
+  }
+
+  return { valid: missing.length === 0, missing };
 }
 
-// Run validation eagerly on module load in server environments
+// Run validation on module load
 if (typeof window === "undefined") {
-  try {
-    validateEnv();
-  } catch (e) {
-    console.error("[Config]", (e as Error).message);
-  }
+  validateEnv();
 }
 
 export const config = {

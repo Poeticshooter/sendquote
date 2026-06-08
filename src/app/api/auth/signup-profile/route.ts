@@ -4,20 +4,61 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, businessName, email } = await request.json();
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const admin = createAdminClient();
+
+    // Handle profile update - save business info from onboarding wizard
+    if (body.onboardingStep === "profile") {
+      const { error } = await admin
+        .from("profiles")
+        .update({
+          business_name: body.businessName || null,
+          phone: body.businessPhone || null,
+        })
+        .eq("user_id", user.id);
+      if (error) {
+        console.error("Profile update error:", error);
+        return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });
+      }
+      return NextResponse.json({ success: true });
+    }
+
+    // Handle profile update (e.g., onboarding completion)
+    if (body.onboarding_completed !== undefined) {
+      const updateData: Record<string, unknown> = {
+        onboarding_completed: body.onboarding_completed,
+      };
+      if (body.businessName) updateData.business_name = body.businessName;
+      if (body.businessPhone) updateData.phone = body.businessPhone;
+
+      const { error } = await admin
+        .from("profiles")
+        .update(updateData)
+        .eq("user_id", user.id);
+      if (error) {
+        console.error("Profile update error:", error);
+        return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });
+      }
+      return NextResponse.json({ success: true });
+    }
+
+    // Handle profile creation (requires userId + email)
+    const { userId, businessName, email } = body;
     if (!userId || !email) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // Verify the caller owns this userId
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user || user.id !== userId) {
+    if (user.id !== userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const admin = createAdminClient();
-    const { error } = await admin.from("profiles").insert({
+    const { error } = await admin.from("profiles").upsert({
       user_id: userId,
       business_name: businessName || null,
       plan: "starter",
@@ -25,7 +66,8 @@ export async function POST(request: NextRequest) {
       monthly_quote_count: 0,
       subscription_status: "inactive",
       quote_counter: 0,
-    });
+      onboarding_completed: false,
+    }, { onConflict: "user_id" });
 
     if (error) {
       console.error("Profile insert error:", error);

@@ -41,17 +41,19 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const [profile, setProfile] = useState<{ plan: string; used: number; limit: number } | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return;
+      if (cancelled || !user) return;
       supabase.from("profiles").select("plan, monthly_quote_count").eq("user_id", user.id).single()
         .then(({ data }) => {
-          if (!data) return;
+          if (cancelled || !data) return;
           const plan = data.plan || "starter";
           setShowAdmin(plan === "pro" || plan === "enterprise");
           const limit = plan === "starter" ? 50 : plan === "growth" ? 9999 : 99999;
           setProfile({ plan, used: data.monthly_quote_count || 0, limit });
         });
     });
+    return () => { cancelled = true; };
   }, [supabase]);
 
   const planLabel = profile?.plan === "starter" ? "Free" :

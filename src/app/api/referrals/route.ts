@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     const { data: existing } = await supabase
       .from("referrals").select("id").eq("referrer_id", user.id).eq("referred_email", email).maybeSingle();
 
-    if (existing) return success({ error: "Already referred this email" }, 409);
+    if (existing) return apiError("Already referred this email", 409);
 
     const { data: profile } = await supabase
       .from("profiles").select("business_name").eq("user_id", user.id).single();

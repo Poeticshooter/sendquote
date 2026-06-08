@@ -26,14 +26,14 @@ export async function GET(request: NextRequest) {
 
     const { data: quotes } = await query;
 
-    if (!quotes) return success({ totals: { all: 0 } });
+    if (!quotes) return success({ totals: { total: 0, accepted: 0, lost: 0, pending: 0 }, revenue: { total: 0, avgQuoteValue: 0 } });
 
     const total = quotes.length;
     const accepted = quotes.filter((q) => q.status === "accepted").length;
     const lost = quotes.filter((q) => q.status === "lost" || q.status === "expired").length;
     const pending = quotes.filter((q) => q.status === "sent" || q.status === "opened").length;
-    const totalRevenue = quotes.filter((q) => q.status === "accepted").reduce((s, q) => s + q.total, 0);
-    const avgQuoteValue = total > 0 ? quotes.reduce((s, q) => s + q.total, 0) / total : 0;
+    const totalRevenue = quotes.filter((q) => q.status === "accepted").reduce((s, q) => s + (Number(q.total) || 0), 0);
+    const avgQuoteValue = total > 0 ? quotes.reduce((s, q) => s + (Number(q.total) || 0), 0) / total : 0;
     const winRate = total > 0 ? Math.round((accepted / total) * 100) : 0;
 
     const last30Days = new Date();
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
     const monthlyRevenue: Record<string, number> = {};
     quotes.filter((q) => q.status === "accepted").forEach((q) => {
       const month = new Date(q.created_at).toLocaleString("default", { month: "short", year: "2-digit" });
-      monthlyRevenue[month] = (monthlyRevenue[month] || 0) + q.total;
+      monthlyRevenue[month] = (monthlyRevenue[month] || 0) + (Number(q.total) || 0);
     });
 
     return success({

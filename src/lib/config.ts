@@ -36,4 +36,14 @@ if (typeof window === "undefined") {
   }
 }
 
+export const config = {
+  turnstile: {
+    siteKey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
+    secretKey: process.env.TURNSTILE_SECRET_KEY,
+  },
+  formbricks: {
+    envId: process.env.NEXT_PUBLIC_FORMBRICKS_ENV_ID,
+  },
+};
+
 export { validateEnv };

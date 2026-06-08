@@ -19,5 +19,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/signup`, lastModified: now, changeFrequency: "yearly", priority: 0.5 },
   ];
 
-  return [...core];
+  const comparisons: MetadataRoute.Sitemap = [
+    { url: `${base}/comparisons`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${base}/comparisons/vs-pandadoc`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${base}/comparisons/vs-proposify`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${base}/comparisons/vs-qwilr`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${base}/comparisons/vs-better-proposals`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+  ];
+
+  return [...core, ...comparisons];
 }

@@ -1,0 +1,24 @@
+{
+  "uptime_robot": {
+    "monitors": [
+      {
+        "url": "https://sendquote.in",
+        "friendly_name": "SendQuote Homepage",
+        "type": "HTTP",
+        "interval": 5
+      },
+      {
+        "url": "https://sendquote.in/api/health",
+        "friendly_name": "SendQuote API Health",
+        "type": "HTTP",
+        "interval": 5
+      }
+    ],
+    "alert_contacts": ["Set EMAIL_ALERT in UptimeRobot dashboard"]
+  },
+  "better_stack": {
+    "log_sources": ["Vercel"],
+    "uptime_urls": ["https://sendquote.in"],
+    "status_page": "Recommended: Create free status page at betterstack.com"
+  }
+}

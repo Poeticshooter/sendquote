@@ -1,4 +1,7 @@
-const GROQ_BASE = "https://api.groq.com/openai/v1/chat/completions";
+import { initProviders, generateWithFallback } from "./providers";
+import { getCachedResponse, setCachedResponse } from "./cache";
+
+const aiProviders = initProviders();
 
 export interface GeneratedLineItem {
   description: string;
@@ -103,10 +106,7 @@ function generateItems(description: string, industry: string): GeneratedLineItem
 }
 
 export async function generateQuoteAI(description: string): Promise<GeneratedQuote> {
-  const apiKey = process.env.GROQ_API_KEY;
-  const useAI = apiKey && apiKey !== "placeholder";
-
-  if (!useAI) {
+  if (aiProviders.length === 0) {
     const industry = detectIndustry(description);
     const items = generateItems(description, industry);
     const template = industryTemplates[industry];
@@ -120,8 +120,9 @@ export async function generateQuoteAI(description: string): Promise<GeneratedQuo
     };
   }
 
-  try {
-    const prompt = `You are an expert sales engineer. Generate a professional quote from this description:
+  const systemPrompt = "You are an expert sales engineer. Generate a professional quote.";
+
+  const prompt = `Generate a professional quote from this description:
 
 "${description}"
 
@@ -143,26 +144,32 @@ Guidelines:
 - Include a "recommended" flag (boolean) on one item to suggest best value
 - If team/enterprise scale is implied, suggest a package discount`;
 
-    const res = await fetch(GROQ_BASE, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.2,
-        max_tokens: 1000,
-      }),
-    });
+  try {
+    // Check cache first
+    const cached = await getCachedResponse(prompt, systemPrompt);
+    if (cached) {
+      const jsonMatch = cached.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return {
+          items: parsed.items || [],
+          notes: parsed.notes || "",
+          terms: parsed.terms || "",
+          subtotal: (parsed.items || []).reduce((s: number, i: any) => s + i.quantity * i.rate, 0),
+        };
+      }
+    }
 
-    const data = await res.json();
-    const text = data.choices?.[0]?.message?.content || "";
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    
+    // Try AI providers with fallback chain
+    const { content, provider } = await generateWithFallback(prompt, systemPrompt, aiProviders);
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
+
+      // Cache the successful response (fire-and-forget)
+      setCachedResponse(prompt, systemPrompt, content, provider).catch(() => {});
+
       return {
         items: parsed.items || [],
         notes: parsed.notes || "",

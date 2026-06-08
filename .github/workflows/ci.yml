@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
@@ -7,131 +7,22 @@ on:
     branches: [main]
 
 env:
-  VERCEL_ORG_ID: team_pXf9V2FflcWfr8HsrfMSPVs9
-  VERCEL_PROJECT_ID: prj_JIplHKXAUoBFRoahjxzYULdNkMBH
+  NODE_VERSION: "22"
 
 jobs:
-  test:
+  quality:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
       - uses: pnpm/action-setup@v4
         with:
-          version: 10
-      
+          version: latest
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'pnpm'
-      
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+      - run: pnpm install
       - run: pnpm lint
-      
-      - name: Run unit tests
-        run: pnpm vitest run --reporter=verbose
-        env:
-          NODE_OPTIONS: "--max-old-space-size=1024"
-      
-      - name: Build
-        run: pnpm build
-        env:
-          NODE_OPTIONS: "--max-old-space-size=2048"
-          NEXT_PUBLIC_SUPABASE_URL: "https://test.supabase.co"
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: "test-key"
-          NEXT_PUBLIC_SENTRY_DSN: ""
-          NEXT_PUBLIC_RAZORPAY_KEY_ID: "test"
-          NEXT_PUBLIC_APP_URL: "https://sendquote.in"
-          NEXT_PUBLIC_POSTHOG_KEY: ""
-          SENTRY_AUTH_TOKEN: ""
-          SENTRY_ORG: "sendquote"
-          SENTRY_PROJECT: "sendquote"
-          SENTRY_DISABLED: "1"
-
-  deploy:
-    if: github.ref == 'refs/heads/main'
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-      
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-      
-      - run: pnpm install --frozen-lockfile
-      
-      - name: Install Vercel CLI
-        run: pnpm add -g vercel
-      
-      - name: Deploy to Vercel
-        run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --scope zenith-reachers-group
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      
-      - name: Post-Deployment Smoke Tests
-        run: |
-          echo "Waiting for deployment to propagate..."
-          sleep 10
-          
-          # Test critical public pages
-          PAGES="/ /pricing /features /faq /docs /changelog /contact /login /signup"
-          FAILED=0
-          
-          for page in $PAGES; do
-            URL="https://sendquote.in$page"
-            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$URL")
-            if [ "$HTTP_CODE" = "200" ]; then
-              echo "✅ $URL -> $HTTP_CODE"
-            else
-              echo "❌ $URL -> $HTTP_CODE"
-              FAILED=$((FAILED+1))
-            fi
-          done
-          
-          # Test health endpoint
-          HEALTH=$(curl -s --max-time 10 "https://sendquote.in/api/health")
-          if echo "$HEALTH" | grep -q '"status":"ok"'; then
-            echo "✅ /api/health -> OK"
-          else
-            echo "❌ /api/health -> FAILED"
-            FAILED=$((FAILED+1))
-          fi
-          
-          # Test llms.txt
-          LLMS=$(curl -s --max-time 10 "https://sendquote.in/llms.txt" | head -1)
-          if echo "$LLMS" | grep -q "SendQuote"; then
-            echo "✅ /llms.txt -> OK"
-          else
-            echo "❌ /llms.txt -> FAILED"
-            FAILED=$((FAILED+1))
-          fi
-          
-          if [ $FAILED -gt 0 ]; then
-            echo "❌ $FAILED smoke tests failed!"
-            exit 1
-          else
-            echo "✅ All smoke tests passed!"
-          fi
-
-  notify:
-    if: always()
-    needs: [test, deploy]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check deployment status
-        run: |
-          if [ "${{ needs.deploy.result }}" = "success" ]; then
-            echo "✅ Deployment successful: https://sendquote.in"
-          elif [ "${{ needs.deploy.result }}" = "skipped" ]; then
-            echo "ℹ️ Deployment skipped (not main branch)"
-          else
-            echo "❌ Deployment failed"
-            exit 1
-          fi
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build

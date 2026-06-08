@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { Turnstile } from "@/components/ui/turnstile";
 
 async function createProfile(userId: string, businessName: string, email: string) {
   const res = await fetch("/api/auth/signup-profile", {
@@ -30,11 +31,28 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [businessName, setBusinessName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
   const supabase = createClient();
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+
+    // Verify Turnstile token
+    if (turnstileToken) {
+      const verifyRes = await fetch("/api/auth/verify-turnstile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: turnstileToken }),
+      });
+      const verifyData = await verifyRes.json();
+      if (!verifyData.success) {
+        toast.error("Security check failed. Please try again.");
+        setLoading(false);
+        return;
+      }
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -101,6 +119,7 @@ export default function SignupPage() {
               <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="bg-white/5 border-white/10 text-white placeholder:text-white/30" placeholder="••••••••" />
               <p className="text-xs text-white/30">At least 6 characters</p>
             </div>
+            <Turnstile onVerify={setTurnstileToken} />
             <Button type="submit" className="w-full bg-[#00D4AA] text-black hover:bg-[#00D4AA]/90 font-semibold" disabled={loading}>
               {loading ? (
                 <>

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ApprovalRulesSettings } from "@/components/settings/approval-rules";
@@ -16,6 +17,7 @@ import { SSOSettings } from "@/components/settings/sso-settings";
 import { BillingSettings } from "@/components/settings/billing-settings";
 import { TeamSettings } from "@/components/settings/team-settings";
 import { FollowupSettings } from "@/components/settings/followup-settings";
+import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -25,6 +27,8 @@ export default function SettingsPage() {
   const [businessName, setBusinessName] = useState("");
   const [phone, setPhone] = useState("");
   const [gst, setGst] = useState("");
+  const [gstValid, setGstValid] = useState<boolean | null>(null);
+  const [gstChecking, setGstChecking] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -40,6 +44,20 @@ export default function SettingsPage() {
       });
     });
   }, [router, supabase]);
+
+  useEffect(() => {
+    if (!gst || gst.length < 15) { setGstValid(null); return; }
+    const timer = setTimeout(async () => {
+      setGstChecking(true);
+      try {
+        const res = await fetch(`/api/gst/validate?gst=${encodeURIComponent(gst)}`);
+        const data = await res.json();
+        setGstValid(data.valid === true);
+      } catch { setGstValid(null); }
+      setGstChecking(false);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [gst]);
 
   async function saveProfile() {
     if (!profile) return;
@@ -90,7 +108,16 @@ export default function SettingsPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="gst">GST Number</Label>
-                  <Input id="gst" value={gst} onChange={(e) => setGst(e.target.value)} />
+                  <div className="relative">
+                    <Input id="gst" value={gst} onChange={(e) => setGst(e.target.value.toUpperCase())} placeholder="22AAAAA0000A1Z5" />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      {gstChecking ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /> :
+                       gstValid === true ? <CheckCircle className="h-4 w-4 text-[#00D4AA]" /> :
+                       gstValid === false ? <XCircle className="h-4 w-4 text-red-400" /> : null}
+                    </div>
+                  </div>
+                  {gst && gstValid === true && <p className="text-xs text-[#00D4AA]">Valid GST format ✓</p>}
+                  {gstValid === false && <p className="text-xs text-red-400">Invalid GST number format</p>}
                 </div>
               </div>
               <Button onClick={saveProfile}>Save Changes</Button>

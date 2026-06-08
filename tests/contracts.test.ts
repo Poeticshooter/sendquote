@@ -47,8 +47,8 @@ describe("generateContractHtml", () => {
     }));
     expect(html).toContain("Custom Item");
     expect(html).toContain("2");
-    expect(html).toContain("$1000.00");
-    expect(html).toContain("$2000.00");
+    expect(html).toContain("₹1,000");
+    expect(html).toContain("₹2,000");
   });
 
   it("escapes HTML in client name (XSS prevention)", () => {

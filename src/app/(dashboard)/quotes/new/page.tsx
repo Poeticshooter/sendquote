@@ -42,6 +42,9 @@ export default function NewQuotePage() {
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [clientCity, setClientCity] = useState("");
+  const [clientState, setClientState] = useState("");
+  const [pincodeChecking, setPincodeChecking] = useState(false);
 
   function handleTemplateSelect(template: Template) {
     setItems(template.suggested_items.map(item => ({
@@ -243,6 +246,36 @@ export default function NewQuotePage() {
               <div className="space-y-2">
                 <Label htmlFor="clientPhone">Phone</Label>
                 <Input id="clientPhone" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} placeholder="+91 98765 43210" />
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="pincode">Pincode</Label>
+                <Input id="pincode" placeholder="110001" maxLength={6}
+                  onBlur={async (e) => {
+                    const pin = e.target.value.trim();
+                    if (pin.length !== 6) return;
+                    setPincodeChecking(true);
+                    try {
+                      const res = await fetch(`/api/pincode/lookup?pincode=${pin}`);
+                      const data = await res.json();
+                      if (data?.success && data?.data?.length) {
+                        const first = data.data[0];
+                        setClientCity(first.district);
+                        setClientState(first.state);
+                      }
+                    } catch {}
+                    setPincodeChecking(false);
+                  }}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="clientCity">City</Label>
+                <Input id="clientCity" value={clientCity} onChange={(e) => setClientCity(e.target.value)} placeholder="Mumbai" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="clientState">State</Label>
+                <Input id="clientState" value={clientState} onChange={(e) => setClientState(e.target.value)} placeholder="Maharashtra" />
               </div>
             </div>
           </CardContent>

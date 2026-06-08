@@ -75,8 +75,8 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
       >
         <div className="flex h-16 items-center justify-between border-b px-4">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <img src="/logo-icon.svg" alt="SendQuote" className="h-8 w-8" />
-            <span className="text-lg font-bold">SendQuote</span>
+            <img src="/logo-icon.svg" alt="SendQuote" className="h-10 w-10" />
+            <span className="text-xl font-bold">SendQuote</span>
           </Link>
           <button
             onClick={onToggle}

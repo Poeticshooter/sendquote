@@ -1,29 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
   <defs>
-    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#00D4AA"/>
-      <stop offset="50%" stop-color="#06D6A0"/>
+      <stop offset="60%" stop-color="#06D6A0"/>
       <stop offset="100%" stop-color="#7C3AED"/>
     </linearGradient>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0D0D0D"/>
-      <stop offset="100%" stop-color="#1A1A1A"/>
-    </linearGradient>
-    <filter id="glow">
-      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#00D4AA" flood-opacity="0.3"/>
-    </filter>
   </defs>
-  <rect width="96" height="96" rx="20" fill="url(#bgGrad)" stroke="url(#brandGrad)" stroke-width="2"/>
-  <!-- Document body -->
-  <rect x="26" y="22" width="44" height="52" rx="6" fill="white" opacity="0.08"/>
-  <rect x="26" y="22" width="44" height="52" rx="6" fill="url(#brandGrad)" opacity="0.15"/>
-  <!-- Document lines -->
-  <rect x="34" y="36" width="28" height="3" rx="1.5" fill="#00D4AA" opacity="0.6"/>
-  <rect x="34" y="44" width="28" height="3" rx="1.5" fill="#00D4AA" opacity="0.4"/>
-  <rect x="34" y="52" width="20" height="3" rx="1.5" fill="#00D4AA" opacity="0.3"/>
-  <!-- Send arrow -->
-  <path d="M62 40 L72 48 L62 56" stroke="url(#brandGrad)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <path d="M72 48 L40 48" stroke="url(#brandGrad)" stroke-width="4" stroke-linecap="round" fill="none"/>
-  <!-- Checkmark on document -->
-  <path d="M38 44 L42 48 L50 38" stroke="#00D4AA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#glow)"/>
+  <rect width="96" height="96" rx="20" fill="#0D0D0D" stroke="url(#g)" stroke-width="2.5"/>
+  <rect x="22" y="18" width="52" height="60" rx="8" fill="white" opacity="0.06"/>
+  <rect x="22" y="18" width="52" height="60" rx="8" fill="url(#g)" opacity="0.12"/>
+  <rect x="30" y="34" width="36" height="4" rx="2" fill="#00D4AA" opacity="0.7"/>
+  <rect x="30" y="44" width="36" height="4" rx="2" fill="#00D4AA" opacity="0.45"/>
+  <rect x="30" y="54" width="24" height="4" rx="2" fill="#00D4AA" opacity="0.25"/>
+  <path d="M64 36 L78 48 L64 60" stroke="url(#g)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M78 48 L34 48" stroke="url(#g)" stroke-width="5" stroke-linecap="round" fill="none"/>
+  <path d="M36 44 L42 50 L52 38" stroke="#00D4AA" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 </svg>

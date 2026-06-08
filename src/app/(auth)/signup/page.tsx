@@ -79,8 +79,8 @@ export default function SignupPage() {
       <Card className="w-full max-w-sm bg-[#141414] border-white/[0.06] text-white">
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto flex items-center justify-center gap-2 mb-4">
-            <img src="/logo-icon.svg" alt="SendQuote" className="h-9 w-9" />
-            <span className="text-xl font-bold text-white">SendQuote</span>
+            <img src="/logo-icon.svg" alt="SendQuote" className="h-11 w-11" />
+            <span className="text-2xl font-bold text-white">SendQuote</span>
           </Link>
           <CardTitle className="text-2xl text-white">Create your account</CardTitle>
           <CardDescription className="text-white/40">Start free, no credit card required</CardDescription>

@@ -4,7 +4,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function POST(request: NextRequest) {
   try {
-  try {
     const authHeader = request.headers.get("authorization") || "";
     const expectedToken = process.env.N8N_WEBHOOK_SECRET;
 
@@ -14,8 +13,7 @@ export async function POST(request: NextRequest) {
     }
 
     const expected = `Bearer ${expectedToken}`;
-    if (authHeader.length !== expected.length ||
-        !timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected))) {
+    if (authHeader.length !== expected.length || !timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected))) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -30,18 +28,10 @@ export async function POST(request: NextRequest) {
 
     let quote;
     if (quote_id) {
-      const { data } = await supabase
-        .from("quotes")
-        .select("*, profiles(business_name, phone)")
-        .eq("id", quote_id)
-        .single();
+      const { data } = await supabase.from("quotes").select("*, profiles(business_name, phone)").eq("id", quote_id).single();
       quote = data;
     } else if (quote_token) {
-      const { data } = await supabase
-        .from("quotes")
-        .select("*, profiles(business_name, phone)")
-        .eq("public_token", quote_token)
-        .single();
+      const { data } = await supabase.from("quotes").select("*, profiles(business_name, phone)").eq("public_token", quote_token).single();
       quote = data;
     }
 
@@ -51,36 +41,23 @@ export async function POST(request: NextRequest) {
 
     switch (event) {
       case "follow_up": {
-        const { data: reminders } = await supabase
-          .from("cron_reminders")
-          .insert({ quote_id: quote.id, reminder_type: "follow_up", sent_at: new Date().toISOString() })
-          .select();
+        const { data: reminders } = await supabase.from("cron_reminders").insert({ quote_id: quote.id, reminder_type: "follow_up", sent_at: new Date().toISOString() }).select();
         return NextResponse.json({ success: true, action: "follow_up_created", reminder: reminders?.[0] });
       }
-
       case "expiry_warning": {
-        const { data: reminders } = await supabase
-          .from("cron_reminders")
-          .insert({ quote_id: quote.id, reminder_type: "expiry_warning", sent_at: new Date().toISOString() })
-          .select();
+        const { data: reminders } = await supabase.from("cron_reminders").insert({ quote_id: quote.id, reminder_type: "expiry_warning", sent_at: new Date().toISOString() }).select();
         return NextResponse.json({ success: true, action: "expiry_warning_created", reminder: reminders?.[0] });
       }
-
       case "crm_sync": {
         const { syncQuoteToCrm } = await import("@/lib/crm/sync");
         const result = await syncQuoteToCrm({
-          id: quote.id,
-          quote_number: quote.quote_number,
-          client_name: quote.client_name,
-          client_email: quote.client_email,
-          total: quote.total,
-          status: quote.status,
+          id: quote.id, quote_number: quote.quote_number, client_name: quote.client_name,
+          client_email: quote.client_email, total: quote.total, status: quote.status,
           public_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://sendquote.in"}/q/${quote.public_token}`,
           created_at: quote.created_at,
         });
         return NextResponse.json({ success: true, action: "crm_synced", result });
       }
-
       default:
         return NextResponse.json({ error: `Unknown event: ${event}` }, { status: 400 });
     }

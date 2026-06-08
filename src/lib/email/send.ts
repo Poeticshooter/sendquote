@@ -23,7 +23,7 @@ export async function sendEmail({ to, subject, html, from, replyTo }: SendEmailP
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: from || "SendQuote <quotes@sendquote.in>",
+        from: from || process.env.RESEND_FROM || "SendQuote <quotes@sendquote.in>",
         to,
         subject,
         html,

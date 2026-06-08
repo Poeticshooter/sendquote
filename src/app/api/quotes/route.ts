@@ -1,13 +1,16 @@
 import { NextRequest } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { getQuotes, createQuote, generateQuoteNumber } from "@/lib/supabase/queries";
 import { CreateQuoteSchema } from "@/lib/api-validation";
-import { success, parseError, requireAuth } from "@/lib/api-helper";
+import { success, parseError, requireAuth, apiError } from "@/lib/api-helper";
+import { checkQuoteLimit } from "@/lib/plan-gates";
 
 export async function GET() {
   try {
     const quotes = await getQuotes();
     return success(quotes);
   } catch (e) {
+    Sentry.captureException(e);
     return parseError(e);
   }
 }
@@ -15,6 +18,13 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
+
+    // Enforce plan quote limit
+    const { allowed, used, limit } = await checkQuoteLimit();
+    if (!allowed) {
+      return apiError(`Quote limit reached (${used}/${limit})`, 403);
+    }
+
     const body = await request.json();
     const data = CreateQuoteSchema.parse(body);
     const quoteNumber = await generateQuoteNumber(user.id);
@@ -36,6 +46,7 @@ export async function POST(request: NextRequest) {
 
     return success(quote, 201);
   } catch (e) {
+    Sentry.captureException(e);
     return parseError(e);
   }
 }

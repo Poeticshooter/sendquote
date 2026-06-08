@@ -1,6 +1,6 @@
 # SendQuote Founder's Reference
 
-**Last updated:** 2026-06-08
+**Last updated:** 2026-06-08 (evening — comprehensive UI/UX audit, code quality fixes, plan gates wired, Sentry added to all API routes)
 
 Not a prompt. Not an AI spec. A living reference of what matters, what doesn't, and what to do when. Read it before deploying. Update it when you learn something.
 
@@ -22,10 +22,8 @@ These are the lines you do not cross. Every deploy must pass every check.
 
 **Fix:** Change to `enable_confirmations = true, enable_autoconfirm = false`. Then handle the unconfirmed state in your login flow (show a "check your email" screen, not a raw error).
 
-### Cron Endpoints
-`/api/expiry/check` and `/api/followup/process` are public GET endpoints. Vercel Cron calls them, but anyone who discovers the URL can also call them.
-
-**Fix:** Add a `CRON_SECRET` env var. Check `Authorization: Bearer <secret>` using `timingSafeEqual` at the top of each handler. Set the secret in Vercel project settings. Vercel Cron passes it automatically.
+### Cron Endpoints ✅ FIXED
+`/api/expiry/check` and `/api/followup/process` are now protected with `verifyCronSecret()` from `src/lib/security/cron.ts`. Fixed — both routes verify `Authorization: Bearer <secret>` using `timingSafeEqual`.
 
 ### OAuth State Parameter
 `src/app/auth/callback/route.ts` exchanges the OAuth code for a session without checking the `state` parameter. This means an attacker can craft a login link, intercept the callback, and bind your session to their account.
@@ -87,16 +85,14 @@ if (error) return <ErrorState message={error.message} onRetry={mutate} />;
 
 You're on a 4GB MacBook Air 2015 with free-tier services. Every recommendation below is chosen to fit.
 
-### Rate Limiting
-The prompt suggests Upstash Redis (costs money). You already have Supabase. The in-memory fallback in `src/lib/security.ts` resets on every serverless cold start, which limits effectiveness.
-
-**Pragmatic approach:** Keep the DB-backed rate limit for sensitive endpoints (login, portal, events). Accept that the in-memory cache is imperfect. When you have paying customers, add Upstash Redis ($0.50/mo on free tier with 10k requests/day). Not before.
+### Rate Limiting ✅ REFACTORED
+The in-memory fallback is now consolidated into a shared `src/lib/rate-limit.ts` with `checkMemoryRateLimit()`. The `setInterval` cleanup was removed (doesn't work in serverless). Three private Map implementations merged into one.
 
 ### Analytics
 You have Vercel Analytics (free) + PostHog (free tier, generous) + possibly GA4. Three providers is bloat. Pick one for product decisions (PostHog) and one for performance (Vercel Analytics is already zero-effort). Remove the third.
 
-### Monitoring
-Sentry is on the free tier (5k events/month). That's fine until you hit scale. Every API route should call `Sentry.captureException` on caught errors with enough context to debug (user ID, input, state).
+### Monitoring ✅ DONE
+Sentry is on the free tier (5k events/month). `Sentry.captureException` is now called across ALL API route catch blocks — quotes, analytics, events, followup, expiry, portal, webhooks, and more.
 
 ### Infrastructure
 - No Docker in production. Vercel handles it.
@@ -208,17 +204,23 @@ This document exists to prevent you from making the same mistake twice. Not to s
 
 ## Quick Reference: Fix Priorities
 
-| What | Why | Time | Actual Cost |
-|------|-----|------|-------------|
+| What | Why | Time | Status |
+|------|-----|------|--------|
+| Add CRON_SECRET check | Anyone can trigger expiry/followup | 15 min | ✅ Done |
+| Add Sentry to all API routes | Silent errors in production | 30 min | ✅ Done |
+| Wire plan gates to quote creation | Free users bypass limits | 10 min | ✅ Done |
+| Fix Razorpay balance_due | Overcharging partial payments | 15 min | ✅ Done |
+| Atomic quote number generation | Duplicate quote numbers | 30 min | ✅ Done |
+| UI/UX contrast audit | Illegible text (1.47:1) | 2 hr | ✅ Done |
+| prefers-reduced-motion | WCAG violation | 15 min | ✅ Done |
+| z-index scale | Stacking context chaos | 10 min | ✅ Done |
 | Rotate API keys | 12 prod keys on disk, breach risk | 15 min | Free |
 | Enable email confirmation | Spam signups, useless metrics | 5 min | Free |
-| Add CRON_SECRET check | Anyone can trigger expiry/followup | 15 min | Free |
 | Fix auth callback state | OAuth CSRF vulnerability | 10 min | Free |
-| Commit DB schema | Only living backup is prod DB | 2 hr | Free |
+| Commit full DB schema | Only living backup is prod DB | 2 hr | Free |
 | Remove hardcoded Jarvis secrets | Secrets in source code | 15 min | Free |
 | Add Jarvis chat_id check | Anyone can talk to your bot | 5 min | Free |
-| Fix $/₹ | Indian users see wrong currency | 5 min | Free |
-| Fix dashboard blank error | Network failure = white page | 10 min | Free |
+| Fix $/₹ portal | Indian users see wrong currency | 5 min | Free |
 | Build onboarding | Users bounce without guidance | 4 hr | Free |
 
 Everything is free. The only cost is time. Prioritize in this order.

@@ -92,7 +92,7 @@ export function wrapEmail(content: string) {
 </html>`;
 }
 
-export function quoteReceivedEmail(quoteNumber: string, businessName: string, total: string, _currency: string, quoteUrl: string) {
+export function quoteReceivedEmail(quoteNumber: string, businessName: string, total: string, quoteUrl: string) {
   return `
     <h1 style="${S.h1}">You have a new quote</h1>
     <p style="${S.h2}">from ${businessName}</p>
@@ -115,7 +115,7 @@ export function quoteReceivedEmail(quoteNumber: string, businessName: string, to
   `;
 }
 
-export function quoteAcceptedEmail(quoteNumber: string, clientName: string, total: string, _currency: string, dashboardUrl: string) {
+export function quoteAcceptedEmail(quoteNumber: string, clientName: string, total: string, dashboardUrl: string) {
   return `
     <h1 style="${S.h1}">Deal closed 🎉</h1>
     <p style="${S.h2}">${clientName} accepted ${quoteNumber}</p>

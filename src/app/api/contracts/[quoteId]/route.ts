@@ -44,7 +44,7 @@ export async function GET(
       quoteNumber: q.quote_number,
       clientName: q.client_name,
       clientEmail: q.client_email,
-      businessName: q.profiles?.business_name || "Provider",
+      businessName: q.profiles?.business_name || "Your Business",
       items: (q.quote_items || []).map((i: { description: string; quantity: number; rate: number; amount: number }) => ({
         description: i.description,
         quantity: i.quantity,

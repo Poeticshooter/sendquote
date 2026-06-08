@@ -47,8 +47,8 @@ export function ExpiryCountdown({ validUntil }: ExpiryCountdownProps) {
   if (!validUntil) return null;
 
   return (
-    <div className={`flex items-center gap-2 text-sm rounded-lg px-3 py-2 ${
-      expired ? "bg-red-50 text-red-600 border border-red-200" : "bg-amber-50 text-amber-700 border border-amber-200"
+    <div className={`flex items-center gap-2 text-sm rounded-lg px-3 py-2 border ${
+      expired ? "bg-destructive/10 text-destructive border-destructive/20" : "bg-warning/10 text-warning border-warning/20"
     }`}>
       {expired ? <AlertTriangle className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
       <span>{expired ? "This quote has expired" : timeLeft}</span>

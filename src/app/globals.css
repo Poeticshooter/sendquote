@@ -56,7 +56,7 @@
   --secondary: #1E1E1E;
   --secondary-foreground: #F5F5F5;
   --muted: #1A1A1A;
-  --muted-foreground: #808080;
+  --muted-foreground: #999999;
   --accent: #1E1E1E;
   --accent-foreground: #F5F5F5;
   --destructive: #EF4444;
@@ -77,17 +77,33 @@
   --sidebar-accent-foreground: #F5F5F5;
   --sidebar-border: #222222;
   --sidebar-ring: #00D4AA;
+  --z-dropdown: 50;
+  --z-sticky: 100;
+  --z-fixed: 200;
+  --z-modal-backdrop: 250;
+  --z-modal: 300;
+  --z-popover: 400;
+  --z-toast: 500;
+  --z-tooltip: 600;
 }
 
-.dark {
-  --background: #0A0A0A;
-  --foreground: #F5F5F5;
-  --card: #141414;
-  --card-foreground: #F5F5F5;
+html {
+  scroll-behavior: smooth;
 }
 
-@layer base {
-  * { @apply border-border outline-ring/50; }
-  body { @apply bg-background text-foreground; }
-  html { @apply font-sans scroll-smooth; }
+@utility motion-safe {
+  @media (prefers-reduced-motion: no-preference) {
+    & {
+      @content;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

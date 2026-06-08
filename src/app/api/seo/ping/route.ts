@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
-import { SeoPingSchema } from "@/lib/api-validation";
+import { z } from "zod";
 import { parseError } from "@/lib/api-helper";
+
+const SeoPingSchema = z.object({
+  url: z.string().min(1, "URL is required"),
+});
 
 export async function POST(request: Request) {
   try {

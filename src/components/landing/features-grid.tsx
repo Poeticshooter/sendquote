@@ -20,7 +20,7 @@ export function FeaturesGrid() {
       <div className="mx-auto max-w-7xl">
         <m.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-white">Everything You Need to Close Deals</h2>
-          <p className="mt-4 text-lg text-white/40">Not just a quote builder — a complete deal-closing workflow for Indian businesses.</p>
+          <p className="mt-4 text-lg text-gray-400">Not just a quote builder — a complete deal-closing workflow for Indian businesses.</p>
         </m.div>
 
         <div className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -31,13 +31,13 @@ export function FeaturesGrid() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
-              className="group rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 hover:bg-white/[0.04] hover:border-[#00D4AA]/20 transition-all duration-500"
+              className="group rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 hover:bg-white/[0.04] hover:border-[#00D4AA]/20 transition-colors duration-300"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/5 text-[#00D4AA] group-hover:bg-[#00D4AA] group-hover:text-black transition-all duration-500">
                 <feature.icon className="h-5 w-5" />
               </div>
               <h3 className="mt-4 font-semibold text-white">{feature.title}</h3>
-              <p className="mt-2 text-sm text-white/40">{feature.description}</p>
+              <p className="mt-2 text-sm text-gray-400">{feature.description}</p>
             </m.div>
           ))}
         </div>

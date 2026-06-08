@@ -29,6 +29,7 @@ export default function SettingsPage() {
   const [gst, setGst] = useState("");
   const [gstValid, setGstValid] = useState<boolean | null>(null);
   const [gstChecking, setGstChecking] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -61,6 +62,7 @@ export default function SettingsPage() {
 
   async function saveProfile() {
     if (!profile) return;
+    setSaving(true);
     const { error } = await supabase
       .from("profiles")
       .update({ business_name: businessName, phone, gst_number: gst, updated_at: new Date().toISOString() })
@@ -68,6 +70,7 @@ export default function SettingsPage() {
 
     if (error) toast.error(error.message);
     else toast.success("Settings saved!");
+    setSaving(false);
   }
 
   if (loading) return <div className="space-y-4"><Skeleton className="h-8 w-48" /><Skeleton className="h-64 rounded-xl" /></div>;
@@ -112,15 +115,15 @@ export default function SettingsPage() {
                     <Input id="gst" value={gst} onChange={(e) => setGst(e.target.value.toUpperCase())} placeholder="22AAAAA0000A1Z5" />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
                       {gstChecking ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /> :
-                       gstValid === true ? <CheckCircle className="h-4 w-4 text-[#00D4AA]" /> :
-                       gstValid === false ? <XCircle className="h-4 w-4 text-red-400" /> : null}
+                       gstValid === true ? <><CheckCircle className="h-4 w-4 text-[#00D4AA]" /><span className="text-xs text-[#00D4AA] ml-1">GST Valid</span></> :
+                       gstValid === false ? <><XCircle className="h-4 w-4 text-red-400" /><span className="text-xs text-red-400 ml-1">GST Invalid</span></> : null}
                     </div>
                   </div>
                   {gst && gstValid === true && <p className="text-xs text-[#00D4AA]">Valid GST format ✓</p>}
                   {gstValid === false && <p className="text-xs text-red-400">Invalid GST number format</p>}
                 </div>
               </div>
-              <Button onClick={saveProfile}>Save Changes</Button>
+              <Button onClick={saveProfile} disabled={saving}>{saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Save Changes</Button>
             </CardContent>
           </Card>
         </TabsContent>

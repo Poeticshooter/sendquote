@@ -59,7 +59,7 @@ export async function middleware(request: NextRequest) {
 
   if (isPublic) {
     const publicResponse = NextResponse.next();
-    if (!pathname.startsWith("/api/") && !pathname.startsWith("/_next/")) {
+    if (!pathname.startsWith("/_next/")) {
       const existingToken = request.cookies.get("__csrf")?.value;
       const csrfToken = existingToken || crypto.randomUUID();
       publicResponse.cookies.set("__csrf", csrfToken, {

@@ -24,14 +24,14 @@ export default function DocsPage() {
       <main className="px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Documentation</h1>
-          <p className="mt-3 text-muted-foreground">Everything you need to get started with SendQuote.</p>
+          <p className="mt-3 text-gray-400">Everything you need to get started with SendQuote.</p>
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {sections.map((section) => (
               <div key={section.title} className="rounded-xl border bg-card p-6">
                 <h2 className="font-semibold">{section.title}</h2>
                 <ul className="mt-3 space-y-2">
                   {section.items.map((item) => (
-                    <li key={item} className="text-sm text-muted-foreground hover:text-foreground cursor-default transition-colors">{item}</li>
+                    <li key={item} className="text-sm text-gray-400 hover:text-foreground cursor-default transition-colors">{item}</li>
                   ))}
                 </ul>
               </div>

@@ -21,8 +21,9 @@ export function Accordion({ items }: AccordionProps) {
       {items.map((item, i) => (
         <div key={i} className="rounded-xl border bg-card">
           <button
-            className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium"
+            className="flex w-full cursor-pointer items-center justify-between px-4 py-3 text-sm font-medium focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             onClick={() => setOpenIndex(openIndex === i ? null : i)}
+            aria-expanded={openIndex === i}
           >
             {item.title}
             <ChevronDown className={cn("h-4 w-4 transition-transform", openIndex === i && "rotate-180")} />

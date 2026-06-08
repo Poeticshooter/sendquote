@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -54,21 +55,22 @@ export function FollowUpPanel({ quoteId }: FollowUpPanelProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <input
-          className="w-full rounded-md border bg-transparent px-3 py-2 text-sm outline-none focus:border-primary"
+        <Input
           placeholder="Subject"
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
+          disabled={loading}
         />
         <Textarea
           placeholder="Write your follow-up message or generate one with AI..."
           value={body}
           onChange={(e) => setBody(e.target.value)}
           rows={6}
+          disabled={loading}
         />
         <Button className="w-full" onClick={sendEmail} disabled={!subject || !body}>
           <Send className="mr-2 h-4 w-4" />
-          Send Follow-Up
+          Send Follow-Up <span className="ml-1.5 text-[10px] opacity-60">(Coming Soon)</span>
         </Button>
       </CardContent>
     </Card>

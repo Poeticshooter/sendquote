@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { ApprovalRuleSchema } from "@/lib/api-validation";
 import { success, parseError, requireAuth } from "@/lib/api-helper";
+
+const ApprovalRuleSchema = z.object({
+  name: z.string().min(1, "Name is required").max(200),
+  trigger_type: z.string().min(1).max(100),
+  trigger_value: z.number().min(0),
+  approver_role: z.string().max(100),
+  action: z.string().max(100),
+});
 
 export async function GET() {
   try {

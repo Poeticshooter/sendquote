@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
       await sendEmail({
         to: [recipient_email || quote.client_email].filter(Boolean),
         subject: `Quote ${quote.quote_number} from ${profile?.business_name || "SendQuote"}`,
-        html: quoteReceivedEmail(quote.quote_number, profile?.business_name || "SendQuote", total, "INR", quoteUrl),
+        html: quoteReceivedEmail(quote.quote_number, profile?.business_name || "SendQuote", total, quoteUrl),
         replyTo: user.email,
       });
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,25 +15,26 @@ export function CrmSettings() {
   const [pipedriveKey, setPipedriveKey] = useState("");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("sendquote_crm_keys");
-    if (stored) {
-      try {
-        const keys = JSON.parse(stored);
-        queueMicrotask(() => {
-          setHubspotKey(keys.hubspot || "");
-          setPipedriveKey(keys.pipedrive || "");
-        });
-      } catch {}
+  async function saveKeys() {
+    setSaving(true);
+    try {
+      // In production, API keys are stored server-side
+      const res = await fetch("/api/settings/crm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hubspot: hubspotKey, pipedrive: pipedriveKey }),
+      });
+      if (res.ok) {
+        toast.success("CRM settings saved server-side.");
+      } else {
+        const err = await res.json();
+        toast.error(err.error || "Failed to save");
+      }
+    } catch {
+      toast.error("Failed to save CRM settings");
+    } finally {
+      setSaving(false);
     }
-  }, []);
-
-  function saveKeys() {
-    localStorage.setItem("sendquote_crm_keys", JSON.stringify({
-      hubspot: hubspotKey,
-      pipedrive: pipedriveKey,
-    }));
-    toast.success("CRM keys saved locally. Add them to your server env vars for production.");
   }
 
   return (
@@ -57,6 +58,7 @@ export function CrmSettings() {
               onChange={(e) => setHubspotKey(e.target.value)}
               placeholder="pat-xxxxx or your OAuth token"
             />
+            <p className="text-xs text-muted-foreground">API keys are stored server-side only</p>
           </div>
           <p className="text-xs text-muted-foreground">
             Create a private app in HubSpot with <code>deals</code> scope. 
@@ -80,6 +82,7 @@ export function CrmSettings() {
               onChange={(e) => setPipedriveKey(e.target.value)}
               placeholder="Your Pipedrive API token"
             />
+            <p className="text-xs text-muted-foreground">API keys are stored server-side only</p>
           </div>
           <p className="text-xs text-muted-foreground">
             Find your token in Pipedrive Settings &gt; Personal &gt; API. 

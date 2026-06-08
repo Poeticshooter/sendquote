@@ -80,35 +80,14 @@ export const RazorpayPaymentSchema = z.object({
   currency: z.string().max(10).optional(),
 });
 
-export const CrmSyncSchema = z.object({
-  quote_id: z.string().uuid("Invalid quote ID"),
-});
-
 export const EventSchema = z.object({
   quote_id: z.string().uuid("Invalid quote ID"),
   event_type: z.string().min(1, "Event type is required").max(100),
   metadata: z.record(z.string(), z.any()).optional(),
 });
 
-export const ApprovalRuleSchema = z.object({
-  name: z.string().min(1, "Name is required").max(200),
-  trigger_type: z.string().min(1).max(100),
-  trigger_value: z.number().min(0),
-  approver_role: z.string().max(100),
-  action: z.string().max(100),
-});
-
 export const ApprovalCheckSchema = z.object({
   quote_id: z.string().uuid("Invalid quote ID"),
 });
 
-export const TeamInviteSchema = z.object({
-  email: z.string().email("Valid email is required"),
-  role: z.string().max(50).optional(),
-});
-
 export const SubscriptionSchema = z.object({}).optional();
-
-export const SeoPingSchema = z.object({
-  url: z.string().min(1, "URL is required"),
-});

@@ -132,7 +132,7 @@ export function VoiceAssistant() {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-4 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#00D4AA] text-black shadow-lg hover:bg-[#00D4AA]/90 transition-all hover:scale-105 active:scale-95"
+        className="fixed bottom-4 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-transform hover:scale-105 active:scale-95"
         aria-label="Open voice assistant"
       >
         <Volume2 className="h-6 w-6" />
@@ -143,16 +143,16 @@ export function VoiceAssistant() {
   const hasSpeechSupport = typeof window !== "undefined" && ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-[360px] max-w-[calc(100vw-2rem)] rounded-xl border border-white/[0.08] bg-[#0e0e0e] shadow-2xl overflow-hidden">
-      <div className="flex items-center justify-between bg-[#00D4AA]/10 px-4 py-3 border-b border-white/[0.06]">
+    <div className="fixed bottom-4 right-4 z-50 w-[360px] max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-card shadow-2xl overflow-hidden">
+      <div className="flex items-center justify-between bg-primary/10 px-4 py-3 border-b border-border">
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#00D4AA] text-black text-xs font-bold">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
             <Volume2 className="h-3.5 w-3.5" />
           </div>
-          <span className="text-sm font-medium text-white">AI Voice Assistant</span>
-          {speaking && <span className="text-xs text-[#00D4AA] animate-pulse">Speaking...</span>}
+          <span className="text-sm font-medium text-card-foreground">AI Voice Assistant</span>
+          {speaking && <span className="text-xs text-primary animate-pulse">Speaking...</span>}
         </div>
-        <button onClick={() => { setOpen(false); stopSpeaking(); }} className="rounded-full p-1.5 text-white/50 hover:bg-white/10 hover:text-white transition-colors">
+        <button onClick={() => { setOpen(false); stopSpeaking(); }} className="rounded-full p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -162,8 +162,8 @@ export function VoiceAssistant() {
           <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
             <div className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
               msg.role === "user"
-                ? "bg-[#00D4AA]/20 text-white"
-                : "bg-white/5 text-white/80"
+                ? "bg-primary/20 text-foreground"
+                : "bg-muted text-muted-foreground"
             }`}>
               {msg.text}
             </div>
@@ -171,27 +171,27 @@ export function VoiceAssistant() {
         ))}
         {processing && (
           <div className="flex justify-start">
-            <div className="rounded-lg bg-white/5 px-3 py-2">
-              <Loader2 className="h-4 w-4 animate-spin text-white/40" />
+            <div className="rounded-lg bg-muted px-3 py-2">
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
             </div>
           </div>
         )}
         <div ref={chatEndRef} />
       </div>
 
-      <div className="border-t border-white/[0.06] p-3 space-y-2">
+      <div className="border-t border-border p-3 space-y-2">
         <form onSubmit={(e) => { e.preventDefault(); if (textInput.trim()) handleUserMessage(textInput); }} className="flex items-center gap-2">
           <input
             value={textInput}
             onChange={(e) => setTextInput(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1 rounded-lg bg-white/5 border border-white/[0.06] px-3 py-2 text-sm text-white outline-none focus:border-[#00D4AA]/50 placeholder:text-white/20"
+            className="flex-1 rounded-lg bg-muted border border-border px-3 py-2 text-sm text-card-foreground outline-none focus:border-primary/50 placeholder:text-muted-foreground/50"
             disabled={processing}
           />
           <button
             type="submit"
             disabled={!textInput.trim() || processing}
-            className="flex items-center justify-center rounded-lg bg-[#00D4AA] p-2 text-black disabled:opacity-30 hover:bg-[#00D4AA]/90 transition-all"
+            className="flex items-center justify-center rounded-lg bg-primary p-2 text-primary-foreground disabled:opacity-30 hover:bg-primary/90 transition-all"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
           </button>
@@ -204,32 +204,32 @@ export function VoiceAssistant() {
               className={`flex items-center justify-center rounded-full p-2 transition-all ${
                 listening
                   ? "bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/30"
-                  : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white"
+                  : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               } disabled:opacity-50`}
               aria-label={listening ? "Stop listening" : "Start listening"}
             >
               {listening ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
             </button>
           ) : (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 text-xs text-white/40">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted text-xs text-muted-foreground">
               <MicOff className="h-3 w-3" /> Voice not supported
             </div>
           )}
           {listening && (
-            <div className="flex-1 text-xs text-[#00D4AA] animate-pulse truncate">
+            <div className="flex-1 text-xs text-primary animate-pulse truncate">
               {transcript || "Listening..."}
             </div>
           )}
           {!listening && !transcript && (
-            <div className="flex-1 text-xs text-white/30">
+            <div className="flex-1 text-xs text-muted-foreground">
               {hasSpeechSupport ? "Or tap the mic" : ""}
             </div>
           )}
           {transcript && !listening && (
-            <div className="flex-1 text-xs text-white/50 truncate">{transcript}</div>
+            <div className="flex-1 text-xs text-muted-foreground truncate">{transcript}</div>
           )}
           {speaking && (
-            <button onClick={stopSpeaking} className="text-xs text-white/40 hover:text-white underline">Stop</button>
+            <button onClick={stopSpeaking} className="text-xs text-muted-foreground hover:text-foreground underline">Stop</button>
           )}
         </div>
       </div>

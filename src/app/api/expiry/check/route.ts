@@ -1,19 +1,11 @@
 import { NextResponse } from "next/server";
-import { timingSafeEqual } from "crypto";
+import * as Sentry from "@sentry/nextjs";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/send";
 import { wrapEmail } from "@/lib/email/templates";
+import { verifyCronSecret } from "@/lib/security/cron";
 
 export const dynamic = "force-dynamic";
-
-function verifyCronSecret(request: Request): boolean {
-  const authHeader = request.headers.get("authorization") || "";
-  const expectedToken = process.env.CRON_SECRET;
-  if (!expectedToken) return false;
-  const expected = `Bearer ${expectedToken}`;
-  if (authHeader.length !== expected.length) return false;
-  return timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
-}
 
 export async function GET(request: Request) {
   if (!verifyCronSecret(request)) {
@@ -46,8 +38,10 @@ export async function GET(request: Request) {
 
         const quoteUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://sendquote.in"}/q/${quote.public_token}`;
 
+        const recipientEmail = quote.client_email;
+        if (!recipientEmail) continue;
         await sendEmail({
-          to: [quote.client_email].filter(Boolean) as string[],
+          to: [recipientEmail],
           subject: `Quote ${quote.quote_number} is expiring soon`,
           html: wrapEmail(`
             <h1 style="color:#F5F5F5;font-size:24px;font-weight:700;margin:0 0 8px 0;">Quote expiring soon</h1>
@@ -83,6 +77,7 @@ export async function GET(request: Request) {
     });
   } catch (e) {
     console.error("Expiry check error:", e);
+    Sentry.captureException(e);
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,9 @@ export function ReferralWidget() {
   const [email, setEmail] = useState("");
   const [sending, setSending] = useState(false);
   const [copied, setCopied] = useState(false);
-  const referralLink = `${window.location.origin}?ref=sendquote`;
+  const [baseUrl, setBaseUrl] = useState("");
+  useEffect(() => { setBaseUrl(window.location.origin); }, []);
+  const referralLink = `${baseUrl}?ref=sendquote`;
 
   async function handleRefer() {
     if (!email) return;
@@ -58,7 +60,7 @@ export function ReferralWidget() {
             onChange={(e) => setEmail(e.target.value)}
             className="bg-white/5 border-white/10 text-white text-sm h-9"
           />
-          <Button size="sm" className="bg-[#00D4AA] text-black hover:bg-[#00D4AA]/90 shrink-0" onClick={handleRefer} disabled={sending}>
+          <Button size="sm" className="bg-[#00D4AA] text-black hover:bg-[#00D4AA]/90 shrink-0" onClick={handleRefer} disabled={sending} aria-label="Send invitation">
             <Send className="h-3.5 w-3.5" />
           </Button>
         </div>

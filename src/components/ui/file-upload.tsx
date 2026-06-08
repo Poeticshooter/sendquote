@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Upload, X, File } from "lucide-react";
+import { toast } from "sonner";
 
 interface FileUploadProps {
   onUpload?: (file: File) => void;
@@ -16,14 +17,17 @@ export function FileUpload({ onUpload, accept = "*", maxSizeMB = 10 }: FileUploa
   const inputRef = useRef<HTMLInputElement>(null);
 
   function handleFile(f: File) {
-    if (f.size > maxSizeMB * 1024 * 1024) return;
+    if (f.size > maxSizeMB * 1024 * 1024) {
+      toast.error(`File exceeds ${maxSizeMB}MB limit`);
+      return;
+    }
     setFile(f);
     onUpload?.(f);
   }
 
   return (
     <div
-      className={`relative rounded-lg border-2 border-dashed p-6 text-center transition-colors ${
+      className={`relative rounded-lg border-2 border-dashed p-6 text-center transition-colors focus-visible:ring-2 focus-visible:ring-ring ${
         dragOver ? "border-foreground bg-secondary/50" : "border-border hover:border-foreground/30"
       }`}
       onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -43,7 +47,7 @@ export function FileUpload({ onUpload, accept = "*", maxSizeMB = 10 }: FileUploa
             <File className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm">{file.name}</span>
           </div>
-          <button onClick={() => setFile(null)}><X className="h-4 w-4" /></button>
+          <button onClick={() => setFile(null)} aria-label="Remove file"><X className="h-4 w-4" /></button>
         </div>
       ) : (
         <button type="button" onClick={() => inputRef.current?.click()} className="cursor-pointer">

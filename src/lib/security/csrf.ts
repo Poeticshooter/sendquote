@@ -7,25 +7,6 @@ const ALLOWED_ORIGINS = [
   "http://localhost:3000",
 ];
 
-export function generateCsrfToken(): string {
-  const array = new Uint8Array(TOKEN_LENGTH);
-  crypto.getRandomValues(array);
-  return Array.from(array, (b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-export function setCsrfCookie(
-  response: { cookies: { set: (name: string, value: string, opts: Record<string, unknown>) => void } },
-  token: string,
-): void {
-  response.cookies.set(CSRF_COOKIE, token, {
-    httpOnly: false,
-    secure: (process.env.NEXT_PUBLIC_APP_URL || "").startsWith("https"),
-    sameSite: "strict",
-    path: "/",
-    maxAge: 86400,
-  });
-}
-
 export function verifyCsrfToken(request: {
   cookies: { get: (name: string) => { value?: string } | undefined };
   headers: { get: (name: string) => string | null };
@@ -67,10 +48,4 @@ export function verifyOrigin(request: {
   return { ok: true };
 }
 
-export function csrfProtected(request: Parameters<typeof verifyCsrfToken>[0] & Parameters<typeof verifyOrigin>[0]) {
-  const r1 = verifyCsrfToken(request);
-  if (!r1.ok) return r1;
-  const r2 = verifyOrigin(request);
-  if (!r2.ok) return r2;
-  return { ok: true };
-}
+// csrfProtected removed — unused; use verifyCsrfToken + verifyOrigin separately

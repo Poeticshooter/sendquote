@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Receipt } from "lucide-react";
+import { Receipt, Plus } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 
 const statusColors: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   paid: "default",
@@ -44,11 +45,12 @@ export default function InvoicesPage() {
           <Receipt className="mx-auto h-12 w-12 text-muted-foreground" />
           <h3 className="mt-4 text-lg font-semibold">No invoices yet</h3>
           <p className="text-sm text-muted-foreground">Invoices are auto-generated when a quote is accepted and paid.</p>
+          <Link href="/quotes/new" className={buttonVariants({ variant: "outline", className: "mt-6" })}>Create a Quote</Link>
         </Card>
       ) : (
         <div className="space-y-3">
           {invoices.map((inv) => (
-            <Link key={inv.id} href={`/invoices/${inv.id}`} className="block rounded-lg border bg-card p-4 hover:bg-white/[0.02] transition-colors">
+            <Link key={inv.id} href={`/invoices/${inv.id}`} className="block rounded-lg border bg-card p-4 hover:bg-accent/50 transition-colors">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium">{inv.invoice_number}</p>

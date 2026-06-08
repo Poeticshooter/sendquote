@@ -107,8 +107,9 @@ export default function QuotesPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#25D366]/10 text-[#25D366] opacity-0 group-hover:opacity-100 hover:bg-[#25D366]/20 transition-all shrink-0"
+                      className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#25D366]/10 text-[#25D366] opacity-100 hover:bg-[#25D366]/20 transition-opacity shrink-0"
                       title="Share on WhatsApp"
+                      aria-label="Share on WhatsApp"
                     >
                       <MessageCircle className="h-4 w-4" />
                     </a>

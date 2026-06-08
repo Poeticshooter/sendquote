@@ -86,12 +86,12 @@ export function SignQuoteFlow({ publicToken, quoteNumber, total = 0, onSigned }:
     }
   }
 
-  function reset() { setStep("details"); setName(""); setEmail(""); setSignature(null); setPaymentMethod(null); setOpen(false); }
+  function reset() { setStep("details"); setName(""); setEmail(""); setSignature(null); setPaymentMethod(null); }
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) reset(); else setOpen(true); }}>
       <DialogTrigger>
-        <button className="inline-flex h-10 items-center justify-center rounded-xl bg-[#00D4AA] px-5 text-sm font-semibold text-black hover:bg-[#00D4AA]/90 transition-colors w-full sm:w-auto" type="button">
+        <button className="inline-flex h-10 w-full sm:w-auto items-center justify-center rounded-xl bg-[#00D4AA] px-5 text-sm font-semibold text-black hover:bg-[#00D4AA]/90 transition-colors" type="button">
           <Check className="mr-2 h-4 w-4" />
           Accept Quote
         </button>
@@ -137,29 +137,31 @@ export function SignQuoteFlow({ publicToken, quoteNumber, total = 0, onSigned }:
               <DialogDescription>Choose a payment method to pay ₹{total.toLocaleString("en-IN")}</DialogDescription>
             </DialogHeader>
             <div className="space-y-3 py-4">
-              <button
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-4 h-auto p-4"
                 onClick={() => { setPaymentMethod("razorpay"); handleRazorpayPayment(); }}
                 disabled={loading}
-                className="w-full flex items-center gap-4 rounded-lg border border-white/10 bg-[#1a1a1a] p-4 hover:bg-[#222] transition-colors disabled:opacity-50 text-left"
               >
                 <Wallet className="h-6 w-6 text-[#00D4AA]" />
-                <div>
-                  <p className="font-medium text-white">Pay with Razorpay</p>
-                  <p className="text-sm text-white/40">UPI, Credit Card, Net Banking</p>
+                <div className="text-left">
+                  <p className="font-medium">Pay with Razorpay</p>
+                  <p className="text-sm text-muted-foreground">UPI, Credit Card, Net Banking</p>
                 </div>
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-4 h-auto p-4"
                 onClick={() => { setPaymentMethod("stripe"); }}
                 disabled={loading}
-                className="w-full flex items-center gap-4 rounded-lg border border-white/10 bg-[#1a1a1a] p-4 hover:bg-[#222] transition-colors disabled:opacity-50 text-left"
               >
                 <CreditCard className="h-6 w-6 text-[#00D4AA]" />
-                <div>
-                  <p className="font-medium text-white">Pay with Card (Stripe)</p>
-                  <p className="text-sm text-white/40">International cards, Google Pay, Apple Pay</p>
+                <div className="text-left">
+                  <p className="font-medium">Pay with Card (Stripe)</p>
+                  <p className="text-sm text-muted-foreground">International cards, Google Pay, Apple Pay</p>
                 </div>
-              </button>
-              <p className="text-center text-xs text-white/30 mt-2">Powered by Razorpay & Stripe</p>
+              </Button>
+              <p className="text-center text-xs text-muted-foreground mt-2">Powered by Razorpay & Stripe</p>
             </div>
           </>
         )}

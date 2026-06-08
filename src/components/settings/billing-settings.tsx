@@ -50,9 +50,12 @@ export function BillingSettings() {
 
   async function handleUpgrade(planId: string) {
     if (planId === "starter") {
-      await supabase.from("profiles").update({ plan: "starter", updated_at: new Date().toISOString() }).eq("id", profile.id);
+      setProcessing(true);
+      const { error } = await supabase.from("profiles").update({ plan: "starter", updated_at: new Date().toISOString() }).eq("id", profile.id);
+      if (error) { toast.error("Failed to downgrade"); setProcessing(false); return; }
       setProfile({ ...profile, plan: "starter" });
       toast.success("Downgraded to Starter plan");
+      setProcessing(false);
       return;
     }
 
@@ -123,7 +126,7 @@ export function BillingSettings() {
           return (
             <Card key={plan.id} className={`relative ${plan.popular ? "border-[#00D4AA]/30" : ""} ${isCurrent ? "ring-1 ring-[#00D4AA]/50" : ""}`}>
               {plan.popular && !isCurrent && (
-                <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#00D4AA] to-[#06D6A0] px-3 py-0.5 text-[10px] font-semibold text-black">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 rounded-full bg-gradient-to-r from-[#00D4AA] to-[#06D6A0] px-3 py-0.5 text-[10px] font-semibold text-black">
                   Popular
                 </div>
               )}

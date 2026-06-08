@@ -1,7 +1,7 @@
 "use client";
 
 import { m } from "@/components/shared/motion-client";
-import { Sparkles, Send, Eye, FileSignature } from "lucide-react";
+import { Sparkles, Send, Eye, FileSignature, ArrowRight } from "lucide-react";
 
 const steps = [
   { icon: Sparkles, title: "AI Generates Your Quote", description: "Describe what you're quoting — AI creates line items, pricing, and terms in 60 seconds." },
@@ -16,7 +16,7 @@ export function HowItWorks() {
       <div className="mx-auto max-w-7xl">
         <m.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-white">How It Works</h2>
-          <p className="mt-4 text-lg text-white/40">From conversation to contract in four simple steps.</p>
+          <p className="mt-4 text-lg text-gray-400">From conversation to contract in four simple steps.</p>
         </m.div>
 
         <div className="grid gap-12 lg:gap-16">
@@ -34,7 +34,7 @@ export function HowItWorks() {
                   <step.icon className="h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2">{step.title}</h3>
-                <p className="text-white/40 leading-relaxed max-w-md">{step.description}</p>
+                <p className="text-gray-400 leading-relaxed max-w-md">{step.description}</p>
               </div>
               <div className="flex-1 flex justify-center">
                 <div className="relative w-full max-w-sm rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
@@ -45,17 +45,17 @@ export function HowItWorks() {
                         {["Website redesign", "SEO optimization", "Content creation"].map((item) => (
                           <div key={item} className="flex items-center gap-2 text-sm">
                             <div className="h-1.5 w-1.5 rounded-full bg-[#00D4AA]" />
-                            <span className="text-white/60">{item}</span>
+                            <span className="text-gray-300">{item}</span>
                           </div>
                         ))}
                       </div>
-                      <div className="h-8 rounded-lg bg-[#00D4AA]/10 flex items-center px-3 text-xs text-[#00D4AA] font-medium">✨ AI generated in 12 seconds</div>
+                      <div className="h-8 rounded-lg bg-[#00D4AA]/10 flex items-center px-3 text-xs text-[#00D4AA] font-medium"><Sparkles className="h-3 w-3 inline-block mr-1" /> AI generated in 12 seconds</div>
                     </div>
                   )}
                   {i === 1 && (
                     <div className="space-y-3 text-center">
                       <div className="mx-auto h-12 w-12 rounded-full bg-white/5 flex items-center justify-center">
-                        <svg className="h-6 w-6 text-[#00D4AA]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                        <ArrowRight className="h-6 w-6 text-[#00D4AA]" />
                       </div>
                       <p className="text-sm font-medium text-white">Quote link sent!</p>
                       <p className="text-xs text-white/40">Client will be notified via email & WhatsApp</p>

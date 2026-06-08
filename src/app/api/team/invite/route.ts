@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { v4 as uuid } from "uuid";
-import { TeamInviteSchema } from "@/lib/api-validation";
 import { success, parseError, requireAuth } from "@/lib/api-helper";
+
+const TeamInviteSchema = z.object({
+  email: z.string().email("Valid email is required"),
+  role: z.string().max(50).optional(),
+});
 
 export async function POST(request: NextRequest) {
   try {

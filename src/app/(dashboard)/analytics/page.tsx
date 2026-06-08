@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingUp, DollarSign, Target, Clock } from "lucide-react";
+import Link from "next/link";
 
 interface Analytics {
   totals: { total: number; accepted: number; lost: number; pending: number };
@@ -35,6 +37,7 @@ export default function AnalyticsPage() {
           <TrendingUp className="mx-auto h-12 w-12 text-muted-foreground" />
           <h3 className="mt-4 text-lg font-semibold">No data yet</h3>
           <p className="text-sm text-muted-foreground">Create and send quotes to see analytics here.</p>
+          <Link href="/quotes/new" className={buttonVariants({ className: "mt-6" })}>Create your first quote</Link>
         </Card>
       </div>
     );
@@ -109,7 +112,7 @@ export default function AnalyticsPage() {
                       <span>{s.name}</span>
                       <span className="text-muted-foreground">{s.value} ({Math.round(pct)}%)</span>
                     </div>
-                    <div className="h-2 rounded-full bg-muted overflow-hidden">
+                    <div className="h-2 rounded-full bg-muted overflow-hidden" role="progressbar" aria-valuenow={s.value} aria-valuemin={0} aria-valuemax={data.totals.total} aria-label={`${s.name}: ${s.value} quotes`}>
                       <div className={`h-full rounded-full ${colors[s.name] || "bg-primary"}`} style={{ width: `${pct}%` }} />
                     </div>
                   </div>
@@ -132,7 +135,7 @@ export default function AnalyticsPage() {
                     <span>{m.month}</span>
                     <span className="font-medium">₹{m.amount.toLocaleString("en-IN")}</span>
                   </div>
-                  <div className="h-3 rounded-full bg-muted overflow-hidden">
+                  <div className="h-3 rounded-full bg-muted overflow-hidden" role="progressbar" aria-valuenow={m.amount} aria-valuemin={0} aria-valuemax={maxRevenue} aria-label={`${m.month}: ₹${m.amount.toLocaleString("en-IN")}`}>
                     <div className="h-full rounded-full bg-primary" style={{ width: `${(m.amount / maxRevenue) * 100}%` }} />
                   </div>
                 </div>

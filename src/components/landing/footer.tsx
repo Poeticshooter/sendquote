@@ -18,20 +18,20 @@ export function Footer() {
               </div>
               <span className="text-lg font-bold text-white">SendQuote</span>
             </Link>
-            <p className="mt-4 text-sm text-white/30 max-w-xs leading-relaxed">The fastest path from conversation to contract. AI-powered quoting for modern businesses.</p>
+            <p className="mt-4 text-sm text-gray-400 max-w-xs leading-relaxed">The fastest path from conversation to contract. AI-powered quoting for modern businesses.</p>
           </div>
           {Object.entries(footerLinks).map(([title, links]) => (
             <div key={title}>
-              <h4 className="text-sm font-semibold text-white/50">{title}</h4>
+              <h4 className="text-sm font-semibold text-gray-300">{title}</h4>
               <ul className="mt-4 space-y-3">
                 {links.map((link) => (
-                  <li key={link.href}><Link href={link.href} className="text-sm text-white/30 hover:text-white transition-colors">{link.label}</Link></li>
+                  <li key={link.href}><Link href={link.href} className="text-sm text-gray-400 hover:text-white transition-colors">{link.label}</Link></li>
                 ))}
               </ul>
             </div>
           ))}
         </div>
-        <div className="mt-12 border-t border-white/[0.06] pt-8 text-center text-sm text-white/20">
+        <div className="mt-12 border-t border-white/[0.06] pt-8 text-center text-sm text-gray-500">
           &copy; {new Date().getFullYear()} SendQuote. All rights reserved.
         </div>
       </div>

@@ -18,6 +18,9 @@ export async function createClient() {
               cookieStore.set(name, value, options)
             )
           } catch {
+            // Cookies can only be modified in a Server Action or Route Handler.
+            // This catch silently ignores errors during page rendering where
+            // cookie mutations are not permitted.
           }
         },
       },

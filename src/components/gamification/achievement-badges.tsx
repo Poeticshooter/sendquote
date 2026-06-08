@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Trophy, Lock, Sparkles } from "lucide-react";
+import { Trophy, Lock, Sparkles, Star, Zap, Award, Target, TrendingUp, Gift, Heart, Shield, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AchievementDef {
@@ -27,8 +27,13 @@ export function AchievementBadges() {
     }).catch(() => setLoading(false));
   }, []);
 
+  const iconMap: Record<string, typeof Trophy> = {
+    trophy: Trophy, star: Star, zap: Zap, award: Award, target: Target,
+    trending_up: TrendingUp, gift: Gift, heart: Heart, shield: Shield, users: Users,
+  };
+
   if (loading) return <Skeleton className="h-32 w-full rounded-xl" />;
-  if (!definitions.length) return null;
+  if (!definitions.length) return <p className="text-sm text-muted-foreground text-center py-8">No achievements available yet</p>;
 
   const earnedKeys = new Set(earned.map(e => e.achievement));
   const earnedCount = earned.length;
@@ -57,13 +62,13 @@ export function AchievementBadges() {
                 )}
               >
                 <span className={unlocked ? "opacity-100" : "opacity-30 saturate-0"}>
-                  {unlocked ? a.icon : <Lock className="h-3 w-3" />}
+                  {unlocked ? (() => { const Icon = iconMap[a.key] || Trophy; return <Icon className="h-3.5 w-3.5" />; })() : <Lock className="h-3 w-3" />}
                 </span>
                 <span className="font-medium">{a.label}</span>
                 {unlocked && (
                   <Sparkles className="h-3 w-3 text-[#00D4AA]" />
                 )}
-                <div className="absolute -top-1 left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-10">
+                <div className="absolute -top-1 left-1/2 -translate-x-1/2 mb-1 opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none">
                   <div className="bg-gray-900 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap shadow-lg">
                     {a.description}
                   </div>

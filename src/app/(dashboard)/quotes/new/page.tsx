@@ -303,7 +303,7 @@ export default function NewQuotePage() {
                 <div className="w-28 pt-2 text-sm text-right text-muted-foreground">
                   ₹{(item.quantity * item.rate).toLocaleString("en-IN")}
                 </div>
-                <Button type="button" variant="ghost" size="icon" onClick={() => removeItem(index)} disabled={items.length === 1}>
+                <Button type="button" variant="ghost" size="icon" onClick={() => removeItem(index)} disabled={items.length === 1} aria-label="Remove line item">
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>

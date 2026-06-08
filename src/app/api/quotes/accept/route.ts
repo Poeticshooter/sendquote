@@ -33,10 +33,19 @@ export async function POST(request: NextRequest) {
 
     if (sigError) throw sigError;
 
-    await supabase
+    // Optimistic update: only accept if still in "sent" status (race condition guard)
+    const { data: updatedQuote, error: updateError } = await supabase
       .from("quotes")
       .update({ status: "accepted", updated_at: new Date().toISOString() })
-      .eq("id", quote.id);
+      .eq("id", quote.id)
+      .eq("status", "sent")
+      .select()
+      .single();
+
+    if (updateError || !updatedQuote) {
+      // Another request already handled this (0 rows affected)
+      return NextResponse.json({ error: "Quote already accepted" }, { status: 409 });
+    }
 
     const date = new Date();
     const invoiceNumber = `INV-${date.getFullYear()}-${date.getMonth() + 1}-${Date.now().toString(36).toUpperCase()}`;

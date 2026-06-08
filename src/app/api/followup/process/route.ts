@@ -1,19 +1,15 @@
 import { NextResponse } from "next/server";
-import { timingSafeEqual } from "crypto";
+import * as Sentry from "@sentry/nextjs";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/send";
 import { wrapEmail } from "@/lib/email/templates";
+import { verifyCronSecret } from "@/lib/security/cron";
+
+function escapeHtml(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
 
 export const dynamic = "force-dynamic";
-
-function verifyCronSecret(request: Request): boolean {
-  const authHeader = request.headers.get("authorization") || "";
-  const expectedToken = process.env.CRON_SECRET;
-  if (!expectedToken) return false;
-  const expected = `Bearer ${expectedToken}`;
-  if (authHeader.length !== expected.length) return false;
-  return timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
-}
 
 export async function GET(request: Request) {
   if (!verifyCronSecret(request)) {
@@ -65,16 +61,21 @@ export async function GET(request: Request) {
         continue;
       }
 
+      const safeQuoteNumber = escapeHtml(quote.quote_number);
+      const safeClientName = escapeHtml(quote.client_name);
+      const safeBusinessName = escapeHtml(profile?.business_name || "SendQuote");
+      const totalDisplay = `₹${Number(quote.total).toLocaleString("en-IN")}`;
+
       const subject = sequence.subject_template
-        .replace("{{quote_number}}", quote.quote_number)
-        .replace("{{client_name}}", quote.client_name)
-        .replace("{{total}}", `₹${Number(quote.total).toLocaleString("en-IN")}`);
+        .replace("{{quote_number}}", safeQuoteNumber)
+        .replace("{{client_name}}", safeClientName)
+        .replace("{{total}}", totalDisplay);
 
       const body = sequence.body_template
-        .replace("{{quote_number}}", quote.quote_number)
-        .replace("{{client_name}}", quote.client_name)
-        .replace("{{total}}", `₹${Number(quote.total).toLocaleString("en-IN")}`)
-        .replace("{{business_name}}", profile?.business_name || "SendQuote");
+        .replace("{{quote_number}}", safeQuoteNumber)
+        .replace("{{client_name}}", safeClientName)
+        .replace("{{total}}", totalDisplay)
+        .replace("{{business_name}}", safeBusinessName);
 
       const result = await sendEmail({
         to: [quote.client_email],
@@ -103,6 +104,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ processed, total: pending.length });
   } catch (e) {
     console.error("Follow-up process error:", e);
+    Sentry.captureException(e);
     return NextResponse.json({ error: "Failed" }, { status: 500 });
   }
 }

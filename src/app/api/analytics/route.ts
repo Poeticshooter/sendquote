@@ -1,15 +1,30 @@
+import * as Sentry from "@sentry/nextjs";
 import { createClient } from "@/lib/supabase/server";
 import { success, parseError, requireAuth } from "@/lib/api-helper";
+import { NextRequest } from "next/server";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth();
     const supabase = await createClient();
 
-    const { data: quotes } = await supabase
+    const { searchParams } = new URL(request.url);
+    const startDate = searchParams.get("startDate");
+    const endDate = searchParams.get("endDate");
+
+    let query = supabase
       .from("quotes")
       .select("id, status, total, created_at, client_name")
       .eq("user_id", user.id);
+
+    if (startDate) {
+      query = query.gte("created_at", startDate);
+    }
+    if (endDate) {
+      query = query.lte("created_at", endDate);
+    }
+
+    const { data: quotes } = await query;
 
     if (!quotes) return success({ totals: { all: 0 } });
 
@@ -49,6 +64,7 @@ export async function GET() {
       monthlyRevenue: Object.entries(monthlyRevenue).map(([month, amount]) => ({ month, amount })),
     });
   } catch (e) {
+    Sentry.captureException(e);
     return parseError(e);
   }
 }

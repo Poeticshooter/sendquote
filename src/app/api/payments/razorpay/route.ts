@@ -25,7 +25,15 @@ export async function POST(request: NextRequest) {
     if (quote.user_id !== user.id) return NextResponse.json({ error: "Not authorized" }, { status: 403 });
     if (quote.status !== "accepted") return NextResponse.json({ error: "Quote must be accepted before payment" }, { status: 409 });
 
-    const verifiedAmount = Math.round(Number(quote.total) * 100);
+    // Use invoice balance_due if available, otherwise fall back to quote total
+    const { data: invoice } = await supabase
+      .from("invoices")
+      .select("balance_due")
+      .eq("quote_id", quote_id)
+      .maybeSingle();
+
+    const amountToCollect = invoice?.balance_due ?? quote.total;
+    const verifiedAmount = Math.round(Number(amountToCollect) * 100);
 
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;

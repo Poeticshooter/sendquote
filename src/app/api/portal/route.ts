@@ -1,26 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { checkMemoryRateLimit } from "@/lib/rate-limit";
 
 const MAX_RETURNED_QUOTES = 50;
-
-const ipRateLimits = new Map<string, { count: number; resetAt: number }>();
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const entry = ipRateLimits.get(ip);
-  if (!entry || now > entry.resetAt) {
-    ipRateLimits.set(ip, { count: 1, resetAt: now + 60_000 });
-    return true;
-  }
-  if (entry.count >= 10) return false;
-  entry.count++;
-  return true;
-}
 
 export async function POST(request: NextRequest) {
   try {
     const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
-    if (!checkRateLimit(ip)) {
+    if (!checkMemoryRateLimit(ip, 10, 60_000)) {
       return NextResponse.json({ error: "Too many requests. Try again later." }, { status: 429 });
     }
 
@@ -56,6 +44,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ quotes: portalData });
   } catch (error: unknown) {
     console.error("Portal error:", error);
+    Sentry.captureException(error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

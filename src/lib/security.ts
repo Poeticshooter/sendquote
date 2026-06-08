@@ -32,6 +32,13 @@ const CACHE_MAX_ENTRIES = 10000;
 
 function checkLocalRateLimit(key: string, windowMs: number, maxRequests: number): boolean {
   const now = Date.now();
+  // Clean expired entries on each access (serverless-friendly, no setInterval)
+  for (const [k, entry] of localRateLimitCache) {
+    if ((now - entry.firstSeen) > windowMs) {
+      localRateLimitCache.delete(k);
+    }
+  }
+
   const entry = localRateLimitCache.get(key);
 
   if (!entry || (now - entry.firstSeen) > windowMs) {
@@ -48,18 +55,6 @@ function checkLocalRateLimit(key: string, windowMs: number, maxRequests: number)
   entry.count += 1;
   return true;
 }
-
-function cleanupCache() {
-  const now = Date.now();
-  const windowMs = 60_000;
-  for (const [key, entry] of localRateLimitCache) {
-    if ((now - entry.firstSeen) > windowMs * 2) {
-      localRateLimitCache.delete(key);
-    }
-  }
-}
-
-setInterval(cleanupCache, 60_000);
 
 export async function rateLimitCheck(request: NextRequest): Promise<boolean> {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()

@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, FileText, TrendingUp, Users, Target, ArrowRight, Clock, Zap, Gift } from "lucide-react";
+import { Plus, FileText, TrendingUp, IndianRupee, Target, ArrowRight, Zap } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { HealthScore } from "@/components/gamification/health-score";
@@ -142,7 +142,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Revenue</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <IndianRupee className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">₹{data.totalRevenue.toLocaleString("en-IN")}</div>
@@ -170,7 +170,7 @@ export default function DashboardPage() {
               ) : (
                 <div className="space-y-3">
                   {data.recentQuotes.map((q) => (
-                    <Link key={q.id} href={`/quotes/${q.id}`} className="flex items-center justify-between rounded-lg border border-white/5 p-3 hover:bg-white/[0.02] transition-colors">
+                    <Link key={q.id} href={`/quotes/${q.id}`} className="flex items-center justify-between rounded-lg border border-border p-3 hover:bg-muted/50 transition-colors">
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium truncate">{q.client_name}</p>
                         <p className="text-xs text-muted-foreground">{q.quote_number}</p>
@@ -200,7 +200,7 @@ export default function DashboardPage() {
               <CardTitle className="text-base">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Link href="/quotes/new" className="flex items-center gap-3 rounded-lg border border-white/5 p-3 hover:bg-white/[0.02] transition-colors">
+              <Link href="/quotes/new" className="flex items-center gap-3 rounded-lg border border-border p-3 hover:bg-muted/50 transition-colors">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#00D4AA]/10 text-[#00D4AA]">
                   <Plus className="h-4 w-4" />
                 </div>
@@ -210,7 +210,7 @@ export default function DashboardPage() {
                 </div>
                 <ArrowRight className="h-4 w-4 text-muted-foreground" />
               </Link>
-              <Link href="/quotes" className="flex items-center gap-3 rounded-lg border border-white/5 p-3 hover:bg-white/[0.02] transition-colors">
+              <Link href="/quotes" className="flex items-center gap-3 rounded-lg border border-border p-3 hover:bg-muted/50 transition-colors">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
                   <FileText className="h-4 w-4" />
                 </div>
@@ -220,7 +220,7 @@ export default function DashboardPage() {
                 </div>
                 <ArrowRight className="h-4 w-4 text-muted-foreground" />
               </Link>
-              <Link href="/analytics" className="flex items-center gap-3 rounded-lg border border-white/5 p-3 hover:bg-white/[0.02] transition-colors">
+              <Link href="/analytics" className="flex items-center gap-3 rounded-lg border border-border p-3 hover:bg-muted/50 transition-colors">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
                   <TrendingUp className="h-4 w-4" />
                 </div>
@@ -230,7 +230,7 @@ export default function DashboardPage() {
                 </div>
                 <ArrowRight className="h-4 w-4 text-muted-foreground" />
               </Link>
-              <Link href="/settings" className="flex items-center gap-3 rounded-lg border border-white/5 p-3 hover:bg-white/[0.02] transition-colors">
+              <Link href="/settings" className="flex items-center gap-3 rounded-lg border border-border p-3 hover:bg-muted/50 transition-colors">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-500/10 text-amber-400">
                   <Zap className="h-4 w-4" />
                 </div>

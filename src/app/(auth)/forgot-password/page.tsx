@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-sm bg-[#141414] border-white/[0.06] text-white">
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto flex items-center justify-center gap-2 mb-4">
-            <Image src="/logo-icon-v2.svg" alt="" width={66} height={66} className="h-[66px] w-[66px]" />
+            <img src="/logo-icon-v2.svg" alt="SendQuote" className="mx-auto h-12 w-12" />
             <span className="text-xl font-bold text-white">SendQuote</span>
           </Link>
           <CardTitle className="text-2xl text-white">Reset password</CardTitle>
@@ -61,7 +61,14 @@ export default function ForgotPasswordPage() {
               <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-white/5 border-white/10 text-white placeholder:text-white/30" placeholder="you@example.com" />
             </div>
             <Button type="submit" className="w-full bg-[#00D4AA] text-black hover:bg-[#00D4AA]/90 font-semibold" disabled={loading}>
-              {loading ? "Sending..." : "Send Reset Link"}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                "Send Reset Link"
+              )}
             </Button>
           </form>
           <p className="mt-6 text-center text-sm text-white/40">

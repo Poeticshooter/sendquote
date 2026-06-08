@@ -32,10 +32,10 @@ export function NotificationCenter({ notifications = defaultNotifications }: Not
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
           <Bell className="h-4 w-4" />
           {unread > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground">
+            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
               {unread}
             </span>
           )}
@@ -45,7 +45,7 @@ export function NotificationCenter({ notifications = defaultNotifications }: Not
         <div className="flex items-center justify-between border-b px-4 py-3">
           <p className="text-sm font-semibold">Notifications</p>
           {unread > 0 && (
-            <button className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
+            <button className="cursor-pointer text-xs text-muted-foreground hover:text-foreground flex items-center gap-1" onClick={() => {}}>
               <CheckCheck className="h-3 w-3" /> Mark all read
             </button>
           )}
@@ -57,7 +57,7 @@ export function NotificationCenter({ notifications = defaultNotifications }: Not
             notifications.map((n) => (
               <div key={n.id} className={cn("flex gap-3 border-b px-4 py-3 last:border-0", !n.read && "bg-secondary/30")}>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">{n.title}</p>
+                  <h3 className="text-sm font-medium">{n.title}</h3>
                   <p className="text-xs text-muted-foreground truncate">{n.message}</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5">
                     {new Date(n.createdAt).toLocaleString()}

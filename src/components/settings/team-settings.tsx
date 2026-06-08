@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Plus, X, Mail, User } from "lucide-react";
 
@@ -36,6 +37,20 @@ export function TeamSettings() {
     else { const err = await res.json(); toast.error(err.error || "Failed to invite"); }
   }
 
+  async function handleRemoveInvite(id: string) {
+    const res = await fetch("/api/team/invite", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    if (res.ok) {
+      setMembers((prev) => prev.filter((m) => m.id !== id));
+      toast.success("Invitation removed");
+    } else {
+      toast.error("Failed to remove invitation");
+    }
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -49,11 +64,16 @@ export function TeamSettings() {
           </div>
           <div className="space-y-2">
             <Label>Role</Label>
-            <select value={role} onChange={(e) => setRole(e.target.value)} className="h-9 rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-white">
-              <option value="member">Member</option>
-              <option value="admin">Admin</option>
-              <option value="viewer">Viewer</option>
-            </select>
+            <Select value={role} onValueChange={(v) => v && setRole(v)}>
+              <SelectTrigger className="h-9 w-28 border-white/10 bg-white/5 text-sm text-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="member">Member</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="viewer">Viewer</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <Button onClick={inviteMember} size="sm"><Plus className="mr-1 h-3 w-3" /> Invite</Button>
         </div>
@@ -74,7 +94,7 @@ export function TeamSettings() {
                   </div>
                 </div>
                 {m.status === "invited" && (
-                  <button className="text-muted-foreground hover:text-white transition-colors"><X className="h-4 w-4" /></button>
+                  <button className="cursor-pointer text-muted-foreground hover:text-white transition-colors" onClick={() => handleRemoveInvite(m.id)} aria-label={`Remove invite for ${m.email}`}><X className="h-4 w-4" /></button>
                 )}
               </div>
             ))

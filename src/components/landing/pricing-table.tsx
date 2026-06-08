@@ -41,7 +41,7 @@ export function PricingTable() {
       <div className="mx-auto max-w-7xl">
         <m.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-white">Simple, Transparent Pricing</h2>
-          <p className="mt-4 text-lg text-white/40">Start free. Upgrade as you grow. All prices in INR.</p>
+          <p className="mt-4 text-lg text-gray-400">Start free. Upgrade as you grow. All prices in INR.</p>
         </m.div>
 
         <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -56,7 +56,7 @@ export function PricingTable() {
                 "relative rounded-2xl border p-8 transition-all duration-500",
                 tier.featured
                   ? "border-[#00D4AA]/30 bg-gradient-to-b from-[#00D4AA]/5 to-transparent"
-                  : "border-white/[0.06] bg-white/[0.02]"
+                  : "border-white/10 bg-white/[0.02]"
               )}
             >
               {tier.featured && (
@@ -74,7 +74,7 @@ export function PricingTable() {
                 {tier.features.map((feat) => (
                   <li key={feat} className="flex items-start gap-3">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#00D4AA]" />
-                    <span className="text-sm text-white/60">{feat}</span>
+                    <span className="text-sm text-gray-300">{feat}</span>
                   </li>
                 ))}
               </ul>
@@ -87,7 +87,7 @@ export function PricingTable() {
                     : "border border-white/10 text-white/70 hover:bg-white/5 hover:text-white"
                 )}
               >
-                Get Started
+                {tier.cta}
               </Link>
             </m.div>
           ))}

@@ -33,7 +33,7 @@ export default function ClientsPage() {
           <p className="text-muted-foreground">People and businesses you send quotes to.</p>
         </div>
         <Link href="/quotes/new" className={buttonVariants()}>
-          <Plus className="mr-2 h-4 w-4" /> New Client
+          <Plus className="mr-2 h-4 w-4" /> New Quote
         </Link>
       </div>
 
@@ -49,30 +49,32 @@ export default function ClientsPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {clients.map((client) => (
-            <Card key={client.id} className="p-4">
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-medium">
-                  {client.name?.charAt(0) || "?"}
+            <Link key={client.id} href={`/clients/${client.id}`}>
+              <Card className="p-4 hover:bg-accent/50 transition-colors cursor-pointer">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-medium">
+                    {client.name?.charAt(0) || "?"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{client.name}</p>
+                    {client.email && (
+                      <p className="text-sm text-muted-foreground truncate flex items-center gap-1">
+                        <Mail className="h-3 w-3 shrink-0" /> {client.email}
+                      </p>
+                    )}
+                    {client.phone && (
+                      <p className="text-sm text-muted-foreground truncate flex items-center gap-1">
+                        <Phone className="h-3 w-3 shrink-0" /> {client.phone}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{client.name}</p>
-                  {client.email && (
-                    <p className="text-sm text-muted-foreground truncate flex items-center gap-1">
-                      <Mail className="h-3 w-3 shrink-0" /> {client.email}
-                    </p>
-                  )}
-                  {client.phone && (
-                    <p className="text-sm text-muted-foreground truncate flex items-center gap-1">
-                      <Phone className="h-3 w-3 shrink-0" /> {client.phone}
-                    </p>
-                  )}
+                <div className="mt-3 flex gap-4 text-xs text-muted-foreground border-t pt-3">
+                  <span>{client.total_quotes} quotes</span>
+                  <span>₹{client.total_revenue}</span>
                 </div>
-              </div>
-              <div className="mt-3 flex gap-4 text-xs text-muted-foreground border-t pt-3">
-                <span>{client.total_quotes} quotes</span>
-                <span>₹{client.total_revenue}</span>
-              </div>
-            </Card>
+              </Card>
+            </Link>
           ))}
         </div>
       )}

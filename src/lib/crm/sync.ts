@@ -15,13 +15,45 @@ interface SyncResult {
   error?: string;
 }
 
+async function callCrmApi<T>(
+  url: string,
+  headers: Record<string, string>,
+  body: T,
+  errorLabel: string,
+): Promise<SyncResult> {
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      return { success: false, error: `${errorLabel} error: ${err}` };
+    }
+
+    const data = await res.json();
+    // HubSpot: data.id, Pipedrive: data.data?.id
+    const dealId = data.data?.id || data.id;
+    return { success: true, deal_id: dealId };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
 async function syncToHubspot(apiKey: string | undefined, quote: CrmQuote): Promise<SyncResult> {
   if (!apiKey || apiKey === "placeholder") {
     return { success: false, error: "HubSpot API key not configured" };
   }
 
-  try {
-    const dealData = {
+  return callCrmApi(
+    "https://api.hubapi.com/crm/v3/objects/deals",
+    {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    {
       properties: {
         dealname: `Quote ${quote.quote_number} — ${quote.client_name}`,
         dealstage: quote.status === "accepted" ? "closedwon" : "qualifiedtobuy",
@@ -30,27 +62,9 @@ async function syncToHubspot(apiKey: string | undefined, quote: CrmQuote): Promi
         notes: `Quote URL: ${quote.public_url}`,
         closedate: new Date().toISOString(),
       },
-    };
-
-    const res = await fetch("https://api.hubapi.com/crm/v3/objects/deals", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(dealData),
-    });
-
-    if (!res.ok) {
-      const err = await res.text();
-      return { success: false, error: `HubSpot error: ${err}` };
-    }
-
-    const data = await res.json();
-    return { success: true, deal_id: data.id };
-  } catch (error: any) {
-    return { success: false, error: error.message };
-  }
+    },
+    "HubSpot",
+  );
 }
 
 async function syncToPipedrive(apiKey: string | undefined, quote: CrmQuote): Promise<SyncResult> {
@@ -58,34 +72,21 @@ async function syncToPipedrive(apiKey: string | undefined, quote: CrmQuote): Pro
     return { success: false, error: "Pipedrive API key not configured" };
   }
 
-  try {
-    const dealData = {
+  return callCrmApi(
+    "https://api.pipedrive.com/v1/deals",
+    {
+      "Content-Type": "application/json",
+      "X-API-Token": apiKey,
+    },
+    {
       title: `Quote ${quote.quote_number} — ${quote.client_name}`,
       value: quote.total,
       currency: "INR",
       status: quote.status === "accepted" ? "won" : "open",
       add_time: quote.created_at,
-    };
-
-    const res = await fetch("https://api.pipedrive.com/v1/deals", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-API-Token": apiKey,
-      },
-      body: JSON.stringify(dealData),
-    });
-
-    if (!res.ok) {
-      const err = await res.text();
-      return { success: false, error: `Pipedrive error: ${err}` };
-    }
-
-    const data = await res.json();
-    return { success: true, deal_id: data.data?.id };
-  } catch (error: any) {
-    return { success: false, error: error.message };
-  }
+    },
+    "Pipedrive",
+  );
 }
 
 export async function syncQuoteToCrm(quote: CrmQuote): Promise<{

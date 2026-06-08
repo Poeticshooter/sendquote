@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { ArrowLeft, Copy, Send, FileDown, MessageSquare, Eye, Smartphone, Monitor, Tablet, Sparkles } from "lucide-react";
+import { ArrowLeft, Copy, Send, FileDown, MessageSquare, Eye, Smartphone, Monitor, Tablet, Bot, Sparkles } from "lucide-react";
 import { FollowUpPanel } from "@/components/quotes/follow-up-panel";
 import { DealCopilot } from "@/components/quotes/deal-copilot";
 import Link from "next/link";
@@ -140,7 +140,7 @@ export default function QuoteDetailPage() {
             <MessageSquare className="h-3.5 w-3.5" /> Chat {messages.length > 0 && `(${messages.length})`}
           </TabsTrigger>
           <TabsTrigger value="copilot" className="flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5" /> Copilot
+            <Bot className="h-3.5 w-3.5" /> Copilot
           </TabsTrigger>
           <TabsTrigger value="followup" className="flex items-center gap-1.5">
             <Sparkles className="h-3.5 w-3.5" /> Follow-Up
@@ -156,6 +156,7 @@ export default function QuoteDetailPage() {
                 {quote.client_email && <p><span className="text-muted-foreground">Email:</span> {quote.client_email}</p>}
                 {quote.client_phone && <p><span className="text-muted-foreground">Phone:</span> {quote.client_phone}</p>}
               </div>
+              <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b text-left text-muted-foreground">
@@ -176,6 +177,7 @@ export default function QuoteDetailPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
               <div className="border-t pt-2 space-y-1">
                 <p>Subtotal: <span className="font-medium">₹{Number(quote.subtotal).toLocaleString("en-IN")}</span></p>
                 {quote.gst_rate > 0 && <p>GST ({quote.gst_rate}%): <span className="font-medium">₹{Number(quote.gst_amount).toLocaleString("en-IN")}</span></p>}
@@ -253,7 +255,7 @@ export default function QuoteDetailPage() {
               </div>
               <form onSubmit={sendChat} className="flex gap-2">
                 <Input value={chatMsg} onChange={(e) => setChatMsg(e.target.value)} placeholder="Type a message..." className="flex-1" />
-                <Button type="submit" size="sm" disabled={!chatMsg.trim()}><Send className="h-4 w-4" /></Button>
+                <Button type="submit" size="sm" disabled={!chatMsg.trim()} aria-label="Send message"><Send className="h-4 w-4" /></Button>
               </form>
             </CardContent>
           </Card>

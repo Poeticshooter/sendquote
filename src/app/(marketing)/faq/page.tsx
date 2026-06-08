@@ -38,12 +38,12 @@ export default function FAQPage() {
       <main className="px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Frequently Asked Questions</h1>
-          <p className="mt-3 text-muted-foreground">Everything you need to know about SendQuote.</p>
+          <p className="mt-3 text-gray-400">Everything you need to know about SendQuote.</p>
           <div className="mt-10 space-y-6">
             {faqs.map((faq, i) => (
               <div key={i} className="rounded-xl border bg-card p-6">
                 <h3 className="font-semibold text-base">{faq.q}</h3>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
+                <p className="mt-2 text-sm text-gray-400 leading-relaxed">{faq.a}</p>
               </div>
             ))}
           </div>

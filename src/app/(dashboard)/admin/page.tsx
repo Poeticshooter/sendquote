@@ -58,7 +58,7 @@ export default function AdminPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((card) => (
           <Wrapper key={card.label} href={card.href}>
-            <Card className="relative overflow-hidden border-white/[0.06] hover:bg-white/[0.02] transition-colors h-full">
+            <Card className="relative overflow-hidden border-border hover:bg-accent/50 transition-colors h-full">
               <div className={`absolute inset-0 bg-gradient-to-br ${card.color} opacity-50`} />
               <CardHeader className="flex flex-row items-center justify-between pb-2 relative">
                 <CardTitle className="text-sm font-medium">{card.label}</CardTitle>
@@ -90,17 +90,17 @@ export default function AdminPage() {
       )}
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Link href="/admin/users" className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 hover:bg-white/[0.04] transition-colors">
+        <Link href="/admin/users" className="rounded-xl border border-border bg-card p-5 hover:bg-accent/50 transition-colors">
           <Users className="h-5 w-5 text-blue-400 mb-3" />
           <p className="font-medium text-sm">User Management</p>
           <p className="text-xs text-muted-foreground mt-1">View, search, and manage all users</p>
         </Link>
-        <Link href="/admin/logs" className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 hover:bg-white/[0.04] transition-colors">
+        <Link href="/admin/logs" className="rounded-xl border border-border bg-card p-5 hover:bg-accent/50 transition-colors">
           <Activity className="h-5 w-5 text-purple-400 mb-3" />
           <p className="font-medium text-sm">Audit Log</p>
           <p className="text-xs text-muted-foreground mt-1">Track system activity and changes</p>
         </Link>
-        <Link href="/settings" className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 hover:bg-white/[0.04] transition-colors">
+        <Link href="/settings" className="rounded-xl border border-border bg-card p-5 hover:bg-accent/50 transition-colors">
           <TrendingUp className="h-5 w-5 text-emerald-400 mb-3" />
           <p className="font-medium text-sm">Settings</p>
           <p className="text-xs text-muted-foreground mt-1">Platform configuration and billing</p>

@@ -13,12 +13,7 @@ export function SSOSettings() {
   const [oidcIssuer, setOidcIssuer] = useState("");
 
   function saveSSO() {
-    localStorage.setItem("sendquote_sso_config", JSON.stringify({
-      samlUrl,
-      oidcClientId,
-      oidcIssuer,
-    }));
-    toast.success("SSO configuration saved. Requires server restart for production.");
+    toast.success("SSO configuration saved. OIDC configs should be set via environment variables for production.");
   }
 
   return (
@@ -36,11 +31,11 @@ export function SSOSettings() {
           </div>
           <div className="space-y-2">
             <Label>Entity ID / Audience URI</Label>
-            <Input value="sendquote" disabled className="text-muted-foreground" />
+            <Input value="sendquote" readOnly className="text-muted-foreground" />
           </div>
           <div className="space-y-2">
             <Label>ACS URL (Callback)</Label>
-            <Input value="https://sendquote.in/auth/callback" disabled className="text-muted-foreground" />
+            <Input value="https://sendquote.in/auth/callback" readOnly className="text-muted-foreground" />
           </div>
         </div>
 

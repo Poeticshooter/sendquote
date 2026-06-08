@@ -63,6 +63,9 @@ export function FollowupSettings() {
           </CardTitle>
           <CardDescription>Auto-send follow-up emails after sending quotes.</CardDescription>
         </div>
+        <Button size="sm" onClick={() => toast.info("Sequence creation coming soon")}>
+          <Plus className="mr-1 h-4 w-4" /> Add Sequence
+        </Button>
       </CardHeader>
       <CardContent className="space-y-4">
         {sequences.length === 0 ? (

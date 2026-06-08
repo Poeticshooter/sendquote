@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Sparkles, AlertTriangle, Lightbulb, Bell, ArrowRight } from "lucide-react";
+import { Sparkles, AlertTriangle, Lightbulb, Bell, ArrowRight, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 interface Suggestion {
   type: string;
@@ -46,11 +47,21 @@ export function DealCopilot({ quoteId }: { quoteId: string }) {
     })
       .then((r) => r.json())
       .then((d) => { setData(d); setLoading(false); })
-      .catch(() => setLoading(false));
+      .catch((err) => { console.error(err); setLoading(false); toast.error("Failed to load suggestions"); });
   }, [quoteId]);
 
   if (loading) return <Skeleton className="h-48 rounded-xl" />;
-  if (!data) return null;
+  if (!data) return (
+    <Card>
+      <CardContent className="flex items-center gap-3 p-6">
+        <XCircle className="h-5 w-5 text-destructive" />
+        <div>
+          <p className="text-sm font-medium">Failed to load suggestions</p>
+          <p className="text-xs text-muted-foreground">Could not fetch AI copilot data. Please try again later.</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   const scoreColor = data.score >= 70 ? "text-green-500" : data.score >= 40 ? "text-amber-500" : "text-red-500";
 

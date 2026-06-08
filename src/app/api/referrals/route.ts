@@ -1,8 +1,9 @@
 import { NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { success, parseError, requireAuth } from "@/lib/api-helper";
+import { success, parseError, requireAuth, apiError } from "@/lib/api-helper";
 import { sendEmail } from "@/lib/email/send";
 import { wrapEmail } from "@/lib/email/templates";
+import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,10 @@ export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
     const { email } = await request.json();
-    if (!email) return success({ error: "Email required" }, 400);
+    const emailParseResult = z.string().email("Valid email is required").safeParse(email);
+    if (!emailParseResult.success) {
+      return apiError(emailParseResult.error.issues[0].message, 400);
+    }
 
     const supabase = await createClient();
     const { data: existing } = await supabase

@@ -80,7 +80,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
           </Link>
           <button
             onClick={onToggle}
-            className="rounded-md p-1 hover:bg-sidebar-accent lg:hidden"
+            className="rounded-md p-1 hover:bg-sidebar-accent lg:hidden cursor-pointer"
             aria-label="Close sidebar"
           >
             <PanelRight className="h-5 w-5" />

@@ -19,7 +19,7 @@ export function Hero() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-white/[0.01] blur-[150px]" />
       </div>
 
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-7xl">
         <div className="max-w-4xl mx-auto text-center">
           <m.div
             initial={{ opacity: 0, y: 20 }}
@@ -51,11 +51,11 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.6 }}
-            className="mt-6 text-lg text-white/40 max-w-xl mx-auto leading-relaxed"
+            className="mt-6 text-lg text-gray-400 max-w-xl mx-auto leading-relaxed"
           >
             AI generates complete GST-ready quotes in 60 seconds. Clients e-sign in one click.
             <br />
-            <span className="text-white/60 font-medium">From conversation to contract — in hours, not days.</span>
+            <span className="text-gray-300 font-medium">From conversation to contract — in hours, not days.</span>
           </m.p>
 
           <m.div
@@ -93,19 +93,19 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 + i * 0.12 }}
-              className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 text-center hover:bg-white/[0.04] hover:border-[#00D4AA]/10 transition-all duration-500"
+              className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 text-center hover:bg-white/[0.04] hover:border-[#00D4AA]/10 transition-colors duration-300"
             >
               <stat.icon className="mx-auto h-5 w-5 text-[#00D4AA] mb-2" />
               <div className="text-2xl font-bold text-white">{stat.value}</div>
-              <div className="mt-0.5 text-xs text-white/40">{stat.label}</div>
+              <div className="mt-0.5 text-xs text-gray-400">{stat.label}</div>
             </m.div>
           ))}
         </m.div>
 
         {/* Floating animated elements */}
-        <div className="absolute top-1/4 left-8 w-3 h-3 rounded-full bg-[#00D4AA]/40 animate-pulse" style={{ animationDuration: "3s" }} />
-        <div className="absolute top-3/4 right-12 w-2 h-2 rounded-full bg-[#7C3AED]/30 animate-pulse" style={{ animationDuration: "4s" }} />
-        <div className="absolute bottom-1/4 left-1/4 w-4 h-4 border border-white/5 rounded-lg rotate-45 animate-pulse" style={{ animationDuration: "5s" }} />
+        <div className="absolute top-1/4 left-8 w-3 h-3 rounded-full bg-[#00D4AA]/40 motion-safe:animate-pulse" style={{ animationDuration: "3s" }} />
+        <div className="absolute top-3/4 right-12 w-2 h-2 rounded-full bg-[#7C3AED]/30 motion-safe:animate-pulse" style={{ animationDuration: "4s" }} />
+        <div className="absolute bottom-1/4 left-1/4 w-4 h-4 border border-white/5 rounded-lg rotate-45 motion-safe:animate-pulse" style={{ animationDuration: "5s" }} />
       </div>
     </section>
   );

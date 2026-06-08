@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 async function createProfile(userId: string, businessName: string, email: string) {
   const res = await fetch("/api/auth/signup-profile", {
@@ -101,7 +102,14 @@ export default function SignupPage() {
               <p className="text-xs text-white/30">At least 6 characters</p>
             </div>
             <Button type="submit" className="w-full bg-[#00D4AA] text-black hover:bg-[#00D4AA]/90 font-semibold" disabled={loading}>
-              {loading ? "Creating..." : "Create Account"}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating account...
+                </>
+              ) : (
+                "Create Account"
+              )}
             </Button>
           </form>
 

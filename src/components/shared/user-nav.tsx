@@ -11,7 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Menu, LogOut, Settings } from "lucide-react";
-import Link from "next/link";
 
 interface UserNavProps {
   onMenuToggle: () => void;
@@ -40,7 +39,7 @@ export function UserNav({ onMenuToggle }: UserNavProps) {
       </Button>
 
       <DropdownMenu>
-        <DropdownMenuTrigger>
+        <DropdownMenuTrigger aria-label="User menu">
           <Button variant="ghost" size="icon" className="rounded-full">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-medium">
               U
@@ -48,11 +47,9 @@ export function UserNav({ onMenuToggle }: UserNavProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuItem>
-            <Link href="/settings" className="flex items-center gap-2 w-full">
-              <Settings className="h-4 w-4" />
-              Settings
-            </Link>
+          <DropdownMenuItem onClick={() => router.push("/settings")}>
+            <Settings className="h-4 w-4" />
+            Settings
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem

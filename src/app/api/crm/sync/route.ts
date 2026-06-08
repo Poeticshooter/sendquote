@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { syncQuoteToCrm } from "@/lib/crm/sync";
-import { CrmSyncSchema } from "@/lib/api-validation";
 import { success, parseError, requireAuth } from "@/lib/api-helper";
+
+const CrmSyncSchema = z.object({
+  quote_id: z.string().uuid("Invalid quote ID"),
+});
 
 export async function POST(request: NextRequest) {
   try {

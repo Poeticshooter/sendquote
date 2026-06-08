@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -71,7 +72,16 @@ export default function LoginPage() {
               </div>
               <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="bg-white/5 border-white/10 text-white placeholder:text-white/30" placeholder="••••••••" />
             </div>
-            <Button type="submit" className="w-full bg-[#00D4AA] text-black hover:bg-[#00D4AA]/90 font-semibold" disabled={loading}>{loading ? "Signing in..." : "Sign In"}</Button>
+            <Button type="submit" className="w-full bg-[#00D4AA] text-black hover:bg-[#00D4AA]/90 font-semibold" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                "Sign In"
+              )}
+            </Button>
           </form>
 
           <div className="relative my-6"><div className="absolute inset-0 flex items-center"><span className="w-full border-t border-white/[0.06]" /></div><div className="relative flex justify-center text-xs uppercase"><span className="bg-[#141414] px-2 text-white/30">Or</span></div></div>

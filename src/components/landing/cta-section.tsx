@@ -1,6 +1,7 @@
 "use client";
 
 import { m } from "@/components/shared/motion-client";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 export function CTASection() {
@@ -26,13 +27,13 @@ export function CTASection() {
               transition={{ delay: 0.2 }}
               className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
             >
-              <a href="/signup" className="group inline-flex h-11 items-center justify-center rounded-xl bg-black px-6 text-sm font-semibold text-white hover:bg-black/90 transition-all">
+              <Link href="/signup" className="group inline-flex h-11 items-center justify-center rounded-xl bg-black px-6 text-sm font-semibold text-white hover:bg-black/90 transition-all">
                 Get Started Free
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </a>
-              <a href="/pricing" className="inline-flex h-11 items-center justify-center rounded-xl border border-black/20 px-6 text-sm font-medium text-black hover:bg-black/5 transition-all">
+              </Link>
+              <Link href="/pricing" className="inline-flex h-11 items-center justify-center rounded-xl border border-black/20 px-6 text-sm font-medium text-black hover:bg-black/5 transition-all">
                 View Pricing
-              </a>
+              </Link>
             </m.div>
           </div>
         </m.div>

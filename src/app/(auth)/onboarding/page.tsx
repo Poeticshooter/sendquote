@@ -12,7 +12,6 @@ import { FileText, CheckCircle2, ArrowRight } from "lucide-react";
 export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [businessName, setBusinessName] = useState("");
 
   function handleComplete() {
     localStorage.setItem("sq_onboarding_done", "true");

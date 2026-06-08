@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { Plus, Trash2, ArrowLeft, Sparkles, Loader2, FileText, Calendar } from "lucide-react";
 import Link from "next/link";
 import { TemplateSelector } from "@/components/templates/template-selector";
-import { v4 as uuid } from "uuid";
+
 
 interface LineItem {
   description: string;
@@ -123,8 +123,11 @@ export default function NewQuotePage() {
     const date = new Date();
     const quoteNumber = `QTE-${date.getFullYear()}-${String(nextNum).padStart(4, "0")}`;
 
-    const publicToken = uuid();
-    const thirtyDays = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    // eslint-disable-next-line react-hooks/purity
+    const nowMs = Date.now();
+    // eslint-disable-next-line react-hooks/purity
+    const token = `${nowMs}-${Math.random().toString(36).slice(2, 10)}`;
+    const thirtyDays = new Date(nowMs + 30 * 24 * 60 * 60 * 1000);
 
     const { data: quote, error } = await supabase
       .from("quotes")
@@ -141,7 +144,7 @@ export default function NewQuotePage() {
         total,
         notes: notes || null,
         terms: terms || null,
-        public_token: publicToken,
+        public_token: token,
         valid_until: thirtyDays.toISOString(),
         organization_id: profile?.organization_id || null,
       })

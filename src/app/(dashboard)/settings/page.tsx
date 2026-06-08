@@ -46,7 +46,7 @@ export default function SettingsPage() {
   }, [router, supabase]);
 
   useEffect(() => {
-    if (!gst || gst.length < 15) { setGstValid(null); return; }
+    if (!gst || gst.length < 15) return;
     const timer = setTimeout(async () => {
       setGstChecking(true);
       try {
@@ -56,7 +56,7 @@ export default function SettingsPage() {
       } catch { setGstValid(null); }
       setGstChecking(false);
     }, 600);
-    return () => clearTimeout(timer);
+    return () => { clearTimeout(timer); setGstChecking(false); };
   }, [gst]);
 
   async function saveProfile() {

@@ -100,6 +100,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION && (
           <meta name="google-site-verification" content={process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION} />
         )}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="SendQuote" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="application-name" content="SendQuote" />
         <link rel="search" type="application/opensearchdescription+xml" title="SendQuote" href="/opensearch.xml" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="preconnect" href="https://yabsujbilznpoayueokq.supabase.co" crossOrigin="anonymous" />

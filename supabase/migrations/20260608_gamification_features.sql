@@ -164,7 +164,109 @@ create policy "Users can read own schedule"
   on public.followup_schedule for select
   using (exists (select 1 from public.quotes where id = quote_id and user_id = auth.uid()));
 
--- 5. HEALTH SCORE is computed on-the-fly, no table needed
+-- 5. FOLLOW-UP SEQUENCE SEED DATA (default sequences for new users)
+insert into public.followup_sequences (user_id, name, trigger_days, trigger_condition, subject_template, body_template, is_active) values
+  ('00000000-0000-0000-0000-000000000000', 'Standard Follow-up', '{3,7}', 'sent',
+   'Following up on your quote {{quote_number}}',
+   'Hi {{client_name}},\n\nI wanted to follow up on the quote I sent you ({{quote_number}}) for {{total}}. Have you had a chance to review it?\n\nIf you have any questions or would like to discuss further, I''m happy to help.\n\nBest regards,\n{{business_name}}',
+   true),
+  ('00000000-0000-0000-0000-000000000000', 'Gentle Reminder', '{5,10}', 'opened_no_response',
+   'Checking in on {{quote_number}}',
+   'Hi {{client_name}},\n\nI noticed you viewed the quote ({{quote_number}}) a few days ago. Just checking if you have any questions or need any clarification on the pricing or terms.\n\nHappy to hop on a quick call if that helps.\n\nBest,\n{{business_name}}',
+   true),
+  ('00000000-0000-0000-0000-000000000000', 'Expiry Notice', '{3}', 'expiring_soon',
+   'Your quote {{quote_number}} is expiring soon',
+   'Hi {{client_name}},\n\nThis is a quick reminder that quote {{quote_number}} for {{total}} is expiring in 3 days.\n\nTo lock in the current pricing, please accept before {{valid_until}}.\n\nBest,\n{{business_name}}',
+   true);
+
+-- 6. BACKFILL: Create profiles for existing users who don't have one
+insert into public.profiles (user_id, business_name, plan, billing_cycle, monthly_quote_count, subscription_status, quote_counter)
+select
+  au.id,
+  au.raw_user_meta_data->>'business_name',
+  'starter',
+  'monthly',
+  0,
+  'inactive',
+  0
+from auth.users au
+where au.id not in (select user_id from public.profiles)
+on conflict (user_id) do nothing;
+
+-- 7. AUTO-ACHIEVEMENT FUNCTION: Call after quote events to check and award
+create or replace function public.check_and_award_achievements(user_id uuid)
+returns void
+language plpgsql
+security definer
+as $$
+declare
+  q_count int;
+  a_count int;
+  c_count int;
+  w_rate numeric;
+begin
+  -- Count quotes
+  select count(*) into q_count from public.quotes where quotes.user_id = check_and_award_achievements.user_id;
+
+  -- Award first_quote
+  if q_count >= 1 then
+    insert into public.user_achievements (user_id, achievement) values (user_id, 'first_quote') on conflict do nothing;
+  end if;
+  if q_count >= 10 then
+    insert into public.user_achievements (user_id, achievement) values (user_id, 'ten_quotes') on conflict do nothing;
+  end if;
+  if q_count >= 50 then
+    insert into public.user_achievements (user_id, achievement) values (user_id, 'fifty_quotes') on conflict do nothing;
+  end if;
+
+  -- Count accepted
+  select count(*) into a_count from public.quotes where quotes.user_id = check_and_award_achievements.user_id and status = 'accepted';
+
+  if a_count >= 1 then
+    insert into public.user_achievements (user_id, achievement) values (user_id, 'first_accepted') on conflict do nothing;
+  end if;
+  if a_count >= 5 then
+    insert into public.user_achievements (user_id, achievement) values (user_id, 'five_accepted') on conflict do nothing;
+  end if;
+  if a_count >= 20 then
+    insert into public.user_achievements (user_id, achievement) values (user_id, 'twenty_accepted') on conflict do nothing;
+  end if;
+
+  -- Win rate
+  if q_count >= 10 then
+    select round((count(*) filter (where status = 'accepted')::numeric / count(*)) * 100) into w_rate from public.quotes where quotes.user_id = check_and_award_achievements.user_id;
+    if w_rate >= 75 then
+      insert into public.user_achievements (user_id, achievement) values (user_id, 'high_win_rate') on conflict do nothing;
+    end if;
+  end if;
+
+  -- Clients
+  select count(*) into c_count from public.clients where clients.user_id = check_and_award_achievements.user_id;
+  if c_count >= 1 then
+    insert into public.user_achievements (user_id, achievement) values (user_id, 'first_client') on conflict do nothing;
+  end if;
+  if c_count >= 10 then
+    insert into public.user_achievements (user_id, achievement) values (user_id, 'ten_clients') on conflict do nothing;
+  end if;
+end;
+$$;
+
+-- 8. TRIGGER: Auto-check achievements on quote insert
+create or replace function public.on_quote_insert_check_achievements()
+returns trigger
+language plpgsql
+security definer
+as $$
+begin
+  perform public.check_and_award_achievements(new.user_id);
+  return new;
+end;
+$$;
+
+drop trigger if exists trigger_check_achievements_on_quote on public.quotes;
+create trigger trigger_check_achievements_on_quote
+  after insert on public.quotes
+  for each row execute function public.on_quote_insert_check_achievements();
 
 -- Indexes
 create index if not exists idx_user_achievements_user on public.user_achievements(user_id);

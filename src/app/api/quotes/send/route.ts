@@ -54,6 +54,13 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Auto-schedule follow-ups
+    fetch(`${process.env.NEXT_PUBLIC_APP_URL || "https://sendquote.in"}/api/followup/schedule`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ quote_id }),
+    }).catch(() => {});
+
     return success({
       success: true,
       message: "Quote sent successfully",

@@ -15,6 +15,7 @@ import { CrmSettings } from "@/components/settings/crm-settings";
 import { SSOSettings } from "@/components/settings/sso-settings";
 import { BillingSettings } from "@/components/settings/billing-settings";
 import { TeamSettings } from "@/components/settings/team-settings";
+import { FollowupSettings } from "@/components/settings/followup-settings";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -68,6 +69,7 @@ export default function SettingsPage() {
           <TabsTrigger value="billing">Billing</TabsTrigger>
           <TabsTrigger value="sso">SSO</TabsTrigger>
           <TabsTrigger value="team">Team</TabsTrigger>
+          <TabsTrigger value="followups">Follow-ups</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="mt-4 space-y-4">
@@ -112,6 +114,9 @@ export default function SettingsPage() {
         </TabsContent>
         <TabsContent value="team" className="mt-4">
           <TeamSettings />
+        </TabsContent>
+        <TabsContent value="followups" className="mt-4">
+          <FollowupSettings />
         </TabsContent>
       </Tabs>
     </div>

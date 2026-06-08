@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-sm bg-[#141414] border-white/[0.06] text-white">
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto flex items-center justify-center gap-2 mb-4">
-            <Image src="/logo-icon-v2.svg" alt="" width={44} height={44} className="h-11 w-11" />
+            <Image src="/logo-icon-v2.svg" alt="" width={66} height={66} className="h-[66px] w-[66px]" />
             <span className="text-xl font-bold text-white">SendQuote</span>
           </Link>
           <CardTitle className="text-2xl text-white">Reset password</CardTitle>

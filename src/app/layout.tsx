@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 } },
   alternates: { canonical: "https://sendquote.in", languages: { "en-IN": "https://sendquote.in" } },
-  icons: { icon: "/favicon-v2.svg", apple: "/favicon-v2.svg" },
+  icons: { icon: "/favicon-v2.ico", apple: "/apple-touch-icon.svg" },
   manifest: "/manifest.json",
   other: { "google-site-verification": process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION || "" },
 };

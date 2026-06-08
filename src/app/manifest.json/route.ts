@@ -18,7 +18,7 @@ export async function GET() {
       { src: "/og-image.svg", sizes: "1200x630", type: "image/svg+xml", form_factor: "wide", label: "SendQuote Dashboard" },
     ],
     icons: [
-      { src: "/favicon-v2.svg", sizes: "any", type: "image/svg+xml" },
+      { src: "/favicon-v2.ico", sizes: "48x48", type: "image/x-icon" },
       { src: "/logo-icon-v2.svg", sizes: "96x96", type: "image/svg+xml" },
     ],
     shortcuts: [

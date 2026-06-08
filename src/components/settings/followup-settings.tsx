@@ -25,7 +25,7 @@ export function FollowupSettings() {
       if (!user) return;
       supabase.from("followup_sequences")
         .select("*")
-        .or(`user_id.eq.${user.id},user_id.eq.00000000-0000-0000-0000-000000000000`)
+        .or(`user_id.eq.${user.id},user_id.is.null`)
         .order("name")
         .then(({ data }) => {
           setSequences(data || []);

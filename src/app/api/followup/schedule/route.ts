@@ -20,12 +20,12 @@ export async function POST(request: NextRequest) {
 
     if (!quote) return success({ error: "Quote not found" }, 404);
 
-    // Get active sequences (both user-specific and defaults)
+    // Get active sequences (both user-specific and system defaults)
     const { data: sequences } = await supabase
       .from("followup_sequences")
       .select("*")
       .eq("is_active", true)
-      .or(`user_id.eq.${user.id},user_id.eq.00000000-0000-0000-0000-000000000000`);
+      .or(`user_id.eq.${user.id},user_id.is.null`);
 
     if (!sequences?.length) return success({ scheduled: 0 });
 

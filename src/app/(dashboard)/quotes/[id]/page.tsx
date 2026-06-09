@@ -97,6 +97,25 @@ export default function QuoteDetailPage() {
     toast.success("Link copied!");
   }
 
+  async function downloadPdf() {
+    try {
+      const res = await fetch(`/api/quotes/${params.id}/pdf`);
+      if (!res.ok) { toast.error("Failed to generate PDF"); return; }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `quote-${quote?.quote_number || params.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("PDF downloaded!");
+    } catch {
+      toast.error("Failed to generate PDF");
+    }
+  }
+
   async function sendChat(e: React.FormEvent) {
     e.preventDefault();
     if (!chatMsg.trim() || !quote) return;
@@ -125,7 +144,7 @@ export default function QuoteDetailPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={copyLink}><Copy className="mr-1 h-4 w-4" /> Copy Link</Button>
-          <Button variant="outline" size="sm"><FileDown className="mr-1 h-4 w-4" /> PDF</Button>
+          <Button variant="outline" size="sm" onClick={downloadPdf}><FileDown className="mr-1 h-4 w-4" /> PDF</Button>
           <Button size="sm" onClick={handleSend} disabled={quote.status === "accepted"}><Send className="mr-1 h-4 w-4" /> Send</Button>
         </div>
       </div>

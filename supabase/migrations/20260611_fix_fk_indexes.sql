@@ -1,0 +1,13 @@
+-- Add indexes for all foreign key columns
+CREATE INDEX IF NOT EXISTS idx_quote_items_quote_id ON public.quote_items(quote_id);
+CREATE INDEX IF NOT EXISTS idx_quote_events_quote_id ON public.quote_events(quote_id);
+CREATE INDEX IF NOT EXISTS idx_quote_signatures_quote_id ON public.quote_signatures(quote_id);
+CREATE INDEX IF NOT EXISTS idx_invoices_quote_id ON public.invoices(quote_id);
+CREATE INDEX IF NOT EXISTS idx_invoices_user_id ON public.invoices(user_id);
+CREATE INDEX IF NOT EXISTS idx_approval_rules_user_id ON public.approval_rules(user_id);
+CREATE INDEX IF NOT EXISTS idx_approval_requests_quote_id ON public.approval_requests(quote_id);
+CREATE INDEX IF NOT EXISTS idx_approval_requests_rule_id ON public.approval_requests(rule_id);
+CREATE INDEX IF NOT EXISTS idx_deal_room_messages_quote_id ON public.deal_room_messages(quote_id);
+CREATE INDEX IF NOT EXISTS idx_cron_reminders_quote_id ON public.cron_reminders(quote_id);
+CREATE INDEX IF NOT EXISTS idx_team_members_user_id ON public.team_members(account_user_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id ON public.subscriptions(user_id);

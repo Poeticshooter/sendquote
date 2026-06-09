@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       .limit(MAX_RETURNED_QUOTES);
 
     if (!quotes || quotes.length === 0) {
-      return NextResponse.json({ quotes: [], message: "No records found for this email" });
+      return NextResponse.json({ quotes: [] });
     }
 
     const portalData = quotes.map((q) => ({

@@ -25,8 +25,7 @@ export function SignQuoteFlow({ publicToken, quoteNumber, total = 0, onSigned }:
   const [email, setEmail] = useState("");
   const [signature, setSignature] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "stripe" | null>(null);
-
+  const [, setPaymentMethod] = useState<"razorpay" | "stripe" | null>(null);
   async function handleSign() {
     if (!signature) return;
     setLoading(true);
@@ -78,10 +77,11 @@ export function SignQuoteFlow({ publicToken, quoteNumber, total = 0, onSigned }:
         modal: { ondismiss: () => setLoading(false) },
       };
 
-      const rzp = new (window as any).Razorpay(options);
+      const rzp = new window.Razorpay(options);
       rzp.open();
-    } catch (err: any) {
-      toast.error(err.message || "Payment failed");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Payment failed";
+      toast.error(message);
       setLoading(false);
     }
   }

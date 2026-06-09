@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -106,7 +107,7 @@ export default function SignupPage() {
       <Card className="w-full max-w-sm bg-[#141414] border-white/[0.06] text-white">
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto flex items-center justify-center gap-2 mb-4">
-            <img src="/logo-icon-v2.svg" alt="SendQuote" className="h-[66px] w-[66px]" />
+            <Image src="/icon-192.webp" alt="SendQuote" width={192} height={192} className="h-[66px] w-[66px]" />
             <span className="text-2xl font-bold text-white">SendQuote</span>
           </Link>
           <CardTitle className="text-2xl text-white">Create your account</CardTitle>

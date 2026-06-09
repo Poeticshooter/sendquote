@@ -4,10 +4,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/send";
 import { wrapEmail } from "@/lib/email/templates";
 import { verifyCronSecret } from "@/lib/security/cron";
+import { escapeHtml } from "@/lib/email/escape";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(request: Request) {
+export async function POST(request: Request) {
   if (!verifyCronSecret(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -46,7 +47,7 @@ export async function GET(request: Request) {
           html: wrapEmail(`
             <h1 style="color:#F5F5F5;font-size:24px;font-weight:700;margin:0 0 8px 0;">Quote expiring soon</h1>
             <p style="color:#808080;font-size:15px;line-height:1.6;margin:0 0 20px 0;">
-              Your quote <strong style="color:#F5F5F5;">${quote.quote_number}</strong> from <strong style="color:#F5F5F5;">${profile?.business_name || "SendQuote"}</strong> is expiring in 3 days.
+              Your quote <strong style="color:#F5F5F5;">${quote.quote_number}</strong> from <strong style="color:#F5F5F5;">${escapeHtml(profile?.business_name || "SendQuote")}</strong> is expiring in 3 days.
             </p>
             <p style="color:#F5F5F5;font-size:20px;font-weight:700;">₹${Number(quote.total).toLocaleString("en-IN")}</p>
             <div style="text-align:center;margin-top:24px;">

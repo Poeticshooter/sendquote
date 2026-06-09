@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,28 +21,33 @@ const statusColors: Record<string, "default" | "secondary" | "outline" | "destru
   archived: "outline",
 };
 
+const PAGE_SIZE = 20;
+
 export default function QuotesPage() {
   const router = useRouter();
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     const supabase = createClient();
-
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) { router.push("/login"); return; }
 
       supabase
         .from("quotes")
-        .select("*")
+        .select("id, client_name, quote_number, total, status, created_at, public_token", { count: "exact" })
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
-        .then(({ data }) => {
-          setQuotes(data || []);
+        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
+        .then(({ data, count }) => {
+          setQuotes((data || []) as Quote[]);
+          if (count !== null) setTotalCount(count);
           setLoading(false);
         });
     });
-  }, [router]);
+  }, [router, page]);
 
   if (loading) {
     return (
@@ -118,6 +123,32 @@ export default function QuotesPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {quotes.length > 0 && (
+        <div className="flex items-center justify-between pt-2">
+          <p className="text-sm text-muted-foreground">
+            Page {page + 1} of {Math.max(1, Math.ceil(totalCount / PAGE_SIZE))}
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === 0}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={(page + 1) * PAGE_SIZE >= totalCount}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       )}
     </div>

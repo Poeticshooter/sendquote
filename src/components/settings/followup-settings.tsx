@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Bell, Plus, Pencil, Trash2 } from "lucide-react";
+import { Bell, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 interface Sequence {

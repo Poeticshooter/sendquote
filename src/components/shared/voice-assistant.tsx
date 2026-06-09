@@ -14,8 +14,8 @@ type SpeechRecognitionInstance = {
   lang: string;
   start: () => void;
   stop: () => void;
-  onresult: ((event: any) => void) | null;
-  onerror: ((event: any) => void) | null;
+  onresult: ((event: { results: SpeechRecognitionResultList; resultIndex: number }) => void) | null;
+  onerror: ((event: { error: string; message: string }) => void) | null;
   onend: (() => void) | null;
 };
 
@@ -76,14 +76,15 @@ export function VoiceAssistant() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const SpeechRecognition = (window as unknown as { SpeechRecognition?: new () => SpeechRecognitionInstance; webkitSpeechRecognition?: new () => SpeechRecognitionInstance }).SpeechRecognition
+        || (window as unknown as { SpeechRecognition?: new () => SpeechRecognitionInstance; webkitSpeechRecognition?: new () => SpeechRecognitionInstance }).webkitSpeechRecognition;
       if (SpeechRecognition) {
         recognitionRef.current = new SpeechRecognition() as SpeechRecognitionInstance;
         recognitionRef.current.continuous = false;
         recognitionRef.current.interimResults = true;
         recognitionRef.current.lang = "en-IN";
 
-        recognitionRef.current.onresult = (event: any) => {
+        recognitionRef.current.onresult = (event: { results: SpeechRecognitionResultList; resultIndex: number }) => {
           const current = event.results[event.results.length - 1];
           const text = current[0].transcript;
           setTranscript(text);
@@ -103,6 +104,10 @@ export function VoiceAssistant() {
         };
       }
     }
+    return () => {
+      recognitionRef.current?.stop();
+      recognitionRef.current = null;
+    };
   }, []);
 
 
@@ -140,7 +145,7 @@ export function VoiceAssistant() {
     );
   }
 
-  const hasSpeechSupport = typeof window !== "undefined" && ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
+  const hasSpeechSupport = typeof window !== "undefined" && (!!(window as unknown as { SpeechRecognition?: unknown }).SpeechRecognition || !!(window as unknown as { webkitSpeechRecognition?: unknown }).webkitSpeechRecognition);
 
   return (
     <div className="fixed bottom-4 right-4 z-50 w-[360px] max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-card shadow-2xl overflow-hidden">

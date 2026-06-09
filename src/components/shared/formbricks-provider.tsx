@@ -11,9 +11,9 @@ export function FormbricksProvider() {
     script.src = `https://cdn.jsdelivr.net/npm/@formbricks/js@latest/dist/index.umd.js`;
     script.async = true;
     script.onload = () => {
-      const win = window as any;
-      if (win.formbricks) {
-        win.formbricks.init({ environmentId: envId, apiHost: "https://app.formbricks.com" });
+      const formbricks = (window as unknown as { formbricks?: { init: (config: { environmentId: string; apiHost: string }) => void } }).formbricks;
+      if (formbricks) {
+        formbricks.init({ environmentId: envId, apiHost: "https://app.formbricks.com" });
       }
     };
     document.head.appendChild(script);

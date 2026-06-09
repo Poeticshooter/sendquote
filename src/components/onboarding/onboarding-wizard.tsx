@@ -188,7 +188,7 @@ export function OnboardingWizard() {
               </div>
             </div>
             <p className="text-sm text-gray-400">
-              We'll create a sample quote using AI so you can see how it works.
+              We&apos;ll create a sample quote using AI so you can see how it works.
               No credit card needed.
             </p>
             <Button

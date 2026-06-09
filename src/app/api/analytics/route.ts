@@ -9,6 +9,11 @@ const DateQuerySchema = z.object({
   endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}(T|$)/, "endDate must be a valid ISO date").optional(),
 });
 
+const PaginationSchema = z.object({
+  limit: z.coerce.number().int().min(1).max(1000).default(100),
+  offset: z.coerce.number().int().min(0).default(0),
+});
+
 export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth();
@@ -24,10 +29,32 @@ export async function GET(request: NextRequest) {
     }
     const { startDate, endDate } = parsed.data;
 
+    const pagination = PaginationSchema.parse({
+      limit: searchParams.get("limit"),
+      offset: searchParams.get("offset"),
+    });
+
+    // Get total count for pagination metadata
+    let countQuery = supabase
+      .from("quotes")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id);
+
+    if (startDate) {
+      countQuery = countQuery.gte("created_at", startDate);
+    }
+    if (endDate) {
+      countQuery = countQuery.lte("created_at", endDate);
+    }
+
+    const { count: totalQuotes } = await countQuery;
+
     let query = supabase
       .from("quotes")
       .select("id, status, total, created_at, client_name")
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .range(pagination.offset, pagination.offset + pagination.limit - 1);
 
     if (startDate) {
       query = query.gte("created_at", startDate);
@@ -38,7 +65,7 @@ export async function GET(request: NextRequest) {
 
     const { data: quotes } = await query;
 
-    if (!quotes) return success({ totals: { total: 0, accepted: 0, lost: 0, pending: 0 }, revenue: { total: 0, avgQuoteValue: 0 } });
+    if (!quotes) return success({ totals: { total: 0, accepted: 0, lost: 0, pending: 0 }, revenue: { total: 0, avgQuoteValue: 0 }, pagination: { total: 0, limit: pagination.limit, offset: pagination.offset, hasMore: false } });
 
     const total = quotes.length;
     const accepted = quotes.filter((q) => q.status === "accepted").length;
@@ -67,6 +94,8 @@ export async function GET(request: NextRequest) {
       monthlyRevenue[month] = (monthlyRevenue[month] || 0) + (Number(q.total) || 0);
     });
 
+    const totalCount = totalQuotes ?? 0;
+
     return success({
       totals: { total, accepted, lost, pending },
       revenue: { total: totalRevenue, avgQuoteValue },
@@ -74,6 +103,12 @@ export async function GET(request: NextRequest) {
       recentAccepted,
       quotesByStatus,
       monthlyRevenue: Object.entries(monthlyRevenue).map(([month, amount]) => ({ month, amount })),
+      pagination: {
+        total: totalCount,
+        limit: pagination.limit,
+        offset: pagination.offset,
+        hasMore: pagination.offset + pagination.limit < totalCount,
+      },
     });
   } catch (e) {
     Sentry.captureException(e);

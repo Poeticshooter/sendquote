@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { createClient } from "./server";
 import { createAdminClient } from "./admin";
 import { v4 as uuid } from "uuid";
@@ -62,6 +63,9 @@ export async function getQuoteByToken(token: string) {
   return data;
 }
 
+export const getCachedQuotes = cache(getQuotes);
+export const getCachedQuote = cache(getQuote);
+
 export async function createQuote(quote: {
   user_id: string;
   quote_number: string;
@@ -113,13 +117,14 @@ export async function createQuote(quote: {
     throw new Error(error.message);
   }
 
-  const itemsToInsert = quote.items.map((item) => ({
+  const itemsToInsert = quote.items.map((item, index) => ({
     quote_id: data.id,
     description: item.description,
     quantity: item.quantity,
     rate: item.rate,
     unit: item.unit || "pc",
     amount: item.quantity * item.rate,
+    sort_order: index,
   }));
 
   const { error: itemsError } = await supabase
@@ -184,7 +189,7 @@ export async function getClients() {
 
   const { data, error } = await supabase
     .from("clients")
-    .select("*")
+    .select("id, name, email, phone, address, gst_number, notes, total_quotes, total_revenue, last_quote_date, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -194,22 +199,13 @@ export async function getClients() {
 
 export async function generateQuoteNumber(userId: string): Promise<string> {
   const supabase = await createClient();
-  // Try RPC for atomic increment (avoids race conditions from read-then-write)
+  // Use RPC for atomic increment (avoids race conditions from read-then-write)
   const { data: rpcData, error: rpcError } = await supabase.rpc("increment_quote_counter", {
     user_id: userId,
   });
 
-  // Fallback if RPC doesn't exist
   if (rpcError) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("quote_counter")
-      .eq("user_id", userId)
-      .maybeSingle();
-    const nextNum = (profile?.quote_counter || 0) + 1;
-    await supabase.from("profiles").update({ quote_counter: nextNum }).eq("user_id", userId);
-    const date = new Date();
-    return `QTE-${date.getFullYear()}-${String(nextNum).padStart(4, "0")}`;
+    throw new Error(`Failed to generate quote number: ${rpcError.message}`);
   }
 
   // RPC returns an array with the result or a single object

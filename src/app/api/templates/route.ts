@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth();
+    await requireAuth();
     const supabase = await createClient();
 
     const { searchParams } = new URL(request.url);

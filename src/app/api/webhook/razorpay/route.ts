@@ -5,6 +5,10 @@ import * as Sentry from "@sentry/nextjs";
 
 export async function POST(request: NextRequest) {
   try {
+    const contentLength = parseInt(request.headers.get("content-length") || "0");
+    if (contentLength > 1_000_000) {
+      return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+    }
     const body = await request.text();
     const signature = request.headers.get("x-razorpay-signature") || "";
     const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
@@ -60,6 +64,14 @@ export async function POST(request: NextRequest) {
           if (invoice) {
             if (Math.abs(paymentAmount - Number(invoice.balance_due)) > 1) {
               Sentry.captureMessage(`Payment amount mismatch: received ${paymentAmount}, expected ${invoice.balance_due}`, "warning");
+              await supabase.from("webhook_events").insert({
+                razorpay_event_id: eventId,
+                event_type: "payment.failed",
+                status: "amount_mismatch",
+                payload: { paymentAmount, expected: invoice.balance_due, event },
+                outcome: "rejected",
+              });
+              return NextResponse.json({ error: "amount_mismatch" }, { status: 400 });
             }
             const newPaid = (invoice.paid_amount || 0) + paymentAmount;
             const newStatus = newPaid >= Number(invoice.amount) ? "paid" : "pending";

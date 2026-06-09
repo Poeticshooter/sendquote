@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Bell, CheckCheck, ExternalLink } from "lucide-react";
+import { Bell, CheckCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Notification {

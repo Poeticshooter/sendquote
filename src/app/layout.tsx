@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
@@ -9,9 +10,9 @@ import { SkipNav } from "@/components/shared/skip-nav";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Suspense } from "react";
-import { VoiceAssistant } from "@/components/shared/voice-assistant";
 import { GoogleAnalytics } from "@/components/shared/google-analytics";
 import { FormbricksProvider } from "@/components/shared/formbricks-provider";
+import { VoiceAssistantWrapper } from "@/components/shared/voice-assistant-wrapper";
 
 const interSans = Inter({ variable: "--font-sans", subsets: ["latin"], display: "swap" });
 const jetbrainsMono = JetBrains_Mono({ variable: "--font-mono", subsets: ["latin"], display: "swap" });
@@ -32,17 +33,17 @@ export const metadata: Metadata = {
     title: "SendQuote — AI-Powered Quoting for Indian Businesses",
     description: "Create GST-ready quotes in 60 seconds with AI. Send interactive deal rooms, collect e-signatures, and close deals faster.",
     url: "https://sendquote.in", siteName: "SendQuote", locale: "en_IN", type: "website",
-    images: [{ url: "https://sendquote.in/og-image-v2.svg", width: 1200, height: 630, alt: "SendQuote - AI Quote Generation Platform" }],
+    images: [{ url: "https://sendquote.in/og-image.webp", width: 1200, height: 630, alt: "SendQuote - AI Quote Generation Platform" }],
   },
   twitter: {
     card: "summary_large_image", site: "@sendquote", creator: "@sendquote",
     title: "SendQuote — AI-Powered Quoting for Indian Businesses",
     description: "Create GST-ready quotes in 60 seconds with AI. Send interactive deal rooms, collect e-signatures, close deals faster.",
-    images: ["https://sendquote.in/og-image-v2.svg"],
+    images: ["https://sendquote.in/og-image.webp"],
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 } },
   alternates: { canonical: "https://sendquote.in", languages: { "en-IN": "https://sendquote.in" } },
-  icons: { icon: "/favicon-v2.ico", apple: "/apple-touch-icon.svg" },
+  icons: { icon: "/favicon.ico", apple: "/apple-touch-icon.png" },
   manifest: "/manifest.json",
   other: { "google-site-verification": process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION || "" },
 };
@@ -53,7 +54,7 @@ const jsonLd = {
     {
       "@type": "Organization", "@id": "https://sendquote.in/#organization",
       name: "SendQuote", alternateName: "SendQuote India", url: "https://sendquote.in",
-      logo: { "@type": "ImageObject", url: "https://sendquote.in/logo-white-v2.svg", width: 512, height: 512 },
+      logo: { "@type": "ImageObject", url: "https://sendquote.in/logo.webp", width: 512, height: 512 },
       address: { "@type": "PostalAddress", addressCountry: "IN" },
       sameAs: ["https://twitter.com/sendquote", "https://sendquote.in"],
       contactPoint: [
@@ -72,7 +73,7 @@ const jsonLd = {
         { "@type": "Offer", price: "16499", priceCurrency: "INR", name: "Pro", description: "Unlimited everything + priority support" },
       ],
       featureList: ["AI quote generation", "Interactive deal rooms", "Buyer intent tracking", "E-signature", "GST invoices", "CRM integration", "Approval workflows", "Team collaboration"],
-      screenshot: "https://sendquote.in/og-image-v2.svg",
+      screenshot: "https://sendquote.in/og-image.webp",
       softwareVersion: "2.0",
       aggregateRating: { "@type": "AggregateRating", ratingValue: "4.8", ratingCount: "127", bestRating: "5" },
     },
@@ -111,7 +112,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="manifest" href="/manifest.json" />
         <link rel="preconnect" href="https://yabsujbilznpoayueokq.supabase.co" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://api.razorpay.com" crossOrigin="anonymous" />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <Script id="json-ld" type="application/ld+json" strategy="beforeInteractive">
+          {JSON.stringify(jsonLd)}
+        </Script>
       </head>
       <body className="min-h-full flex flex-col">
         <SkipNav />
@@ -126,7 +129,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Toaster richColors position="top-right" />
             <Analytics />
             <SpeedInsights />
-            <VoiceAssistant />
+            <VoiceAssistantWrapper />
           </PostHogProvider>
         </ThemeProvider>
       </body>

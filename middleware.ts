@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { detectBot, rateLimitCheck } from "@/lib/security";
-import { verifyOrigin } from "@/lib/security/csrf";
+import { verifyOrigin, verifyCsrfToken } from "@/lib/security/csrf";
 
 const publicPaths = [
   "/", "/login", "/signup", "/onboarding", "/forgot-password", "/pricing", "/blog",
@@ -42,6 +42,11 @@ export async function middleware(request: NextRequest) {
       const originResult = verifyOrigin(request);
       if (!originResult.ok) {
         return NextResponse.json({ error: originResult.message }, { status: originResult.status });
+      }
+
+      const csrfResult = verifyCsrfToken(request);
+      if (!csrfResult.ok) {
+        return NextResponse.json({ error: csrfResult.message }, { status: csrfResult.status });
       }
     }
   }

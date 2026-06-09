@@ -1,12 +1,35 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { SignQuoteFlow } from "./sign-quote-flow";
 import { ExpiryCountdown } from "./expiry-countdown";
 import { CheckCircle } from "lucide-react";
 
+interface PublicQuoteItem {
+  id: string;
+  description: string;
+  quantity: number;
+  rate: number;
+  amount: number;
+}
+
+interface PublicQuoteData {
+  quote_number: string;
+  client_name: string;
+  status: string;
+  valid_until: string | null;
+  quote_items: PublicQuoteItem[] | null;
+  subtotal: number;
+  gst_rate: string | number;
+  gst_amount: string | number;
+  total: string | number;
+  notes: string | null;
+  terms: string | null;
+}
+
 interface PublicQuoteViewProps {
-  quote: any;
+  quote: PublicQuoteData;
   publicToken: string;
 }
 
@@ -18,7 +41,7 @@ export function PublicQuoteView({ quote, publicToken }: PublicQuoteViewProps) {
       <div className="rounded-xl border border-white/[0.06] bg-[#141414] p-6 sm:p-8">
         <div className="flex items-center justify-between border-b border-white/[0.06] pb-6">
           <div className="flex items-center gap-2.5">
-            <img src="/logo-icon-v2.svg" alt="SendQuote" className="h-[60px] w-[60px]" />
+            <Image src="/logo.webp" alt="SendQuote" width={512} height={512} className="h-[60px] w-[60px]" />
             <span className="text-xl font-bold text-white">SendQuote</span>
           </div>
           <span className="text-sm text-white/40 font-mono">{quote.quote_number}</span>
@@ -49,7 +72,7 @@ export function PublicQuoteView({ quote, publicToken }: PublicQuoteViewProps) {
             </tr>
           </thead>
           <tbody>
-            {(quote as any).quote_items?.map((item: any) => (
+            {quote.quote_items?.map((item: PublicQuoteItem) => (
               <tr key={item.id} className="border-b border-white/[0.06]">
                 <td className="py-3 text-white/80">{item.description}</td>
                 <td className="py-3 text-right text-white/60">{item.quantity}</td>

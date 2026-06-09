@@ -9,6 +9,7 @@ const ApprovalRuleSchema = z.object({
   trigger_value: z.number().min(0),
   approver_role: z.string().max(100),
   action: z.string().max(100),
+  active: z.boolean().optional().default(true),
 });
 
 export async function GET() {
@@ -46,6 +47,7 @@ export async function POST(request: NextRequest) {
         trigger_value: data.trigger_value,
         approver_role: data.approver_role,
         action: data.action,
+        active: data.active,
       })
       .select()
       .single();

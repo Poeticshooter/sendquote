@@ -1,9 +1,20 @@
 import { initProviders, generateWithFallback } from "./providers";
 import { getCachedResponse, setCachedResponse } from "./cache";
 
-const aiProviders = initProviders();
+let aiProviders: ReturnType<typeof initProviders> | null = null;
+
+function getProviders() {
+  aiProviders = initProviders();
+  return aiProviders;
+}
 
 export interface GeneratedLineItem {
+  description: string;
+  quantity: number;
+  rate: number;
+}
+
+export interface AIGeneratedItem {
   description: string;
   quantity: number;
   rate: number;
@@ -106,7 +117,7 @@ function generateItems(description: string, industry: string): GeneratedLineItem
 }
 
 export async function generateQuoteAI(description: string): Promise<GeneratedQuote> {
-  if (aiProviders.length === 0) {
+  if (getProviders().length === 0) {
     const industry = detectIndustry(description);
     const items = generateItems(description, industry);
     const template = industryTemplates[industry];
@@ -155,13 +166,13 @@ Guidelines:
           items: parsed.items || [],
           notes: parsed.notes || "",
           terms: parsed.terms || "",
-          subtotal: (parsed.items || []).reduce((s: number, i: any) => s + i.quantity * i.rate, 0),
+          subtotal: (parsed.items || []).reduce((s: number, i: AIGeneratedItem) => s + i.quantity * i.rate, 0),
         };
       }
     }
 
     // Try AI providers with fallback chain
-    const { content, provider } = await generateWithFallback(prompt, systemPrompt, aiProviders);
+    const { content, provider } = await generateWithFallback(prompt, systemPrompt, getProviders());
     const jsonMatch = content.match(/\{[\s\S]*\}/);
 
     if (jsonMatch) {
@@ -174,7 +185,7 @@ Guidelines:
         items: parsed.items || [],
         notes: parsed.notes || "",
         terms: parsed.terms || "",
-        subtotal: (parsed.items || []).reduce((s: number, i: any) => s + i.quantity * i.rate, 0),
+        subtotal: (parsed.items || []).reduce((s: number, i: AIGeneratedItem) => s + i.quantity * i.rate, 0),
       };
     }
 

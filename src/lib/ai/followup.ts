@@ -1,7 +1,12 @@
 import { initProviders, generateWithFallback } from "./providers";
 import { getCachedResponse, setCachedResponse } from "./cache";
 
-const aiProviders = initProviders();
+let aiProviders: ReturnType<typeof initProviders> | null = null;
+
+function getProviders() {
+  aiProviders = initProviders();
+  return aiProviders;
+}
 
 export interface FollowUpInput {
   clientName: string;
@@ -58,7 +63,7 @@ function getTone(input: FollowUpInput): "gentle" | "direct" | "urgency" {
   return input.daysSinceSent <= 2 ? "gentle" : input.daysSinceSent <= 5 ? "direct" : "urgency";
 }
 
-function useTemplate(input: FollowUpInput): FollowUpResult {
+function buildTemplateResponse(input: FollowUpInput): FollowUpResult {
   if (input.daysSinceSent <= 2 && input.viewedCount > 0) {
     return {
       subject: `Quick question about your quote (${input.quoteNumber})`,
@@ -110,28 +115,25 @@ function parseFollowUpResponse(text: string, input: FollowUpInput): FollowUpResu
 
 export async function generateFollowUp(input: FollowUpInput): Promise<FollowUpResult> {
   // Fall back to templates when no AI providers are configured
-  if (aiProviders.length === 0) {
-    return useTemplate(input);
+  if (getProviders().length === 0) {
+    return buildTemplateResponse(input);
   }
 
   const systemPrompt = buildSystemPrompt(input);
   const prompt = buildPrompt(input);
 
   try {
-    // Check cache first
     const cached = await getCachedResponse(prompt, systemPrompt);
     if (cached) {
       return parseFollowUpResponse(cached, input);
     }
 
-    // Try AI providers with fallback chain
-    const { content, provider } = await generateWithFallback(prompt, systemPrompt, aiProviders);
+    const { content, provider } = await generateWithFallback(prompt, systemPrompt, getProviders());
 
-    // Cache the successful response (fire-and-forget)
-    setCachedResponse(prompt, systemPrompt, content, provider).catch(() => {});
+    setCachedResponse(prompt, systemPrompt, content, provider).catch((e) => console.error("[Cache] write failed:", e));
 
     return parseFollowUpResponse(content, input);
   } catch {
-    return useTemplate(input);
+    return buildTemplateResponse(input);
   }
 }

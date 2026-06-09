@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -77,7 +78,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
       >
         <div className="flex h-16 items-center justify-between border-b px-4">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <img src="/logo-icon-v2.svg" alt="SendQuote" className="h-[60px] w-[60px]" />
+            <Image src="/logo.webp" alt="SendQuote" width={512} height={512} className="h-[60px] w-[60px]" />
             <span className="text-xl font-bold">SendQuote</span>
           </Link>
           <button

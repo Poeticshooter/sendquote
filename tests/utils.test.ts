@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { cn } from "@/lib/utils";
 
 const mockSupabaseSingle = vi.hoisted(() => vi.fn());
+const mockSupabaseRpc = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: vi.fn(() => ({
@@ -17,6 +18,7 @@ vi.mock("@/lib/supabase/admin", () => ({
         eq: vi.fn(() => Promise.resolve({ error: null })),
       })),
     })),
+    rpc: mockSupabaseRpc,
   })),
 }));
 
@@ -68,7 +70,7 @@ describe("cn utility", () => {
   });
 
   it("handles all falsy values gracefully", () => {
-    expect(cn("base", false, null, undefined, 0 as any, "")).toBe("base");
+    expect(cn("base", false, null, undefined, 0 as const, "")).toBe("base");
   });
 });
 
@@ -126,15 +128,15 @@ describe("rateLimitCheck", () => {
   beforeEach(() => {
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://test.supabase.co");
     vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "test-service-role-key");
+    mockSupabaseRpc.mockResolvedValue({ data: [{ allowed: true, current_count: 1 }], error: null });
   });
 
   afterEach(() => {
     vi.unstubAllEnvs();
+    mockSupabaseRpc.mockReset();
   });
 
   it("allows request when no prior rate limit record exists", async () => {
-    mockSupabaseSingle.mockResolvedValue({ data: null, error: null });
-
     const { rateLimitCheck } = await import("@/lib/security");
     const { NextRequest } = await import("next/server");
     const request = new NextRequest("https://sendquote.in/api/test", {
@@ -146,11 +148,6 @@ describe("rateLimitCheck", () => {
   });
 
   it("allows request when count is below max threshold", async () => {
-    mockSupabaseSingle.mockResolvedValue({
-      data: { count: 50, first_seen: new Date().toISOString() },
-      error: null,
-    });
-
     const { rateLimitCheck } = await import("@/lib/security");
     const { NextRequest } = await import("next/server");
     const request = new NextRequest("https://sendquote.in/api/test", {
@@ -162,10 +159,7 @@ describe("rateLimitCheck", () => {
   });
 
   it("blocks request when count exceeds max threshold", async () => {
-    mockSupabaseSingle.mockResolvedValue({
-      data: { count: 100, first_seen: new Date().toISOString() },
-      error: null,
-    });
+    mockSupabaseRpc.mockResolvedValue({ data: [{ allowed: false, current_count: 101 }], error: null });
 
     const { rateLimitCheck } = await import("@/lib/security");
     const { NextRequest } = await import("next/server");
@@ -178,12 +172,6 @@ describe("rateLimitCheck", () => {
   });
 
   it("resets window after 60 seconds", async () => {
-    const oldTime = new Date(Date.now() - 120_000).toISOString();
-    mockSupabaseSingle.mockResolvedValue({
-      data: { count: 100, first_seen: oldTime },
-      error: null,
-    });
-
     const { rateLimitCheck } = await import("@/lib/security");
     const { NextRequest } = await import("next/server");
     const request = new NextRequest("https://sendquote.in/api/test", {
@@ -195,8 +183,6 @@ describe("rateLimitCheck", () => {
   });
 
   it("extracts IP from x-forwarded-for header", async () => {
-    mockSupabaseSingle.mockResolvedValue({ data: null, error: null });
-
     const { rateLimitCheck } = await import("@/lib/security");
     const { NextRequest } = await import("next/server");
     const request = new NextRequest("https://sendquote.in/api/test", {
@@ -208,7 +194,7 @@ describe("rateLimitCheck", () => {
   });
 
   it("falls back to local rate limit when database fails", async () => {
-    mockSupabaseSingle.mockRejectedValue(new Error("Database connection failed"));
+    mockSupabaseRpc.mockRejectedValue(new Error("Database connection failed"));
 
     const { rateLimitCheck } = await import("@/lib/security");
     const { NextRequest } = await import("next/server");

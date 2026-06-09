@@ -9,20 +9,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, X, Mail, User } from "lucide-react";
+import { Plus, X } from "lucide-react";
+import type { TeamRole, TeamMemberStatus } from "@/types";
+
+interface TeamMember {
+  id: string;
+  email: string;
+  role: TeamRole;
+  status: TeamMemberStatus;
+  created_at: string;
+}
 
 export function TeamSettings() {
   const supabase = createClient();
-  const [members, setMembers] = useState<any[]>([]);
+  const [members, setMembers] = useState<TeamMember[]>([]);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("member");
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
       supabase.from("team_members").select("*").eq("account_user_id", user.id).order("created_at", { ascending: false })
-        .then(({ data }) => { setMembers(data || []); setLoading(false); });
+        .then(({ data }) => { setMembers(data || []); });
     });
   }, [supabase]);
 

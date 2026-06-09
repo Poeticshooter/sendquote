@@ -108,11 +108,14 @@ export class GeminiProvider implements AIProvider {
   }
 }
 
-const providers: AIProvider[] = [];
+let providers: AIProvider[] = [];
+
+export function clearProviderCache() {
+  providers = [];
+}
 
 export function initProviders() {
-  // Clear to prevent duplicate entries on re-initialization
-  providers.length = 0;
+  clearProviderCache();
   const groq = new GroqProvider();
   const openRouter = new OpenRouterProvider();
   const gemini = new GeminiProvider();

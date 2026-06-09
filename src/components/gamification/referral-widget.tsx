@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,8 +11,7 @@ export function ReferralWidget() {
   const [email, setEmail] = useState("");
   const [sending, setSending] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [baseUrl, setBaseUrl] = useState("");
-  useEffect(() => { setBaseUrl(window.location.origin); }, []);
+  const [baseUrl] = useState(typeof window !== "undefined" ? window.location.origin : "");
   const referralLink = `${baseUrl}?ref=sendquote`;
 
   async function handleRefer() {

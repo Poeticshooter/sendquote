@@ -19,8 +19,15 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
+  experimental: {
+    optimizePackageImports: ["lucide-react", "recharts", "cmdk"],
+  },
   trailingSlash: false,
   skipTrailingSlashRedirect: true,
+  typescript: {
+    // Build runs fine on CI (Vercel) but OOMs on 4GB local machine during TS check
+    ignoreBuildErrors: process.env.CI === "true" ? false : true,
+  },
 
   async headers() {
     return [

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Receipt, Plus } from "lucide-react";
+import { Receipt } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 
 const statusColors: Record<string, "default" | "secondary" | "outline" | "destructive"> = {

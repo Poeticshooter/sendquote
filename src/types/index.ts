@@ -101,6 +101,7 @@ export interface Profile {
   organization_id: string | null
   subscription_status: SubscriptionStatus
   quote_counter: number
+  onboarding_completed: boolean
   created_at: string
   updated_at: string
 }
@@ -130,13 +131,15 @@ export interface Quote {
   version: number
   parent_quote_id: string | null
   organization_id: string | null
+  sent_at: string | null
+  original_status: string | null
   created_at: string
   updated_at: string
 }
 
 export interface QuoteItem {
   id: string
-  quote_id: string | null
+  quote_id: string
   description: string
   spec: string | null
   quantity: number

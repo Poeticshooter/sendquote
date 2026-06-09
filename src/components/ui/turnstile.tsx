@@ -2,6 +2,17 @@
 
 import { useEffect, useRef } from "react";
 
+interface TurnstileWidget {
+  render: (container: HTMLElement, options: { sitekey: string; callback: (token: string) => void; theme: string }) => string;
+  remove: (widgetId: string) => void;
+}
+
+declare global {
+  interface Window {
+    turnstile?: TurnstileWidget;
+  }
+}
+
 interface TurnstileProps {
   onVerify: (token: string) => void;
 }
@@ -18,9 +29,8 @@ export function Turnstile({ onVerify }: TurnstileProps) {
     document.head.appendChild(script);
 
     script.onload = () => {
-      const win = window as any;
-      if (win.turnstile && containerRef.current) {
-        widgetId.current = win.turnstile.render(containerRef.current, {
+      if (window.turnstile && containerRef.current) {
+        widgetId.current = window.turnstile.render(containerRef.current, {
           sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "",
           callback: onVerify,
           theme: "dark",
@@ -29,9 +39,8 @@ export function Turnstile({ onVerify }: TurnstileProps) {
     };
 
     return () => {
-      const win = window as any;
-      if (win.turnstile && widgetId.current) {
-        win.turnstile.remove(widgetId.current);
+      if (window.turnstile && widgetId.current) {
+        window.turnstile.remove(widgetId.current);
       }
     };
   }, [onVerify]);

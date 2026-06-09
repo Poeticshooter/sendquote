@@ -9,9 +9,10 @@ export function CookieConsent() {
 
   useEffect(() => {
     const accepted = localStorage.getItem("sendquote_cookies_accepted");
-    queueMicrotask(() => {
-    if (!accepted) setShow(true);
-    })
+    if (!accepted) {
+      const timer = setTimeout(() => setShow(true), 0);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   function accept() {

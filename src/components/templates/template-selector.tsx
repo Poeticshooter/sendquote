@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, Star, Sparkles } from "lucide-react";
+import { FileText, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Template {

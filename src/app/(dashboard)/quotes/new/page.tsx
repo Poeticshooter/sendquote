@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Plus, Trash2, ArrowLeft, Sparkles, Loader2, FileText, Calendar } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, Sparkles, Loader2, FileText } from "lucide-react";
 import Link from "next/link";
 import { TemplateSelector } from "@/components/templates/template-selector";
 
@@ -44,7 +44,7 @@ export default function NewQuotePage() {
   const [showTemplates, setShowTemplates] = useState(false);
   const [clientCity, setClientCity] = useState("");
   const [clientState, setClientState] = useState("");
-  const [pincodeChecking, setPincodeChecking] = useState(false);
+  const [, setPincodeChecking] = useState(false);
 
   function handleTemplateSelect(template: Template) {
     setItems(template.suggested_items.map(item => ({
@@ -113,69 +113,40 @@ export default function NewQuotePage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { toast.error("Please sign in"); setSending(false); return; }
 
+    // Fetch organization_id for multi-tenant support
     const { data: profile } = await supabase
       .from("profiles")
-      .select("quote_counter, organization_id")
+      .select("organization_id")
       .eq("user_id", user.id)
       .single();
 
-    const nextNum = (profile?.quote_counter || 0) + 1;
-    const date = new Date();
-    const quoteNumber = `QTE-${date.getFullYear()}-${String(nextNum).padStart(4, "0")}`;
-
-    // eslint-disable-next-line react-hooks/purity
-    const nowMs = Date.now();
-    // eslint-disable-next-line react-hooks/purity
-    const token = `${nowMs}-${Math.random().toString(36).slice(2, 10)}`;
-    const thirtyDays = new Date(nowMs + 30 * 24 * 60 * 60 * 1000);
-
-    const { data: quote, error } = await supabase
-      .from("quotes")
-      .insert({
-        user_id: user.id,
-        quote_number: quoteNumber,
+    const res = await fetch("/api/quotes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         client_name: clientName,
-        client_email: clientEmail || null,
-        client_phone: clientPhone || null,
-        status: "draft",
-        subtotal,
+        client_email: clientEmail || "",
+        client_phone: clientPhone || "",
+        items: items.map(item => ({
+          description: item.description,
+          quantity: item.quantity,
+          rate: item.rate,
+        })),
+        notes: notes || "",
+        terms: terms || "",
         gst_rate: gstRate,
-        gst_amount: gstAmount,
-        total,
-        notes: notes || null,
-        terms: terms || null,
-        public_token: token,
-        valid_until: thirtyDays.toISOString(),
-        organization_id: profile?.organization_id || null,
-      })
-      .select()
-      .single();
+        organization_id: profile?.organization_id || "",
+      }),
+    });
 
-    if (error) {
-      toast.error(error.message);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "Failed to create quote" }));
+      toast.error(err.error || "Failed to create quote");
       setSending(false);
       return;
     }
 
-    const { error: itemsError } = await supabase.from("quote_items").insert(
-      items.map(item => ({
-        quote_id: quote.id,
-        description: item.description,
-        quantity: item.quantity,
-        rate: item.rate,
-        amount: item.quantity * item.rate,
-      }))
-    );
-
-    if (itemsError) {
-      await supabase.from("quotes").delete().eq("id", quote.id);
-      toast.error("Failed to save items. Please try again.");
-      setSending(false);
-      return;
-    }
-
-    await supabase.from("profiles").update({ quote_counter: nextNum }).eq("user_id", user.id);
-
+    const quote = await res.json();
     toast.success("Quote created!");
     router.push(`/quotes/${quote.id}`);
   }

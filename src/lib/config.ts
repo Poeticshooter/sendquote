@@ -6,8 +6,13 @@
 const REQUIRED_VARS = [
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
 ] as const;
-const OPTIONAL_VARS = ["GROQ_API_KEY", "RESEND_API_KEY", "OPENROUTER_API_KEY"] as const;
+const OPTIONAL_VARS = [
+  "GROQ_API_KEY", "RESEND_API_KEY", "OPENROUTER_API_KEY", "GEMINI_API_KEY",
+  "CRON_SECRET", "RAZORPAY_WEBHOOK_SECRET", "HUBSPOT_API_KEY", "PIPEDRIVE_API_KEY",
+  "ADMIN_EMAILS",
+] as const;
 
 function validateEnv(): { valid: boolean; missing: string[] } {
   const missing: string[] = [];
@@ -19,7 +24,7 @@ function validateEnv(): { valid: boolean; missing: string[] } {
   }
 
   if (missing.length > 0) {
-    console.error(
+    throw new Error(
       `[Config] Missing required environment variables: ${missing.join(", ")}. ` +
       "Set them in .env.local or your deployment environment."
     );

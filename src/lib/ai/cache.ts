@@ -2,13 +2,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 const CACHE_TTL_HOURS = 24;
 
+import crypto from "crypto";
+
 function hash(str: string): string {
-  let h = 0;
-  for (let i = 0; i < str.length; i++) {
-    h = ((h << 5) - h) + str.charCodeAt(i);
-    h = h & h;
-  }
-  return Math.abs(h).toString(36);
+  return crypto.createHash("sha256").update(str).digest("hex").slice(0, 32);
 }
 
 export async function getCachedResponse(

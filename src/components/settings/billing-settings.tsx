@@ -6,13 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Check, Loader2, CreditCard } from "lucide-react";
-
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
+import { Check, Loader2 } from "lucide-react";
+import type { RazorpaySuccessResponse } from "@/lib/types/razorpay";
+import type { PlanType, Profile } from "@/types";
 
 const plans = [
   {
@@ -34,7 +30,7 @@ const plans = [
 
 export function BillingSettings() {
   const supabase = createClient();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
 
@@ -48,7 +44,8 @@ export function BillingSettings() {
     });
   }, [supabase]);
 
-  async function handleUpgrade(planId: string) {
+  async function handleUpgrade(planId: PlanType) {
+    if (!profile) return;
     if (planId === "starter") {
       setProcessing(true);
       const { error } = await supabase.from("profiles").update({ plan: "starter", updated_at: new Date().toISOString() }).eq("id", profile.id);
@@ -76,7 +73,8 @@ export function BillingSettings() {
         amount: data.amount,
         currency: data.currency,
         order_id: data.id,
-        handler: async function (response: any) {
+        handler: async function (this: void, response: RazorpaySuccessResponse) {
+          if (!profile) return;
           await supabase.from("subscriptions").insert({
             user_id: profile.user_id,
             razorpay_subscription_id: response.razorpay_payment_id,
@@ -147,7 +145,7 @@ export function BillingSettings() {
                 <Button
                   className="w-full"
                   variant={isCurrent ? "outline" : plan.popular ? "default" : "outline"}
-                  onClick={() => handleUpgrade(plan.id)}
+                  onClick={() => handleUpgrade(plan.id as PlanType)}
                   disabled={isCurrent || processing}
                 >
                   {isCurrent ? "Current Plan" : processing ? <Loader2 className="h-4 w-4 animate-spin" /> : plan.id === "starter" ? "Downgrade" : `Upgrade to ${plan.name}`}

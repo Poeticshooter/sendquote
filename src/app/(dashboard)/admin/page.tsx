@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, FileText, Activity, AlertTriangle, TrendingUp, DollarSign, MousePointerClick } from "lucide-react";
+import { Users, FileText, Activity, AlertTriangle, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
 interface AdminStats {

@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       urlList: [fullUrl],
     };
 
-    const results: Record<string, any> = {};
+    const results: Record<string, unknown> = {};
 
     try {
       const idxRes = await fetch("https://api.indexnow.org/indexnow", {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
+
 import { Upload, X, File } from "lucide-react";
 import { toast } from "sonner";
 

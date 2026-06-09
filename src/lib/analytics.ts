@@ -1,4 +1,18 @@
-export async function trackEvent(event: string, properties?: Record<string, any>) {
+type AnalyticsEvent = "page_view" | "signup" | "login" | "quote_created" | "quote_sent" | "quote_accepted" | "payment_completed" | "subscription_started" | "subscription_cancelled";
+
+type AnalyticsProperties = Record<string, string | number | boolean | null>;
+
+interface PostHog {
+  capture: (event: string, properties?: AnalyticsProperties) => void;
+}
+
+declare global {
+  interface Window {
+    posthog?: PostHog;
+  }
+}
+
+export async function trackEvent(event: AnalyticsEvent, properties?: AnalyticsProperties) {
   try {
     const { createClient } = await import("@/lib/supabase/client");
     const supabase = createClient();
@@ -18,10 +32,10 @@ export async function trackEvent(event: string, properties?: Record<string, any>
   }
 }
 
-export function trackClientEvent(event: string, properties?: Record<string, any>) {
+export function trackClientEvent(event: string, properties?: AnalyticsProperties) {
   try {
-    if (typeof window !== "undefined" && (window as any).posthog) {
-      (window as any).posthog.capture(event, properties);
+    if (typeof window !== "undefined" && window.posthog) {
+      window.posthog.capture(event, properties);
     }
   } catch {
     // Non-critical

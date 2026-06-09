@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { getQuote, updateQuoteStatus } from "@/lib/supabase/queries";
 import { UpdateQuoteStatusSchema } from "@/lib/api-validation";
 import { success, parseError, requireAuth } from "@/lib/api-helper";
@@ -14,6 +15,7 @@ export async function GET(
     const quote = await getQuote(id);
     return success(quote);
   } catch (e) {
+    Sentry.captureException(e);
     return parseError(e);
   }
 }
@@ -30,6 +32,7 @@ export async function PATCH(
     const quote = await updateQuoteStatus(id, status);
     return success(quote);
   } catch (e) {
+    Sentry.captureException(e);
     return parseError(e);
   }
 }
@@ -55,6 +58,7 @@ export async function DELETE(
     if (error) throw error;
     return NextResponse.json({ success: true });
   } catch (e) {
+    Sentry.captureException(e);
     return parseError(e);
   }
 }

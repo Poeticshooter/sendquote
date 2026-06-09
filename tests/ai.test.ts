@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
+const originalFetch = global.fetch;
+
 describe("generateQuoteAI", () => {
   beforeEach(() => {
     vi.stubEnv("GROQ_API_KEY", "placeholder");
@@ -8,6 +10,8 @@ describe("generateQuoteAI", () => {
 
   afterEach(() => {
     vi.unstubAllEnvs();
+    vi.restoreAllMocks();
+    global.fetch = originalFetch;
   });
 
   it("falls back to templates when GROQ_API_KEY is placeholder", async () => {

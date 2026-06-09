@@ -5,12 +5,13 @@
   "packageManager": "pnpm@10.9.0",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "NODE_OPTIONS=\"--max-old-space-size=512\" next build",
     "start": "next start",
     "lint": "eslint --max-warnings 200",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test tests/e2e/ --reporter=list",
     "analyze": "ANALYZE=true next build",
     "ci": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
     "smoke-test": "curl -s https://sendquote.in/api/health | grep -q 'ok' && echo '✅ Site healthy' || echo '❌ Site down'",
@@ -56,6 +57,11 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.8"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": ">=8.5.10"
+    }
   },
   "optionalDependencies": {
     "@rolldown/binding-darwin-x64": "^1.1.0",

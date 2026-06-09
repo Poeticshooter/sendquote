@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@supabase/supabase-js";
 import { BuyerChatSchema } from "@/lib/api-validation";
 import { parseError } from "@/lib/api-helper";
 
@@ -8,7 +8,13 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { public_token, message, sender_name } = BuyerChatSchema.parse(body);
 
-    const supabase = createAdminClient();
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supabaseUrl) throw new Error("NEXT_PUBLIC_SUPABASE_URL is not configured");
+    if (!supabaseAnonKey) throw new Error("NEXT_PUBLIC_SUPABASE_ANON_KEY is not configured");
+
+    // Use anon key client so RLS policies (based on public_token) are enforced
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
     const { data: quote } = await supabase
       .from("quotes")

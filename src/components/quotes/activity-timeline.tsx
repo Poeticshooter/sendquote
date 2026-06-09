@@ -11,7 +11,7 @@ interface Event {
   event_type: string;
   device_type: string | null;
   ip: string | null;
-  metadata: any;
+  metadata: Record<string, unknown> | null;
   created_at: string;
 }
 

@@ -1,3 +1,3 @@
 "use client";
-import * as m from "motion/react-client";
-export { m };
+import { div, p } from "motion/react-client";
+export const m = { div, p };

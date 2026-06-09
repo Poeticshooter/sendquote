@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeAll } from "vitest";
-import { NextRequest } from "next/server";
+
 
 describe("Health API", () => {
   beforeAll(() => {

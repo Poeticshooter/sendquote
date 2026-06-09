@@ -15,15 +15,17 @@ export async function GET() {
     orientation: "portrait-primary",
     categories: ["business", "productivity", "finance"],
     screenshots: [
-      { src: "/og-image.svg", sizes: "1200x630", type: "image/svg+xml", form_factor: "wide", label: "SendQuote Dashboard" },
+      { src: "/og-image.webp", sizes: "1200x630", type: "image/webp", form_factor: "wide", label: "SendQuote Dashboard" },
     ],
     icons: [
-      { src: "/favicon-v2.ico", sizes: "48x48", type: "image/x-icon" },
-      { src: "/logo-icon-v2.svg", sizes: "96x96", type: "image/svg+xml" },
+      { src: "/favicon.ico", sizes: "48x48", type: "image/x-icon" },
+      { src: "/icon-192.webp", sizes: "96x96", type: "image/webp" },
+      { src: "/icon-192.webp", sizes: "192x192", type: "image/webp" },
+      { src: "/icon-512.webp", sizes: "512x512", type: "image/webp" },
     ],
     shortcuts: [
-      { name: "New Quote", url: "/quotes/new", icons: [{ src: "/favicon-v2.svg", sizes: "any" }] },
-      { name: "Dashboard", url: "/dashboard", icons: [{ src: "/favicon-v2.svg", sizes: "any" }] },
+      { name: "New Quote", url: "/quotes/new", icons: [{ src: "/icon-96.webp", sizes: "96x96" }] },
+      { name: "Dashboard", url: "/dashboard", icons: [{ src: "/icon-96.webp", sizes: "96x96" }] },
     ],
   });
 }

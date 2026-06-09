@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { buttonVariants } from "@/components/ui/button";
@@ -48,7 +49,7 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-sm bg-[#141414] border-white/[0.06] text-white">
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto flex items-center justify-center gap-2 mb-4">
-            <img src="/logo-icon-v2.svg" alt="SendQuote" className="mx-auto h-12 w-12" />
+            <Image src="/icon-192.webp" alt="SendQuote" width={192} height={192} className="mx-auto h-12 w-12" />
             <span className="text-xl font-bold text-white">SendQuote</span>
           </Link>
           <CardTitle className="text-2xl text-white">Reset password</CardTitle>

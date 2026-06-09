@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { createClient } from "@/lib/supabase/server";
 import { generateFollowUp, FollowUpInput } from "@/lib/ai/followup";
 import { AIFollowupSchema } from "@/lib/api-validation";
@@ -49,6 +50,7 @@ export async function POST(request: NextRequest) {
     const result = await generateFollowUp(input);
     return success(result);
   } catch (e) {
+    Sentry.captureException(e);
     return parseError(e);
   }
 }

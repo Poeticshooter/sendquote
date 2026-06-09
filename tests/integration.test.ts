@@ -1,8 +1,32 @@
 import { describe, it, expect, vi } from "vitest";
 import { NextRequest } from "next/server";
 
+const mockUser = { id: "test-user-id", email: "test@test.com" };
+
+async function mockServerAuth(user: typeof mockUser | null) {
+  const mod = await import("@/lib/supabase/server");
+  const mockClient = {
+    auth: { getUser: vi.fn().mockResolvedValue({ data: { user }, error: null }) },
+    from: vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnThis(),
+      insert: vi.fn().mockReturnThis(),
+      update: vi.fn().mockReturnThis(),
+      delete: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      gte: vi.fn().mockReturnThis(),
+      lte: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockReturnThis(),
+      range: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+      single: vi.fn().mockResolvedValue({ data: { plan: "pro" }, error: null }),
+    }),
+    rpc: vi.fn().mockResolvedValue({ data: null, error: null }),
+  };
+  vi.mocked(mod.createClient).mockResolvedValue(mockClient as never);
+}
+
 describe("API Route Integration Tests", () => {
-  // Health
   it("GET /api/health returns 200", async () => {
     const { GET } = await import("@/app/api/health/route");
     const response = await GET();
@@ -11,8 +35,8 @@ describe("API Route Integration Tests", () => {
     expect(data.status).toBe("ok");
   });
 
-  // Templates
   it("GET /api/templates returns public templates", async () => {
+    await mockServerAuth(mockUser);
     const { GET } = await import("@/app/api/templates/route");
     const request = new NextRequest("http://localhost:3000/api/templates");
     const response = await GET(request);
@@ -21,8 +45,10 @@ describe("API Route Integration Tests", () => {
     expect(Array.isArray(data.templates)).toBe(true);
   });
 
-  // Auth required
   it("GET /api/quotes returns quotes (mocked queries)", async () => {
+    await mockServerAuth(mockUser);
+    const { getQuotes } = await import("@/lib/supabase/queries");
+    vi.mocked(getQuotes).mockResolvedValue([]);
     const { GET } = await import("@/app/api/quotes/route");
     const response = await GET();
     expect(response.status).toBe(200);
@@ -31,12 +57,14 @@ describe("API Route Integration Tests", () => {
   });
 
   it("GET /api/clients requires auth", async () => {
+    await mockServerAuth(null);
     const { GET } = await import("@/app/api/clients/route");
     const response = await GET();
     expect(response.status).toBe(401);
   });
 
   it("GET /api/analytics requires auth", async () => {
+    await mockServerAuth(null);
     const { GET } = await import("@/app/api/analytics/route");
     const request = new NextRequest("http://localhost:3000/api/analytics");
     const response = await GET(request);
@@ -44,19 +72,21 @@ describe("API Route Integration Tests", () => {
   });
 
   it("GET /api/achievements requires auth", async () => {
+    await mockServerAuth(null);
     const { GET } = await import("@/app/api/achievements/route");
     const response = await GET();
     expect(response.status).toBe(401);
   });
 
   it("GET /api/subscriptions requires auth", async () => {
+    await mockServerAuth(null);
     const { GET } = await import("@/app/api/subscriptions/route");
     const response = await GET();
     expect(response.status).toBe(401);
   });
 
-  // Events API
   it("POST /api/events requires valid body", async () => {
+    await mockServerAuth(mockUser);
     const { POST } = await import("@/app/api/events/route");
     const request = new NextRequest("http://localhost:3000/api/events", {
       method: "POST",
@@ -64,11 +94,9 @@ describe("API Route Integration Tests", () => {
       body: JSON.stringify({}),
     });
     const response = await POST(request);
-    // Invalid body should fail with 400 from Zod validation
     expect(response.status).toBe(400);
   });
 
-  // Public endpoints
   it("GET /api/pincode/lookup validates params", async () => {
     const { GET } = await import("@/app/api/pincode/lookup/route");
     const request = new NextRequest("http://localhost:3000/api/pincode/lookup");
@@ -78,7 +106,6 @@ describe("API Route Integration Tests", () => {
     expect(data.error).toBe("Pincode required");
   });
 
-  // Portal is POST-only (no GET export)
   it("GET /api/portal has no GET handler", async () => {
     const mod = await import("@/app/api/portal/route") as Record<string, unknown>;
     expect(mod.POST).toBeDefined();
@@ -139,7 +166,8 @@ describe("Security Tests", () => {
 
 describe("AI Provider Chain", () => {
   it("initProviders returns available providers", async () => {
-    const { initProviders } = await import("@/lib/ai/providers");
+    const { initProviders, clearProviderCache } = await import("@/lib/ai/providers");
+    clearProviderCache();
     const providers = initProviders();
     expect(Array.isArray(providers)).toBe(true);
   });
@@ -181,7 +209,6 @@ describe("Analytics Module", () => {
 
   it("trackEvent does not throw when not authenticated", async () => {
     const { trackEvent } = await import("@/lib/analytics");
-    // User is null (mocked), so it should return early without throwing
-    await expect(trackEvent("test_event")).resolves.toBeUndefined();
+    await expect(trackEvent("page_view")).resolves.toBeUndefined();
   });
 });

@@ -29,11 +29,20 @@ export default function DashboardPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/login"); return; }
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("onboarding_completed, plan, monthly_quote_count")
-        .eq("user_id", user.id)
-        .single();
+      const [profileResult, quotesResult] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("onboarding_completed, plan, monthly_quote_count")
+          .eq("user_id", user.id)
+          .single(),
+        supabase
+          .from("quotes")
+          .select("id, client_name, quote_number, total, status, created_at")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false }),
+      ]);
+
+      const profile = profileResult.data;
 
       if (!profile) {
         router.push("/onboarding");
@@ -48,11 +57,7 @@ export default function DashboardPage() {
 
       localStorage.setItem("sq_onboarding_done", "true");
 
-      const { data: quotes } = await supabase
-        .from("quotes")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+      const quotes = quotesResult.data;
 
       if (cancelled) return;
 

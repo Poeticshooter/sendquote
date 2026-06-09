@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { success, parseError, requireAuth, apiError } from "@/lib/api-helper";
 import { sendEmail } from "@/lib/email/send";
 import { wrapEmail } from "@/lib/email/templates";
+import { escapeHtml } from "@/lib/email/escape";
 import { z } from "zod";
 
 export const dynamic = "force-dynamic";
@@ -48,13 +49,14 @@ export async function POST(request: NextRequest) {
       reward_months: 1,
     });
 
+    const safeBusinessName = escapeHtml(profile?.business_name || "");
     await sendEmail({
       to: [email],
-      subject: `${profile?.business_name || "Someone"} invited you to SendQuote`,
+      subject: `${safeBusinessName || "Someone"} invited you to SendQuote`,
       html: wrapEmail(`
         <h1 style="color:#F5F5F5;font-size:24px;font-weight:700;margin:0 0 8px 0;">You're invited!</h1>
         <p style="color:#808080;font-size:15px;line-height:1.6;margin:0 0 20px 0;">
-          <strong style="color:#F5F5F5;">${profile?.business_name || "A friend"}</strong> has been using SendQuote to close deals faster and wants you to try it too.
+          <strong style="color:#F5F5F5;">${safeBusinessName || "A friend"}</strong> has been using SendQuote to close deals faster and wants you to try it too.
         </p>
         <p style="color:#808080;font-size:15px;line-height:1.6;margin:0 0 24px 0;">
           Create GST-ready quotes in 60 seconds with AI. Interactive deal rooms, e-signatures, and payment collection — all in one platform.

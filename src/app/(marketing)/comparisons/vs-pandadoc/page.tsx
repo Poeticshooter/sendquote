@@ -7,15 +7,11 @@ import {
   ArrowRight,
   Check,
   X,
-  Star,
-  CircleCheck,
   IndianRupee,
   Zap,
-  Shield,
   Smartphone,
   Infinity,
   Wallet,
-  FileText,
   Users,
 } from "lucide-react";
 

@@ -61,8 +61,8 @@ export async function POST(request: NextRequest) {
       default:
         return NextResponse.json({ error: `Unknown event: ${event}` }, { status: 400 });
     }
-  } catch (error: any) {
-    console.error("n8n webhook error:", error);
+  } catch (error: unknown) {
+    console.error("n8n webhook error:", error instanceof Error ? error.message : error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

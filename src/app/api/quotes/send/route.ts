@@ -4,6 +4,7 @@ import { SendQuoteSchema } from "@/lib/api-validation";
 import { success, parseError, requireAuth } from "@/lib/api-helper";
 import { sendEmail } from "@/lib/email/send";
 import { quoteReceivedEmail } from "@/lib/email/templates";
+import { escapeHtml } from "@/lib/email/escape";
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,10 +47,10 @@ export async function POST(request: NextRequest) {
 
     if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== "placeholder") {
       const { subject, html } = quoteReceivedEmail({
-        clientName: quote.client_name || "Client",
+        clientName: escapeHtml(quote.client_name || "Client"),
         quoteNumber: quote.quote_number,
         quoteUrl,
-        businessName: profile?.business_name || "SendQuote",
+        businessName: escapeHtml(profile?.business_name || "SendQuote"),
         total: Number(quote.total),
       });
       await sendEmail({

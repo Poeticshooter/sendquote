@@ -7,7 +7,7 @@ import { checkQuoteLimit } from "@/lib/plan-gates";
 
 export async function GET() {
   try {
-    const user = await requireAuth();
+    await requireAuth();
     const quotes = await getQuotes();
     return success(quotes);
   } catch (e) {

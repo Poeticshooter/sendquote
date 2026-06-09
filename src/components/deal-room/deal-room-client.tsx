@@ -37,7 +37,6 @@ export function DealRoomClient({ quoteId, publicToken, quoteNumber }: DealRoomCl
   }, []);
 
   useEffect(() => {
-    setLoadingMessages(true);
     fetch(`/api/chat?quote_id=${quoteId}`)
       .then((r) => r.json())
       .then((data) => { setMessages(data || []); scrollToBottom(); })

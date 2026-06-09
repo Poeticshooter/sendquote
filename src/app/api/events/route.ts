@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { checkMemoryRateLimit } from "@/lib/rate-limit";
+import { requireAuth } from "@/lib/api-helper";
 
 const VALID_EVENTS = ["viewed", "pricing_viewed", "signed", "paid", "expired", "downloaded"] as const;
 
@@ -19,6 +20,8 @@ export async function POST(request: NextRequest) {
     if (!checkMemoryRateLimit(ip, 60, 60_000)) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
+
+    await requireAuth();
 
     const body = await request.json();
     const result = eventSchema.safeParse(body);
@@ -43,7 +46,7 @@ export async function POST(request: NextRequest) {
     const ua = request.headers.get("user-agent") || "";
     const deviceType = /mobile/i.test(ua) ? "mobile" : /tablet/i.test(ua) ? "tablet" : "desktop";
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("quote_events")
       .insert({
         quote_id,

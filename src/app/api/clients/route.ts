@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { createClient } from "@/lib/supabase/server";
 import { CreateClientSchema } from "@/lib/api-validation";
 import { success, parseError, requireAuth } from "@/lib/api-helper";
@@ -17,6 +18,7 @@ export async function GET() {
     if (error) throw error;
     return success(data);
   } catch (e) {
+    Sentry.captureException(e);
     return parseError(e);
   }
 }
@@ -47,6 +49,7 @@ export async function POST(request: NextRequest) {
     if (error) throw error;
     return success(client, 201);
   } catch (e) {
+    Sentry.captureException(e);
     return parseError(e);
   }
 }

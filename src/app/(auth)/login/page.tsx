@@ -16,20 +16,25 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const emailParam = searchParams.get("email") || "";
   const errorParam = searchParams.get("error");
+  const confirmed = searchParams.get("confirmed");
   const [email, setEmail] = useState(emailParam);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
-    if (errorParam === "state_mismatch") {
+    if (confirmed === "true") {
+      toast.success("Email confirmed! You can now sign in.");
+    } else if (errorParam === "state_mismatch") {
       toast.error("OAuth state mismatch. Please try signing in again.");
     } else if (errorParam === "auth_failed") {
       toast.error("Authentication failed. Please try again.");
     } else if (errorParam === "profile_creation_failed") {
       toast.error("Account created but profile setup failed. Please contact support.");
+    } else if (errorParam === "confirmation_failed") {
+      toast.error("Email confirmation failed. The link may be invalid or expired.");
     }
-  }, [errorParam]);
+  }, [errorParam, confirmed]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();

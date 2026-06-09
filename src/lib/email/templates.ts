@@ -92,44 +92,116 @@ export function wrapEmail(content: string) {
 </html>`;
 }
 
-export function quoteReceivedEmail(quoteNumber: string, businessName: string, total: string, quoteUrl: string) {
-  return `
+export function quoteReceivedEmail(params: {
+  clientName: string;
+  quoteNumber: string;
+  quoteUrl: string;
+  businessName: string;
+  total: number;
+}): { subject: string; html: string } {
+  const content = `
     <h1 style="${S.h1}">You have a new quote</h1>
-    <p style="${S.h2}">from ${businessName}</p>
+    <p style="${S.h2}">from ${params.businessName}</p>
     <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:rgba(255,255,255,0.03);border-radius:12px;padding:24px;margin:24px 0;">
       <tr>
         <td style="padding-bottom:16px;">
           <p style="${S.label}">Quote</p>
-          <p style="${S.value}">${quoteNumber}</p>
+          <p style="${S.value}">${params.quoteNumber}</p>
         </td>
       </tr>
       <tr>
         <td>
           <p style="${S.label}">Amount</p>
-          <p style="${S.valueLarge}">₹${total}</p>
+          <p style="${S.valueLarge}">₹${Number(params.total).toLocaleString("en-IN")}</p>
         </td>
       </tr>
     </table>
-    ${btnPrimary(quoteUrl, "View & Respond to Quote")}
+    ${btnPrimary(params.quoteUrl, "View & Respond to Quote")}
     <p style="${S.pSmall}margin-top:20px;">Review the details, sign electronically, and pay — all in one place. No account required.</p>
   `;
+  return {
+    subject: `Quote ${params.quoteNumber} from ${params.businessName}`,
+    html: wrapEmail(content),
+  };
 }
 
-export function quoteAcceptedEmail(quoteNumber: string, clientName: string, total: string, dashboardUrl: string) {
-  return `
+export function quoteAcceptedEmail(params: {
+  quoteNumber: string;
+  clientName: string;
+  total: number;
+}): { subject: string; html: string } {
+  const content = `
     <h1 style="${S.h1}">Deal closed 🎉</h1>
-    <p style="${S.h2}">${clientName} accepted ${quoteNumber}</p>
+    <p style="${S.h2}">${params.clientName} accepted ${params.quoteNumber}</p>
     <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:linear-gradient(135deg,rgba(0,212,170,0.08),rgba(0,212,170,0.03));border:1px solid rgba(0,212,170,0.15);border-radius:12px;padding:24px;margin:24px 0;">
       <tr>
         <td align="center">
           <p style="${S.label}text-align:center;">Deal value</p>
-          <p style="${S.valueLarge}text-align:center;">₹${total}</p>
+          <p style="${S.valueLarge}text-align:center;">₹${Number(params.total).toLocaleString("en-IN")}</p>
         </td>
       </tr>
     </table>
-    ${btnPrimary(dashboardUrl, "View in Dashboard")}
-    <p style="${S.pSmall}">The invoice has been generated. Check your dashboard for next steps.</p>
+    <p style="color:#888;font-size:13px;">An invoice has been generated automatically.</p>
   `;
+  return {
+    subject: `✅ ${params.quoteNumber} Accepted by ${params.clientName}`,
+    html: wrapEmail(content),
+  };
+}
+
+export function welcomeEmail(params: { name: string }): { subject: string; html: string } {
+  const content = `
+    <h1 style="${S.h1}">Welcome to SendQuote${params.name ? `, ${params.name}` : ''}!</h1>
+    <p style="${S.h2}">Your account is ready</p>
+    <p style="${S.p}">You're now ready to create AI-powered quotes, send interactive deal rooms, and close deals faster.</p>
+    <p style="${S.p}">Here's what to do next:</p>
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 20px 0;">
+      <tr>
+        <td width="32" valign="top" style="color:#00D4AA;font-size:18px;font-weight:bold;padding-bottom:16px;">1.</td>
+        <td style="padding-bottom:16px;">
+          <span style="color:#FFFFFF;font-weight:600;">Create your first quote</span><br/>
+          <span style="color:#707070;font-size:13px;">Describe what you're offering and AI will draft it in seconds</span>
+        </td>
+      </tr>
+      <tr>
+        <td width="32" valign="top" style="color:#00D4AA;font-size:18px;font-weight:bold;padding-bottom:16px;">2.</td>
+        <td style="padding-bottom:16px;">
+          <span style="color:#FFFFFF;font-weight:600;">Share as a link</span><br/>
+          <span style="color:#707070;font-size:13px;">Send your client a beautiful deal room, not a PDF attachment</span>
+        </td>
+      </tr>
+      <tr>
+        <td width="32" valign="top" style="color:#00D4AA;font-size:18px;font-weight:bold;">3.</td>
+        <td>
+          <span style="color:#FFFFFF;font-weight:600;">Get paid faster</span><br/>
+          <span style="color:#707070;font-size:13px;">Built-in Razorpay payments and e-signature collection</span>
+        </td>
+      </tr>
+    </table>
+    ${btnPrimary("https://sendquote.in/dashboard", "Go to Dashboard")}
+  `;
+  return {
+    subject: "Welcome to SendQuote! 🚀",
+    html: wrapEmail(content),
+  };
+}
+
+export function quoteExpiryEmail(params: {
+  quoteNumber: string;
+  clientName: string;
+  businessName: string;
+  daysRemaining: number;
+}): { subject: string; html: string } {
+  const content = `
+    <h1 style="${S.h1}">Quote expiring soon</h1>
+    <p style="${S.h2}">${params.quoteNumber} · ${params.businessName}</p>
+    <p style="${S.p}">This quote sent to <strong style="color:#E0E0E0;">${params.clientName}</strong> expires in ${params.daysRemaining} day${params.daysRemaining > 1 ? 's' : ''}.</p>
+    <p style="${S.pSmall}">Consider following up with your client to keep the deal moving.</p>
+  `;
+  return {
+    subject: `⏰ ${params.quoteNumber} Expiring Soon`,
+    html: wrapEmail(content),
+  };
 }
 
 export function teamInviteEmail(inviterName: string, organizationName: string, inviteUrl: string) {

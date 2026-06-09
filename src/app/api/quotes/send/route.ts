@@ -45,11 +45,17 @@ export async function POST(request: NextRequest) {
     const quoteUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://sendquote.in"}/q/${quote.public_token}`;
 
     if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== "placeholder") {
-      const total = Number(quote.total).toLocaleString("en-IN");
+      const { subject, html } = quoteReceivedEmail({
+        clientName: quote.client_name || "Client",
+        quoteNumber: quote.quote_number,
+        quoteUrl,
+        businessName: profile?.business_name || "SendQuote",
+        total: Number(quote.total),
+      });
       await sendEmail({
         to: [recipient_email || quote.client_email].filter(Boolean),
-        subject: `Quote ${quote.quote_number} from ${profile?.business_name || "SendQuote"}`,
-        html: quoteReceivedEmail(quote.quote_number, profile?.business_name || "SendQuote", total, quoteUrl),
+        subject,
+        html,
         replyTo: user.email,
       });
     }

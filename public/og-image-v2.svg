@@ -1,24 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="ogbg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0D0D0D"/>
+      <stop offset="100%" stop-color="#1a1a2e"/>
+    </linearGradient>
+    <linearGradient id="ogg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#00D4AA"/>
       <stop offset="100%" stop-color="#7C3AED"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="630" fill="#0A0A0A"/>
-  <circle cx="200" cy="-100" r="500" fill="#00D4AA" opacity="0.03"/>
-  <circle cx="1000" cy="700" r="500" fill="#7C3AED" opacity="0.03"/>
-  <rect x="420" y="115" width="100" height="100" rx="22" fill="#0D0D0D" stroke="url(#g)" stroke-width="4"/>
-  <rect x="440" y="130" width="60" height="70" rx="8" fill="url(#g)" opacity="0.1"/>
-  <rect x="448" y="148" width="28" height="4" rx="2" fill="#00D4AA" opacity="0.8"/>
-  <rect x="448" y="158" width="28" height="4" rx="2" fill="#00D4AA" opacity="0.5"/>
-  <rect x="448" y="168" width="18" height="4" rx="2" fill="#00D4AA" opacity="0.3"/>
-  <path d="M478 142 L490 156 L478 170" stroke="url(#g)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <path d="M490 156 L454 156" stroke="url(#g)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
-  <text x="540" y="172" font-family="system-ui,-apple-system,sans-serif" font-size="40" font-weight="800" fill="#F5F5F5" letter-spacing="-1">SendQuote</text>
-  <text x="540" y="196" font-family="system-ui,-apple-system,sans-serif" font-size="14" fill="#808080" letter-spacing="2">AI-POWERED QUOTING PLATFORM</text>
-  <text x="200" y="320" font-family="system-ui,-apple-system,sans-serif" font-size="22" fill="#A0A0A0">Create GST-ready quotes in 60 seconds with AI.</text>
-  <text x="200" y="352" font-family="system-ui,-apple-system,sans-serif" font-size="22" fill="#A0A0A0">Interactive deal rooms · E-signature · Payment collection</text>
-  <rect x="200" y="390" width="200" height="48" rx="12" fill="#00D4AA"/>
-  <text x="300" y="421" font-family="system-ui,-apple-system,sans-serif" font-size="16" font-weight="700" fill="#0A0A0A" text-anchor="middle">START CLOSING DEALS</text>
+  <rect width="1200" height="630" fill="url(#ogbg)"/>
+  <circle cx="200" cy="200" r="300" fill="url(#ogg)" opacity="0.03"/>
+  <circle cx="1000" cy="450" r="250" fill="url(#ogg)" opacity="0.02"/>
+  <g transform="translate(120, 108)">
+    <rect x="0" y="0" width="400" height="414" rx="70" fill="none" stroke="url(#ogg)" stroke-width="5" opacity="0.15"/>
+    <rect x="40" y="75" width="210" height="18" rx="9" fill="#00D4AA" opacity="0.8"/>
+    <rect x="40" y="120" width="210" height="18" rx="9" fill="#00D4AA" opacity="0.5"/>
+    <rect x="40" y="165" width="140" height="18" rx="9" fill="#00D4AA" opacity="0.3"/>
+    <path d="M240 88 L300 140 L240 192" stroke="url(#ogg)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M300 140 L50 140" stroke="url(#ogg)" stroke-width="12" stroke-linecap="round" fill="none"/>
+  </g>
+  <text x="580" y="280" font-family="system-ui,-apple-system,sans-serif" font-weight="700" font-size="74" fill="#FFFFFF" opacity="0.95">Send</text>
+  <text x="580" y="360" font-family="system-ui,-apple-system,sans-serif" font-weight="300" font-size="74" fill="#FFFFFF" opacity="0.9">Quote</text>
+  <text x="580" y="420" font-family="system-ui,-apple-system,sans-serif" font-weight="400" font-size="22" fill="#FFFFFF" opacity="0.4">AI-powered quoting for Indian businesses</text>
 </svg>

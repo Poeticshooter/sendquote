@@ -1,11 +1,13 @@
 {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
   "name": "SendQuote",
-  "url": "https://sendquote.in",
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": "https://sendquote.in/dashboard?q={search_term_string}",
-    "query-input": "required name=search_term_string"
-  }
+  "short_name": "SendQuote",
+  "description": "AI-powered quoting for Indian businesses",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0D0D0D",
+  "theme_color": "#00D4AA",
+  "icons": [
+    {"src": "/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png"}
+  ]
 }

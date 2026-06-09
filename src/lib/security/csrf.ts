@@ -1,13 +1,19 @@
-import crypto from "node:crypto";
-
 const CSRF_COOKIE = "__csrf";
 const CSRF_HEADER = "x-csrf-token";
-const TOKEN_LENGTH = 32;
 
 const ALLOWED_ORIGINS = [
   process.env.NEXT_PUBLIC_APP_URL || "https://sendquote.in",
   "http://localhost:3000",
 ];
+
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
 
 export function verifyCsrfToken(request: {
   cookies: { get: (name: string) => { value?: string } | undefined };
@@ -18,13 +24,7 @@ export function verifyCsrfToken(request: {
   if (!cookieToken || !headerToken) {
     return { ok: false, status: 403, message: "CSRF token missing" };
   }
-  if (cookieToken.length !== headerToken.length) {
-    return { ok: false, status: 403, message: "CSRF token mismatch" };
-  }
-  // Timing-safe comparison to prevent timing attacks
-  const cookieBuf = Buffer.from(cookieToken);
-  const headerBuf = Buffer.from(headerToken);
-  if (!crypto.timingSafeEqual(cookieBuf, headerBuf)) {
+  if (!timingSafeEqual(cookieToken, headerToken)) {
     return { ok: false, status: 403, message: "CSRF token mismatch" };
   }
   return { ok: true };

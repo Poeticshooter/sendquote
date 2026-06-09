@@ -12,5 +12,6 @@ export function getEmailShareUrl(quoteUrl: string, quoteNumber: string) {
 }
 
 export function getQuoteUrl(publicToken: string | null) {
+  if (!publicToken) throw new Error("Cannot generate URL: no public token");
   return `${BASE}/q/${publicToken}`;
 }

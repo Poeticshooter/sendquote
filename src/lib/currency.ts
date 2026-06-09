@@ -3,8 +3,8 @@ export function formatINR(amount: number): string {
     style: "currency",
     currency: "INR",
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
+    maximumFractionDigits: 2,
+  }).format(Math.round(amount));
 }
 
 export function formatCurrency(amount: number, currency: "INR" | "USD" = "INR"): string {

@@ -204,32 +204,44 @@ export function quoteExpiryEmail(params: {
   };
 }
 
-export function teamInviteEmail(inviterName: string, organizationName: string, inviteUrl: string) {
-  return `
+export function teamInviteEmail(inviterName: string, organizationName: string, inviteUrl: string): { subject: string; html: string } {
+  const content = `
     <h1 style="${S.h1}">You're invited</h1>
     <p style="${S.h2}">Join ${organizationName} on SendQuote</p>
     <p style="${S.p}"><strong style="color:#E0E0E0;">${inviterName}</strong> has invited you to collaborate on quotes, manage clients, and track deals with their team.</p>
     ${btnPrimary(inviteUrl, "Accept Invitation")}
     <p style="${S.pSmall}">This invitation expires in 7 days. If you weren't expecting this, you can safely ignore it.</p>
   `;
+  return {
+    subject: `You're invited to ${organizationName} on SendQuote`,
+    html: wrapEmail(content),
+  };
 }
 
-export function passwordResetEmail(resetUrl: string) {
-  return `
+export function passwordResetEmail(resetUrl: string): { subject: string; html: string } {
+  const content = `
     <h1 style="${S.h1}">Reset your password</h1>
     <p style="${S.h2}">We received your request</p>
     <p style="${S.p}">Click the button below to set a new password for your SendQuote account.</p>
     ${btnPrimary(resetUrl, "Reset Password")}
     <p style="${S.pSmall}">This link expires in 1 hour. If you didn't request a password reset, you can safely ignore this email.</p>
   `;
+  return {
+    subject: "Reset your SendQuote password",
+    html: wrapEmail(content),
+  };
 }
 
-export function signupWelcomeEmail(name: string, dashboardUrl: string) {
-  return `
+export function signupWelcomeEmail(name: string, dashboardUrl: string): { subject: string; html: string } {
+  const content = `
     <h1 style="${S.h1}">Welcome${name ? `, ${name}` : ''}</h1>
     <p style="${S.h2}">Your SendQuote account is ready</p>
     <p style="${S.p}">Create professional GST-ready quotes in 60 seconds, send interactive deal rooms, and collect e-signatures — all in one place.</p>
     ${btnPrimary(dashboardUrl, "Go to Dashboard")}
     ${btnSecondary("https://sendquote.in/docs", "Read the Guide")}
   `;
+  return {
+    subject: "Welcome to SendQuote!",
+    html: wrapEmail(content),
+  };
 }

@@ -1,7 +1,13 @@
 import * as Sentry from "@sentry/nextjs";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { success, parseError, requireAuth } from "@/lib/api-helper";
 import { NextRequest } from "next/server";
+
+const DateQuerySchema = z.object({
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}(T|$)/, "startDate must be a valid ISO date").optional(),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}(T|$)/, "endDate must be a valid ISO date").optional(),
+});
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,8 +15,14 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient();
 
     const { searchParams } = new URL(request.url);
-    const startDate = searchParams.get("startDate");
-    const endDate = searchParams.get("endDate");
+    const rawStartDate = searchParams.get("startDate");
+    const rawEndDate = searchParams.get("endDate");
+
+    const parsed = DateQuerySchema.safeParse({ startDate: rawStartDate, endDate: rawEndDate });
+    if (!parsed.success) {
+      return success({ totals: { total: 0, accepted: 0, lost: 0, pending: 0 }, revenue: { total: 0, avgQuoteValue: 0 } });
+    }
+    const { startDate, endDate } = parsed.data;
 
     let query = supabase
       .from("quotes")

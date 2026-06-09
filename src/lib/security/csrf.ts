@@ -1,3 +1,5 @@
+import crypto from "node:crypto";
+
 const CSRF_COOKIE = "__csrf";
 const CSRF_HEADER = "x-csrf-token";
 const TOKEN_LENGTH = 32;
@@ -19,7 +21,10 @@ export function verifyCsrfToken(request: {
   if (cookieToken.length !== headerToken.length) {
     return { ok: false, status: 403, message: "CSRF token mismatch" };
   }
-  if (cookieToken !== headerToken) {
+  // Timing-safe comparison to prevent timing attacks
+  const cookieBuf = Buffer.from(cookieToken);
+  const headerBuf = Buffer.from(headerToken);
+  if (!crypto.timingSafeEqual(cookieBuf, headerBuf)) {
     return { ok: false, status: 403, message: "CSRF token mismatch" };
   }
   return { ok: true };

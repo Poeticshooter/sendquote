@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { requireAuth } from "@/lib/api-helper";
+import { checkMemoryRateLimit } from "@/lib/rate-limit";
 
 const GROQ_BASE = "https://api.groq.com/openai/v1/chat/completions";
 
@@ -39,14 +42,30 @@ RULES:
 5. Keep responses under 50 words when possible (voice friendly).
 6. Be warm and helpful, like a senior colleague.`;
 
+const VoiceRequestSchema = z.object({
+  message: z.string().min(1, "Message is required").max(2000, "Message too long"),
+  context: z.string().max(5000, "Context too long").optional(),
+});
+
 export async function POST(request: NextRequest) {
   try {
-    const { message, context } = await request.json();
+    const user = await requireAuth();
 
-    if (!message || typeof message !== "string" || !message.trim()) {
-      return NextResponse.json({ error: "Message is required" }, { status: 400 });
+    // Rate limit: 30 requests per 60 seconds per user
+    if (!checkMemoryRateLimit(`voice:${user.id}`, 30, 60000)) {
+      return NextResponse.json({ error: "Too many requests. Please slow down." }, { status: 429 });
     }
 
+    const body = await request.json();
+    const parsed = VoiceRequestSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({
+        error: "Invalid request",
+        details: parsed.error.issues.map((i) => ({ path: i.path.join("."), message: i.message })),
+      }, { status: 400 });
+    }
+
+    const { message, context } = parsed.data;
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey || apiKey === "placeholder") {
       return NextResponse.json({
@@ -73,6 +92,7 @@ export async function POST(request: NextRequest) {
         temperature: 0.3,
         max_tokens: 200,
       }),
+      signal: AbortSignal.timeout(30000),
     });
 
     if (!res.ok) {

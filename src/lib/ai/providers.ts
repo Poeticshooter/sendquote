@@ -32,6 +32,7 @@ export class GroqProvider implements AIProvider {
         temperature: 0.2,
         max_tokens: 2048,
       }),
+      signal: AbortSignal.timeout(30000),
     });
     if (!res.ok) throw new Error(`Groq API error: ${res.status}`);
     const data = await res.json();
@@ -69,6 +70,7 @@ export class OpenRouterProvider implements AIProvider {
         temperature: 0.2,
         max_tokens: 2048,
       }),
+      signal: AbortSignal.timeout(30000),
     });
     if (!res.ok) throw new Error(`OpenRouter API error: ${res.status}`);
     const data = await res.json();
@@ -97,6 +99,7 @@ export class GeminiProvider implements AIProvider {
         body: JSON.stringify({
           contents: [{ parts: [{ text: `${system}\n\n${prompt}` }] }],
         }),
+        signal: AbortSignal.timeout(30000),
       },
     );
     if (!res.ok) throw new Error(`Gemini API error: ${res.status}`);
@@ -108,6 +111,8 @@ export class GeminiProvider implements AIProvider {
 const providers: AIProvider[] = [];
 
 export function initProviders() {
+  // Clear to prevent duplicate entries on re-initialization
+  providers.length = 0;
   const groq = new GroqProvider();
   const openRouter = new OpenRouterProvider();
   const gemini = new GeminiProvider();

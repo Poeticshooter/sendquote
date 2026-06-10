@@ -1,7 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest} from "next/server";
+import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { createClient } from "@/lib/supabase/server";
-import { generateFollowUp, FollowUpInput } from "@/lib/ai/followup";
+import type { FollowUpInput } from "@/lib/ai/followup";
+import { generateFollowUp } from "@/lib/ai/followup";
 import { AIFollowupSchema } from "@/lib/api-validation";
 import { parseError, success, requireAuth } from "@/lib/api-helper";
 

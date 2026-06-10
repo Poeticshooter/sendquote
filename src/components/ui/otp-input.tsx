@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, KeyboardEvent } from "react";
+import type { KeyboardEvent } from "react";
+import { useRef } from "react";
 import { Input } from "@/components/ui/input";
 
 interface OTPInputProps {
@@ -39,6 +40,7 @@ export function OTPInput({ length = 6, value, onChange }: OTPInputProps) {
           inputMode="numeric"
           pattern="\d*"
           value={value[i] || ""}
+          aria-label={`Digit ${i + 1} of ${length}`}
           onChange={(e) => handleChange(e.target.value, i)}
           onKeyDown={(e) => handleKeyDown(e, i)}
           className="h-12 w-12 text-center text-lg"

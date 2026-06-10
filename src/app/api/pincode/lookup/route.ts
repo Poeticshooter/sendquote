@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { success, parseError } from "@/lib/api-helper";
 import { lookupPincode } from "@/lib/pincode";
 

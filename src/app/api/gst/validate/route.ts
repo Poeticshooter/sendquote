@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { success, parseError } from "@/lib/api-helper";
 import { validateGstFormat, getStateCode, STATE_CODES } from "@/lib/gst";
 

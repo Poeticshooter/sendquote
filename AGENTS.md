@@ -4,6 +4,25 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
+<!-- BEGIN:impl-plan -->
+# Implementation Plan Reference
+
+The comprehensive implementation plan is at `docs/implementation-plan.md` — 11 phases, 75 tasks. Reference it before starting any major work. Phases must be executed in order (Phase 1 → Phase 11).
+
+Skill workflow sequence for systematic project work:
+- **Phase 1**: Foundation — pnpm, ESLint, husky, devcontainer, AGENTS.md
+- **Phase 2**: Planning — ADRs, specs, task breakdown
+- **Phase 3**: Frontend — Next.js → React → Tailwind → Motion → a11y → TS
+- **Phase 4**: Backend — Supabase → PostgreSQL → Zod → APIs → webhooks → cron
+- **Phase 5**: AI — AI SDK → prompts → providers → cost optimization
+- **Phase 6**: Testing — TDD → Vitest → Playwright → code review → debug
+- **Phase 7**: Security — CSP/CSRF/XSS audit → OWASP → threat model → secrets
+- **Phase 8**: Performance — Lighthouse → Core Web Vitals → profiling → queries
+- **Phase 9**: SEO — JSON-LD → schema.org → sitemap → GEO
+- **Phase 10**: Deploy/Ops — GitHub Actions → Vercel → Sentry → SLOs → incident
+- **Phase 11**: Maintenance — Tech debt → refactoring → changelog → dep upgrades
+<!-- END:impl-plan -->
+
 <!-- BEGIN:project-conventions -->
 # SendQuote Project Conventions
 

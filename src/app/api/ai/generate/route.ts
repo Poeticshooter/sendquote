@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { generateQuoteAI } from "@/lib/ai/generate-quote";
 import { AIGenerateSchema } from "@/lib/api-validation";

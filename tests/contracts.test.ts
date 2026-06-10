@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { generateContractHtml, ContractData } from "@/lib/contracts/generate";
+import type { ContractData } from "@/lib/contracts/generate";
+import { generateContractHtml } from "@/lib/contracts/generate";
 
 function makeContractData(overrides: Partial<ContractData> = {}): ContractData {
   return {

@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest} from "next/server";
+import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { ApprovalCheckSchema } from "@/lib/api-validation";
 import { parseError, requireAuth } from "@/lib/api-helper";

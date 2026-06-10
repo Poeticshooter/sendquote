@@ -157,7 +157,7 @@ export function VoiceAssistant() {
           <span className="text-sm font-medium text-card-foreground">AI Voice Assistant</span>
           {speaking && <span className="text-xs text-primary animate-pulse">Speaking...</span>}
         </div>
-        <button onClick={() => { setOpen(false); stopSpeaking(); }} className="rounded-full p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+        <button onClick={() => { setOpen(false); stopSpeaking(); }} aria-label="Close voice assistant" className="rounded-full p-1.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -190,12 +190,14 @@ export function VoiceAssistant() {
             value={textInput}
             onChange={(e) => setTextInput(e.target.value)}
             placeholder="Type a message..."
+            aria-label="Type a message"
             className="flex-1 rounded-lg bg-muted border border-border px-3 py-2 text-sm text-card-foreground outline-none focus:border-primary/50 placeholder:text-muted-foreground/50"
             disabled={processing}
           />
           <button
             type="submit"
             disabled={!textInput.trim() || processing}
+            aria-label="Send message"
             className="flex items-center justify-center rounded-lg bg-primary p-2 text-primary-foreground disabled:opacity-30 hover:bg-primary/90 transition-all"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>

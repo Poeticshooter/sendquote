@@ -32,6 +32,7 @@ export function DatePicker({ value, onChange, placeholder = "Pick a date" }: Dat
           type="date"
           value={value || ""}
           min={today}
+          aria-label="Select date"
           onChange={(e) => {
             onChange?.(e.target.value);
             setOpen(false);

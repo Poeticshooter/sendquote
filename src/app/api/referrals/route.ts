@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { success, parseError, requireAuth, apiError } from "@/lib/api-helper";
 import { sendEmail } from "@/lib/email/send";

@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { detectBot, rateLimitCheck } from "@/lib/security";
 import { verifyOrigin, verifyCsrfToken } from "@/lib/security/csrf";
+import { v4 as uuid } from "uuid";
 
 const publicPaths = [
   "/", "/login", "/signup", "/onboarding", "/forgot-password", "/pricing", "/blog",
@@ -11,6 +12,7 @@ const publicPaths = [
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const requestId = uuid().slice(0, 12);
 
   const ua = request.headers.get("user-agent") || "";
   const botResult = detectBot(ua);
@@ -18,6 +20,7 @@ export async function middleware(request: NextRequest) {
   if (botResult.isBot && !botResult.isAiCrawler) {
     const response = NextResponse.next();
     response.headers.set("X-Robots-Tag", "index, follow, max-snippet:-1");
+    response.headers.set("X-Request-Id", requestId);
     return response;
   }
 
@@ -26,7 +29,7 @@ export async function middleware(request: NextRequest) {
     if (!allowed) {
       return new NextResponse(JSON.stringify({ error: "Too many requests" }), {
         status: 429,
-        headers: { "Content-Type": "application/json", "Retry-After": "60" },
+        headers: { "Content-Type": "application/json", "Retry-After": "60", "X-Request-Id": requestId },
       });
     }
 
@@ -41,12 +44,12 @@ export async function middleware(request: NextRequest) {
         !pathname.startsWith("/api/portal")) {
       const originResult = verifyOrigin(request);
       if (!originResult.ok) {
-        return NextResponse.json({ error: originResult.message }, { status: originResult.status });
+        return NextResponse.json({ error: originResult.message }, { status: originResult.status, headers: { "X-Request-Id": requestId } });
       }
 
       const csrfResult = verifyCsrfToken(request);
       if (!csrfResult.ok) {
-        return NextResponse.json({ error: csrfResult.message }, { status: csrfResult.status });
+        return NextResponse.json({ error: csrfResult.message }, { status: csrfResult.status, headers: { "X-Request-Id": requestId } });
       }
     }
   }
@@ -56,7 +59,11 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/_next/") || pathname.startsWith("/blog/") ||
     pathname.startsWith("/auth/");
 
-  if (isPublic) return NextResponse.next();
+  if (isPublic) {
+    const resp = NextResponse.next();
+    resp.headers.set("X-Request-Id", requestId);
+    return resp;
+  }
 
   let response = NextResponse.next({ request });
   const supabase = createServerClient(
@@ -75,8 +82,13 @@ export async function middleware(request: NextRequest) {
   );
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.redirect(new URL("/login", request.url));
+  if (!user) {
+    const redirect = NextResponse.redirect(new URL("/login", request.url));
+    redirect.headers.set("X-Request-Id", requestId);
+    return redirect;
+  }
 
+  response.headers.set("X-Request-Id", requestId);
   return response;
 }
 

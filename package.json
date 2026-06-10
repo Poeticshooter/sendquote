@@ -15,7 +15,9 @@
     "analyze": "ANALYZE=true next build",
     "ci": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
     "smoke-test": "curl -s https://sendquote.in/api/health | grep -q 'ok' && echo '✅ Site healthy' || echo '❌ Site down'",
-    "postdeploy": "echo 'Checking deployment...' && sleep 5 && for p in / /pricing /features /login; do code=$(curl -so /dev/null -w '%{http_code}' https://sendquote.in$p); [ $code -eq 200 ] && echo \"✅ $p -> $code\" || echo \"❌ $p -> $code\"; done"
+    "rollback": "vercel rollback --yes",
+    "postdeploy": "echo 'Checking deployment...' && sleep 5 && for p in / /pricing /features /login; do code=$(curl -so /dev/null -w '%{http_code}' https://sendquote.in$p); [ $code -eq 200 ] && echo \"✅ $p -> $code\" || echo \"❌ $p -> $code\"; done",
+    "prepare": "husky"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -44,6 +46,8 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
     "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
@@ -53,6 +57,8 @@
     "@vitejs/plugin-react": "^6.0.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.7",
     "shadcn": "^4.10.0",
     "tailwindcss": "^4",
     "typescript": "^5",
@@ -62,6 +68,10 @@
     "overrides": {
       "postcss": ">=8.5.10"
     }
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": ["eslint --fix"],
+    "*.{json,md,yaml,css,scss}": ["eslint --fix"]
   },
   "optionalDependencies": {
     "@rolldown/binding-darwin-x64": "^1.1.0",

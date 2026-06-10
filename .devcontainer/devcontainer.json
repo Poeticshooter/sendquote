@@ -1,0 +1,24 @@
+{
+  "name": "SendQuote",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-typescript-next",
+        "github.vscode-github-actions"
+      ]
+    }
+  },
+  "forwardPorts": [3000],
+  "postCreateCommand": "pnpm install",
+  "remoteEnv": {
+    "NODE_OPTIONS": "--max-old-space-size=512"
+  }
+}

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { ZodError, ZodSchema } from "zod";
+import type { ZodSchema } from "zod";
+import { ZodError } from "zod";
 import { createClient } from "@/lib/supabase/server";
 
 export interface ApiError {

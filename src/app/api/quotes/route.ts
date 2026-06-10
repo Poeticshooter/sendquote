@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { getQuotes, createQuote, generateQuoteNumber } from "@/lib/supabase/queries";
 import { CreateQuoteSchema } from "@/lib/api-validation";

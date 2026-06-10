@@ -101,12 +101,12 @@ function FeatureRow({ name, ours, theirs, note }: { name: string; ours: boolean;
     <tr className="border-b border-border">
       <td className="py-3 pr-4 text-sm text-foreground font-medium">{name}</td>
       <td className="py-3 px-4 text-center">
-        {ours ? <Check className="w-5 h-5 text-[#00D4AA] inline-block" /> : <X className="w-5 h-5 text-red-400 inline-block" />}
+        {ours ? <Check className="w-5 h-5 text-primary inline-block" /> : <X className="w-5 h-5 text-destructive/80 inline-block" />}
       </td>
       <td className="py-3 px-4 text-center">
-        {theirs ? <Check className="w-5 h-5 text-gray-500 inline-block" /> : <X className="w-5 h-5 text-red-400 inline-block" />}
+        {theirs ? <Check className="w-5 h-5 text-muted-foreground inline-block" /> : <X className="w-5 h-5 text-destructive/80 inline-block" />}
       </td>
-      {note && <td className="py-3 pl-4 text-xs text-gray-500 hidden lg:table-cell">{note}</td>}
+      {note && <td className="py-3 pl-4 text-xs text-muted-foreground hidden lg:table-cell">{note}</td>}
     </tr>
   );
 }
@@ -114,9 +114,9 @@ function FeatureRow({ name, ours, theirs, note }: { name: string; ours: boolean;
 function PricingCard({ plan, price, features }: { plan: string; price: string; features: string }) {
   return (
     <div className="bg-card border border-border rounded-xl p-6 flex flex-col">
-      <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">{plan}</h4>
+      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{plan}</h4>
       <p className="mt-2 text-3xl font-bold text-foreground">{price}</p>
-      <p className="mt-1 text-sm text-gray-500">{features}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{features}</p>
     </div>
   );
 }
@@ -141,13 +141,13 @@ export default function VsQwilrPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <span className="inline-flex items-center gap-1 text-xs font-medium bg-[#00D4AA]/10 text-[#00D4AA] px-3 py-1 rounded-full mb-4">
+            <span className="inline-flex items-center gap-1 text-xs font-medium bg-primary/10 text-primary px-3 py-1 rounded-full mb-4">
               Comparison
             </span>
             <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground">
               SendQuote vs Qwilr
             </h1>
-            <p className="mt-4 text-lg text-gray-400 max-w-2xl mx-auto">
+            <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
               Qwilr turns proposals into stunning web pages. But does it have
               AI, GST support, or a price that makes sense for Indian businesses?
             </p>
@@ -163,10 +163,10 @@ export default function VsQwilrPage() {
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <div className="flex items-center gap-2 mb-3">
-              <Zap className="w-5 h-5 text-[#00D4AA]" />
+              <Zap className="w-5 h-5 text-primary" />
               <h2 className="text-lg font-semibold text-foreground">Quick Verdict</h2>
             </div>
-            <p className="text-gray-400">
+            <p className="text-muted-foreground">
               <strong className="text-foreground">SendQuote wins for value and localisation.</strong> Qwilr&apos;s
               interactive proposal pages are visually impressive, but the tool
               lacks AI-powered drafting, has no free plan ($35/mo minimum), and
@@ -184,10 +184,10 @@ export default function VsQwilrPage() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-border">
-                  <th className="pb-3 pr-4 text-sm font-semibold text-gray-400">Feature</th>
-                  <th className="pb-3 px-4 text-center text-sm font-semibold text-[#00D4AA]">SendQuote</th>
-                  <th className="pb-3 px-4 text-center text-sm font-semibold text-gray-400">Qwilr</th>
-                  <th className="pb-3 pl-4 text-sm font-semibold text-gray-400 hidden lg:table-cell">Notes</th>
+                  <th className="pb-3 pr-4 text-sm font-semibold text-muted-foreground">Feature</th>
+                  <th className="pb-3 px-4 text-center text-sm font-semibold text-primary">SendQuote</th>
+                  <th className="pb-3 px-4 text-center text-sm font-semibold text-muted-foreground">Qwilr</th>
+                  <th className="pb-3 pl-4 text-sm font-semibold text-muted-foreground hidden lg:table-cell">Notes</th>
                 </tr>
               </thead>
               <tbody>
@@ -204,7 +204,7 @@ export default function VsQwilrPage() {
           <h2 className="text-2xl font-bold text-foreground mb-6">Pricing Comparison</h2>
           <div className="grid md:grid-cols-2 gap-8">
             <div>
-              <h3 className="text-lg font-semibold text-[#00D4AA] mb-4 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-primary mb-4 flex items-center gap-2">
                 <DollarSign className="w-5 h-5" /> SendQuote
               </h3>
               <div className="space-y-3">
@@ -214,7 +214,7 @@ export default function VsQwilrPage() {
               </div>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-400 mb-4 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-muted-foreground mb-4 flex items-center gap-2">
                 <X className="w-5 h-5" /> Qwilr
               </h3>
               <div className="space-y-3">
@@ -224,7 +224,7 @@ export default function VsQwilrPage() {
               </div>
             </div>
           </div>
-          <p className="mt-4 text-sm text-gray-500 text-center">
+          <p className="mt-4 text-sm text-muted-foreground text-center">
             Pricing as of June 2026. Qwilr prices are billed annually.
           </p>
         </section>
@@ -252,9 +252,9 @@ export default function VsQwilrPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.2 + idx * 0.05 }}
                 >
-                  <Icon className="w-5 h-5 text-[#00D4AA] mb-2" />
+                  <Icon className="w-5 h-5 text-primary mb-2" />
                   <h3 className="font-semibold text-foreground text-sm">{item.title}</h3>
-                  <p className="mt-1 text-sm text-gray-400">{item.desc}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
                 </m.div>
               );
             })}
@@ -272,11 +272,11 @@ export default function VsQwilrPage() {
               { q: "Is there a free alternative to Qwilr?", a: "Yes. SendQuote offers a free Starter plan with 50 quotes/month, e-signature, and basic templates — no credit card required." },
             ].map((faq) => (
               <details key={faq.q} className="group bg-card border border-border rounded-xl overflow-hidden">
-                <summary className="flex items-center justify-between p-4 cursor-pointer text-foreground font-medium text-sm list-none transition-colors duration-200 hover:text-[#00D4AA]">
+                <summary className="flex items-center justify-between p-4 cursor-pointer text-foreground font-medium text-sm list-none transition-colors duration-200 hover:text-primary">
                   {faq.q}
-                  <ArrowRight className="w-4 h-4 text-gray-500 group-open:rotate-90 transition-transform duration-200 flex-shrink-0" />
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-open:rotate-90 transition-transform duration-200 flex-shrink-0" />
                 </summary>
-                <div className="px-4 pb-4 text-sm text-gray-400">{faq.a}</div>
+                <div className="px-4 pb-4 text-sm text-muted-foreground">{faq.a}</div>
               </details>
             ))}
           </div>
@@ -288,19 +288,19 @@ export default function VsQwilrPage() {
             <h2 className="text-2xl font-bold text-foreground">
               Ready to try SendQuote?
             </h2>
-            <p className="mt-2 text-gray-400">
+            <p className="mt-2 text-muted-foreground">
               Start for free. No credit card required.
             </p>
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 href="/signup"
-                className="inline-flex items-center gap-2 bg-[#00D4AA] text-black font-semibold px-6 py-3 rounded-lg hover:bg-[#00D4AA]/90 transition-colors duration-200"
+                className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors duration-200"
               >
                 Get Started Free <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/comparisons"
-                className="inline-flex items-center gap-2 text-gray-400 hover:text-foreground transition-colors duration-200 text-sm"
+                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors duration-200 text-sm"
               >
                 View all comparisons
               </Link>

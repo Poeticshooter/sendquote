@@ -80,7 +80,7 @@ export default function AdminUsersPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/[0.06] text-left text-muted-foreground text-xs uppercase tracking-wider">
+                <tr className="border-b border-border text-left text-muted-foreground text-xs uppercase tracking-wider">
                   <th className="p-4 font-medium">User</th>
                   <th className="p-4 font-medium">Business</th>
                   <th className="p-4 font-medium">Plan</th>
@@ -90,14 +90,14 @@ export default function AdminUsersPage() {
               </thead>
               <tbody>
                 {paged.map((u) => (
-                  <tr key={u.id} className="border-b border-white/[0.06] last:border-0 hover:bg-white/[0.02] transition-colors">
+                  <tr key={u.id} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#00D4AA]/20 to-[#00D4AA]/5 text-xs font-medium text-[#00D4AA]">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5 text-xs font-medium text-primary">
                           {(u.business_name || u.users?.email || "?")[0].toUpperCase()}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-medium text-white truncate max-w-[200px] flex items-center gap-1.5">
+                          <p className="font-medium text-foreground truncate max-w-[200px] flex items-center gap-1.5">
                             <Mail className="h-3 w-3 text-muted-foreground shrink-0" />
                             {u.users?.email || "N/A"}
                           </p>
@@ -105,7 +105,7 @@ export default function AdminUsersPage() {
                       </div>
                     </td>
                     <td className="p-4">
-                      <div className="flex items-center gap-1.5 text-white/60">
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
                         {u.business_name ? (
                           <><Building2 className="h-3 w-3 shrink-0" />{u.business_name}</>
                         ) : "—"}
@@ -114,8 +114,8 @@ export default function AdminUsersPage() {
                     <td className="p-4">
                       <Badge variant="outline" className={`capitalize ${planColors[u.plan] || ""}`}>{u.plan}</Badge>
                     </td>
-                    <td className="p-4 text-white/60">{u.monthly_quote_count}</td>
-                    <td className="p-4 text-white/40 text-xs">
+                    <td className="p-4 text-muted-foreground">{u.monthly_quote_count}</td>
+                    <td className="p-4 text-muted-foreground text-xs">
                       {new Date(u.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                     </td>
                   </tr>
@@ -128,13 +128,13 @@ export default function AdminUsersPage() {
 
       {pageCount > 1 && (
         <div className="flex items-center justify-center gap-2">
-          <Button variant="outline" size="sm" className="border-white/10" disabled={page === 0} onClick={() => setPage(page - 1)}>
+          <Button variant="outline" size="sm" className="border-border" disabled={page === 0} onClick={() => setPage(page - 1)}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <span className="text-sm text-muted-foreground px-2">
             Page {page + 1} of {pageCount}
           </span>
-          <Button variant="outline" size="sm" className="border-white/10" disabled={page >= pageCount - 1} onClick={() => setPage(page + 1)}>
+          <Button variant="outline" size="sm" className="border-border" disabled={page >= pageCount - 1} onClick={() => setPage(page + 1)}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

@@ -32,15 +32,15 @@ export function BottomNav() {
               className={cn(
                 "flex flex-col items-center justify-center gap-0.5 rounded-lg px-3 py-1.5 text-[11px] font-medium transition-colors min-w-[56px]",
                 item.highlight
-                  ? "text-[#00D4AA]"
+                  ? "text-primary"
                   : isActive
-                    ? "text-white"
+                    ? "text-foreground"
                     : "text-muted-foreground hover:text-foreground",
               )}
             >
               <div className={cn(
                 "flex items-center justify-center",
-                item.highlight && "flex h-9 w-9 items-center justify-center rounded-full bg-[#00D4AA] text-black -mt-3 shadow-lg shadow-[#00D4AA]/20",
+                item.highlight && "flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground -mt-3 shadow-lg shadow-primary/20",
               )}>
                 <item.icon className="h-5 w-5" />
               </div>

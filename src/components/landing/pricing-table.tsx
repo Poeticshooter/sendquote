@@ -83,23 +83,23 @@ export function PricingTable() {
   const [billing, setBilling] = useState<BillingPeriod>("monthly");
 
   return (
-    <section className="border-t border-white/[0.06] px-4 py-24 sm:px-6 lg:px-8" id="pricing">
+    <section className="border-t border-border px-4 py-24 sm:px-6 lg:px-8" id="pricing">
       <div className="mx-auto max-w-7xl">
         <m.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-white">Simple, Transparent Pricing</h2>
-          <p className="mt-4 text-lg text-gray-400">Start free. Upgrade as you grow. All prices in INR.</p>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">Simple, Transparent Pricing</h2>
+          <p className="mt-4 text-lg text-muted-foreground">Start free. Upgrade as you grow. All prices in INR.</p>
         </m.div>
 
         {/* Billing Toggle */}
         <div className="mt-10 flex items-center justify-center">
-          <div className="inline-flex items-center rounded-lg border border-white/10 bg-white/[0.02] p-1">
+          <div className="inline-flex items-center rounded-lg border border-border bg-muted/20 p-1">
             <button
               onClick={() => setBilling("monthly")}
               className={cn(
                 "rounded-md px-4 py-2 text-sm font-medium transition-colors duration-200",
                 billing === "monthly"
-                  ? "bg-[#00D4AA] text-black"
-                  : "text-white/60 hover:text-white"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-white"
               )}
             >
               Monthly
@@ -109,16 +109,16 @@ export function PricingTable() {
               className={cn(
                 "rounded-md px-4 py-2 text-sm font-medium transition-colors duration-200",
                 billing === "annual"
-                  ? "bg-[#00D4AA] text-black"
-                  : "text-white/60 hover:text-white"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-white"
               )}
             >
               Annual{" "}
               <span className={cn(
                 "ml-1 rounded-full px-2 py-0.5 text-xs font-semibold",
                 billing === "annual"
-                  ? "bg-white/20 text-black"
-                  : "bg-[#00D4AA]/20 text-[#00D4AA]"
+                  ? "bg-primary-foreground/20 text-primary-foreground"
+                  : "bg-primary/20 text-primary"
               )}>
                 Save 20%
               </span>
@@ -143,28 +143,28 @@ export function PricingTable() {
                 className={cn(
                   "relative rounded-2xl border p-8 transition-all duration-500",
                   tier.featured
-                    ? "border-[#00D4AA]/30 bg-gradient-to-b from-[#00D4AA]/5 to-transparent"
-                    : "border-white/10 bg-white/[0.02]"
+                    ? "border-primary/30 bg-gradient-to-b from-primary/5 to-transparent"
+                    : "border-border bg-muted/20"
                 )}
               >
                 {tier.featured && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#00D4AA] to-[#06D6A0] px-4 py-1 text-xs font-semibold text-black shadow-lg">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-primary to-[#06D6A0] px-4 py-1 text-xs font-semibold text-primary-foreground shadow-lg">
                     Most Popular
                   </div>
                 )}
-                <h3 className="text-lg font-semibold text-white">{tier.name}</h3>
-                <p className="mt-1 text-sm text-white/40">{tier.description}</p>
+                <h3 className="text-lg font-semibold text-foreground">{tier.name}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">{tier.description}</p>
                 <div className="mt-6">
-                  <span className="text-4xl font-bold text-white">₹{displayPrice}</span>
-                  <span className="ml-1 text-sm text-white/40">{displayPeriod}</span>
+                  <span className="text-4xl font-bold text-foreground">₹{displayPrice}</span>
+                  <span className="ml-1 text-sm text-muted-foreground">{displayPeriod}</span>
                   {isAnnual && tier.annualPerMonth !== "0" && (
-                    <span className="ml-2 text-xs text-white/30">
+                    <span className="ml-2 text-xs text-foreground/30">
                       (₹{tier.annualPerMonth}/mo)
                     </span>
                   )}
                   {isAnnual && tier.annualSaving && (
                     <div className="mt-1">
-                      <span className="inline-block rounded-full bg-[#00D4AA]/15 px-2.5 py-0.5 text-xs font-medium text-[#00D4AA]">
+                      <span className="inline-block rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-medium text-primary">
                         {tier.annualSaving}
                       </span>
                     </div>
@@ -173,8 +173,8 @@ export function PricingTable() {
                 <ul className="mt-8 space-y-3">
                   {tier.features.map((feat) => (
                     <li key={feat} className="flex items-start gap-3">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#00D4AA]" />
-                      <span className="text-sm text-gray-300">{feat}</span>
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      <span className="text-sm text-foreground/80">{feat}</span>
                     </li>
                   ))}
                 </ul>
@@ -183,8 +183,8 @@ export function PricingTable() {
                   className={cn(
                     "mt-8 flex h-10 w-full items-center justify-center rounded-xl text-sm font-semibold transition-all",
                     tier.featured
-                      ? "bg-[#00D4AA] text-black hover:bg-[#00D4AA]/90"
-                      : "border border-white/10 text-white/70 hover:bg-white/5 hover:text-white"
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "border border-border text-muted-foreground hover:bg-muted/30 hover:text-white"
                   )}
                 >
                   {cta}

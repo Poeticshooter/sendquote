@@ -129,7 +129,7 @@ export function OnboardingWizard() {
         {step === 0 && (
           <div className="space-y-4">
             <div className="mb-2 flex items-center gap-3">
-              <Building2 className="h-6 w-6 text-[#00D4AA]" />
+              <Building2 className="h-6 w-6 text-primary" />
               <div>
                 <h2 className="text-lg font-semibold text-foreground">
                   {STEPS[0].title}
@@ -177,7 +177,7 @@ export function OnboardingWizard() {
         {step === 1 && (
           <div className="space-y-4">
             <div className="mb-2 flex items-center gap-3">
-              <FileText className="h-6 w-6 text-[#00D4AA]" />
+              <FileText className="h-6 w-6 text-primary" />
               <div>
                 <h2 className="text-lg font-semibold text-foreground">
                   {STEPS[1].title}
@@ -209,7 +209,7 @@ export function OnboardingWizard() {
         {step === 2 && (
           <div className="space-y-4">
             <div className="mb-2 flex items-center gap-3">
-              <Share2 className="h-6 w-6 text-[#00D4AA]" />
+              <Share2 className="h-6 w-6 text-primary" />
               <div>
                 <h2 className="text-lg font-semibold text-foreground">
                   {STEPS[2].title}

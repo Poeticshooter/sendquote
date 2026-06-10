@@ -52,26 +52,26 @@ export default function AdminLogsPage() {
           {logs.length === 0 ? (
             <div className="py-16 text-center">
               <div className="flex justify-center mb-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/30">
                   <Shield className="h-6 w-6 text-muted-foreground/50" />
                 </div>
               </div>
-              <h3 className="text-sm font-medium text-white">No audit logs yet</h3>
+              <h3 className="text-sm font-medium text-foreground">No audit logs yet</h3>
               <p className="text-xs text-muted-foreground mt-1">Admin actions will appear here.</p>
             </div>
           ) : (
             <div className="relative">
-              <div className="absolute left-[19px] top-3 bottom-3 w-px bg-white/[0.06]" />
+              <div className="absolute left-[19px] top-3 bottom-3 w-px bg-muted/30" />
               <div className="space-y-0">
                 {logs.map((log) => {
                   const Icon = actionIcons[log.admin_action] || Info;
                   return (
-                    <div key={log.id} className="relative flex items-start gap-4 px-2 py-3 hover:bg-white/[0.02] rounded-lg transition-colors">
-                      <div className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full bg-[#00D4AA]/10 shrink-0">
-                        <Icon className="h-4 w-4 text-[#00D4AA]" />
+                    <div key={log.id} className="relative flex items-start gap-4 px-2 py-3 hover:bg-muted/20 rounded-lg transition-colors">
+                      <div className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 shrink-0">
+                        <Icon className="h-4 w-4 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0 pt-1">
-                        <p className="text-sm font-medium text-white">{actionLabel(log.admin_action)}</p>
+                        <p className="text-sm font-medium text-foreground">{actionLabel(log.admin_action)}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {log.target_type && `${log.target_type}${log.target_id ? ` #${log.target_id.slice(0, 8)}` : ""}`}
                           {log.details && Object.keys(log.details).length > 0 && (

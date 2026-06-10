@@ -189,20 +189,20 @@ export default async function BlogPostPage({ params }: Props) {
       <Navbar />
       <main className="px-4 py-16 sm:px-6 lg:px-8">
         <article className="mx-auto max-w-2xl">
-          <Link href="/blog" className="text-sm text-[#00D4AA] hover:underline">&larr; Back to Blog</Link>
-          <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl text-white">{post.title}</h1>
+          <Link href="/blog" className="text-sm text-primary hover:underline">&larr; Back to Blog</Link>
+          <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl text-foreground">{post.title}</h1>
           <div className="mt-2 flex flex-wrap gap-2">
             {post.tags.map((tag) => (
-              <span key={tag} className="text-xs text-white/30 bg-white/5 rounded-full px-2.5 py-0.5">{tag}</span>
+              <span key={tag} className="text-xs text-muted-foreground bg-muted/30 rounded-full px-2.5 py-0.5">{tag}</span>
             ))}
           </div>
-          <p className="mt-2 text-sm text-white/30">{post.date} · {post.author}</p>
-          <div className="mt-8 space-y-4 text-base leading-relaxed text-white/60">
+          <p className="mt-2 text-sm text-muted-foreground">{post.date} · {post.author}</p>
+          <div className="mt-8 space-y-4 text-base leading-relaxed text-muted-foreground">
             {post.body.split("\n\n").map((p, i) => {
-              if (p.startsWith("## ")) return <h2 key={i} className="text-xl font-bold text-white mt-8 mb-4">{p.replace("## ", "")}</h2>;
+              if (p.startsWith("## ")) return <h2 key={i} className="text-xl font-bold text-foreground mt-8 mb-4">{p.replace("## ", "")}</h2>;
               if (p.startsWith("- **")) {
                 const items = p.split("\n").filter(l => l.startsWith("- **"));
-                return <ul key={i} className="space-y-2 my-4">{items.map((item, j) => <li key={j} className="flex items-start gap-2"><span className="text-[#00D4AA] mt-1.5">•</span><span>{item.replace(/^- \*\*|\*\*/g, "")}</span></li>)}</ul>;
+                return <ul key={i} className="space-y-2 my-4">{items.map((item, j) => <li key={j} className="flex items-start gap-2"><span className="text-primary mt-1.5">•</span><span>{item.replace(/^- \*\*|\*\*/g, "")}</span></li>)}</ul>;
               }
               return <p key={i}>{p}</p>;
             })}

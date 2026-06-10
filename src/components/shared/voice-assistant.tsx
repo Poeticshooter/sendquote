@@ -210,7 +210,7 @@ export function VoiceAssistant() {
               disabled={processing}
               className={`flex items-center justify-center rounded-full p-2 transition-all ${
                 listening
-                  ? "bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/30"
+                  ? "bg-red-500 text-foreground animate-pulse shadow-lg shadow-red-500/30"
                   : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               } disabled:opacity-50`}
               aria-label={listening ? "Stop listening" : "Start listening"}

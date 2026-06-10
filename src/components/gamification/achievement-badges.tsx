@@ -39,7 +39,7 @@ export function AchievementBadges() {
   const earnedCount = earned.length;
 
   return (
-    <Card className="border-white/[0.06]">
+    <Card className="border-border">
       <CardHeader className="flex flex-row items-center justify-between pb-3">
         <CardTitle className="text-sm font-medium flex items-center gap-2">
           <Trophy className="h-4 w-4 text-amber-400" />
@@ -57,8 +57,8 @@ export function AchievementBadges() {
                 className={cn(
                   "group relative flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs transition-all",
                   unlocked
-                    ? "border-[#00D4AA]/20 bg-[#00D4AA]/5 text-white"
-                    : "border-white/[0.06] bg-white/[0.02] text-white/30"
+                    ? "border-[#00D4AA]/20 bg-[#00D4AA]/5 text-foreground"
+                    : "border-border bg-muted/30 text-muted-foreground"
                 )}
               >
                 <span className={unlocked ? "opacity-100" : "opacity-30 saturate-0"}>
@@ -66,10 +66,10 @@ export function AchievementBadges() {
                 </span>
                 <span className="font-medium">{a.label}</span>
                 {unlocked && (
-                  <Sparkles className="h-3 w-3 text-[#00D4AA]" />
+                  <Sparkles className="h-3 w-3 text-primary" />
                 )}
                 <div className="absolute -top-1 left-1/2 -translate-x-1/2 mb-1 opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none">
-                  <div className="bg-gray-900 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap shadow-lg">
+                  <div className="bg-gray-900 text-foreground text-[10px] px-2 py-1 rounded whitespace-nowrap shadow-lg">
                     {a.description}
                   </div>
                 </div>

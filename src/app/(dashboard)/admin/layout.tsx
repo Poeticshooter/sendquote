@@ -45,18 +45,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
         <h2 className="text-2xl font-bold tracking-tight mb-2">Access Restricted</h2>
         <p className="text-muted-foreground max-w-md mb-8">
-          Admin access requires a <span className="text-white font-medium">Pro</span> or{" "}
-          <span className="text-white font-medium">Enterprise</span> plan.{" "}
+           Admin access requires a <span className="text-foreground font-medium">Pro</span> or{" "}
+           <span className="text-foreground font-medium">Enterprise</span> plan.{" "}
           Upgrade your plan to access system administration features.
         </p>
         <div className="flex gap-4">
           <Link href="/settings">
-            <Button variant="default" className="bg-[#00D4AA] text-black hover:bg-[#00D4AA]/90">
+            <Button variant="default" className="bg-primary text-primary-foreground hover:bg-primary/90">
               Upgrade Plan
             </Button>
           </Link>
           <Link href="/dashboard">
-            <Button variant="outline" className="border-white/10">
+            <Button variant="outline" className="border-border">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
             </Button>
           </Link>

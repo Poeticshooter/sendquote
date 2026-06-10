@@ -15,8 +15,8 @@ export default function FeaturesPage() {
       <Navbar />
       <main>
         <div className="px-4 pt-20 pb-8 text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-white">Features</h1>
-          <p className="mt-4 text-lg text-gray-400 max-w-xl mx-auto">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">Features</h1>
+          <p className="mt-4 text-lg text-muted-foreground max-w-xl mx-auto">
             Everything you need to close deals faster — from AI quote generation to e-signature.
           </p>
         </div>

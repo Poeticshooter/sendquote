@@ -12,11 +12,11 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section className="border-t border-white/[0.06] px-4 py-24 sm:px-6 lg:px-8">
+    <section className="border-t border-border px-4 py-24 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <m.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-white">How It Works</h2>
-          <p className="mt-4 text-lg text-gray-400">From conversation to contract in four simple steps.</p>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">How It Works</h2>
+          <p className="mt-4 text-lg text-muted-foreground">From conversation to contract in four simple steps.</p>
         </m.div>
 
         <div className="grid gap-12 lg:gap-16">
@@ -30,63 +30,63 @@ export function HowItWorks() {
               className={`flex flex-col ${i % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"} items-center gap-8 lg:gap-16`}
             >
               <div className="flex-1">
-                <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#00D4AA] to-[#06D6A0] text-black shadow-lg mb-4">
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-[#06D6A0] text-primary-foreground shadow-lg mb-4">
                   <step.icon className="h-6 w-6" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">{step.title}</h3>
-                <p className="text-gray-400 leading-relaxed max-w-md">{step.description}</p>
+                <h3 className="text-xl font-bold text-foreground mb-2">{step.title}</h3>
+                <p className="text-muted-foreground leading-relaxed max-w-md">{step.description}</p>
               </div>
               <div className="flex-1 flex justify-center">
-                <div className="relative w-full max-w-sm rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
+                <div className="relative w-full max-w-sm rounded-2xl border border-border bg-muted/20 p-6">
                   {i === 0 && (
                     <div className="space-y-3">
-                      <div className="h-2 w-24 rounded-full bg-white/10" />
+                      <div className="h-2 w-24 rounded-full bg-muted/20" />
                       <div className="space-y-2">
                         {["Website redesign", "SEO optimization", "Content creation"].map((item) => (
                           <div key={item} className="flex items-center gap-2 text-sm">
-                            <div className="h-1.5 w-1.5 rounded-full bg-[#00D4AA]" />
-                            <span className="text-gray-300">{item}</span>
+                            <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                            <span className="text-foreground/80">{item}</span>
                           </div>
                         ))}
                       </div>
-                      <div className="h-8 rounded-lg bg-[#00D4AA]/10 flex items-center px-3 text-xs text-[#00D4AA] font-medium"><Sparkles className="h-3 w-3 inline-block mr-1" /> AI generated in 12 seconds</div>
+                      <div className="h-8 rounded-lg bg-primary/10 flex items-center px-3 text-xs text-primary font-medium"><Sparkles className="h-3 w-3 inline-block mr-1" /> AI generated in 12 seconds</div>
                     </div>
                   )}
                   {i === 1 && (
                     <div className="space-y-3 text-center">
-                      <div className="mx-auto h-12 w-12 rounded-full bg-white/5 flex items-center justify-center">
-                        <ArrowRight className="h-6 w-6 text-[#00D4AA]" />
+                      <div className="mx-auto h-12 w-12 rounded-full bg-muted/30 flex items-center justify-center">
+                        <ArrowRight className="h-6 w-6 text-primary" />
                       </div>
-                      <p className="text-sm font-medium text-white">Quote link sent!</p>
-                      <p className="text-xs text-white/40">Client will be notified via email & WhatsApp</p>
+                      <p className="text-sm font-medium text-foreground">Quote link sent!</p>
+                      <p className="text-xs text-muted-foreground">Client will be notified via email & WhatsApp</p>
                     </div>
                   )}
                   {i === 2 && (
                     <div className="space-y-3">
                       <div className="flex items-start gap-3">
-                        <div className="h-6 w-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white">A</div>
-                        <div className="flex-1 rounded-lg bg-white/5 p-2.5 text-xs">
-                          <p className="font-medium text-white mb-1">Acme Corp</p>
-                          <p className="text-white/40">Can we adjust the timeline?</p>
+                        <div className="h-6 w-6 rounded-full bg-muted/20 flex items-center justify-center text-xs font-bold text-foreground">A</div>
+                        <div className="flex-1 rounded-lg bg-muted/30 p-2.5 text-xs">
+                          <p className="font-medium text-foreground mb-1">Acme Corp</p>
+                          <p className="text-muted-foreground">Can we adjust the timeline?</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3 justify-end">
-                        <div className="flex-1 rounded-lg bg-gradient-to-r from-[#00D4AA] to-[#06D6A0] p-2.5 text-xs text-black max-w-[80%]">
+                        <div className="flex-1 rounded-lg bg-gradient-to-r from-primary to-[#06D6A0] p-2.5 text-xs text-primary-foreground max-w-[80%]">
                           <p>Absolutely! I&apos;ve updated the terms.</p>
                         </div>
-                        <div className="h-6 w-6 rounded-full bg-[#00D4AA] flex items-center justify-center text-[9px] font-bold text-black">Y</div>
+                        <div className="h-6 w-6 rounded-full bg-primary flex items-center justify-center text-[9px] font-bold text-primary-foreground">Y</div>
                       </div>
                     </div>
                   )}
                   {i === 3 && (
                     <div className="space-y-3 text-center">
                       <div className="flex justify-center">
-                        <div className="h-20 w-20 rounded-xl border border-[#00D4AA]/20 bg-[#00D4AA]/5 flex flex-col items-center justify-center">
-                          <svg className="h-8 w-8 text-[#00D4AA]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                          <span className="text-[10px] font-medium text-[#00D4AA] mt-1">Accepted</span>
+                        <div className="h-20 w-20 rounded-xl border border-primary/20 bg-primary/5 flex flex-col items-center justify-center">
+                          <svg className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                          <span className="text-[10px] font-medium text-primary mt-1">Accepted</span>
                         </div>
                       </div>
-                      <p className="text-xs text-white/40">GST invoice auto-generated</p>
+                      <p className="text-xs text-muted-foreground">GST invoice auto-generated</p>
                     </div>
                   )}
                 </div>

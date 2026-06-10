@@ -22,19 +22,19 @@ export default function BlogPage() {
       <Navbar />
       <main className="px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl text-white">Blog</h1>
-          <p className="mt-3 text-gray-400">Insights on AI quoting, sales strategies, and growing your Indian business.</p>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">Blog</h1>
+          <p className="mt-3 text-muted-foreground">Insights on AI quoting, sales strategies, and growing your Indian business.</p>
           <div className="mt-10 grid gap-6 sm:grid-cols-2">
             {posts.map((post) => (
-              <Link key={post.slug} href={`/blog/${post.slug}`} className="group rounded-xl border border-white/[0.06] bg-white/[0.02] p-6 hover:bg-white/[0.04] transition-colors duration-200">
+              <Link key={post.slug} href={`/blog/${post.slug}`} className="group rounded-xl border border-border bg-muted/20 p-6 hover:bg-muted/30 transition-colors duration-200">
                 <div className="flex flex-wrap gap-2 mb-3">
                   {post.tags.map((tag) => (
-                    <span key={tag} className="text-[10px] text-gray-400 bg-white/10 rounded-full px-2 py-0.5">{tag}</span>
+                    <span key={tag} className="text-[10px] text-muted-foreground bg-muted/30 rounded-full px-2 py-0.5">{tag}</span>
                   ))}
                 </div>
-                <p className="text-xs text-gray-500">{post.date}</p>
-                <h2 className="mt-2 font-semibold text-white group-hover:text-[#00D4AA] transition-colors">{post.title}</h2>
-                <p className="mt-2 text-sm text-white/40 line-clamp-2">{post.excerpt}</p>
+                <p className="text-xs text-muted-foreground">{post.date}</p>
+                <h2 className="mt-2 font-semibold text-foreground group-hover:text-primary transition-colors">{post.title}</h2>
+                <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{post.excerpt}</p>
               </Link>
             ))}
           </div>

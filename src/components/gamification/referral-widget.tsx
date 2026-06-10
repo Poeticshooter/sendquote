@@ -41,7 +41,7 @@ export function ReferralWidget() {
   }
 
   return (
-    <Card className="border-white/[0.06]">
+    <Card className="border-border">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-medium flex items-center gap-2">
           <Gift className="h-4 w-4 text-rose-400" />
@@ -50,25 +50,25 @@ export function ReferralWidget() {
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-xs text-muted-foreground">
-          Get <span className="text-[#00D4AA] font-medium">1 month free</span> for every friend who joins SendQuote.
+          Get <span className="text-primary font-medium">1 month free</span> for every friend who joins SendQuote.
         </p>
         <div className="flex gap-2">
           <Input
             placeholder="friend@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="bg-white/5 border-white/10 text-white text-sm h-9"
+            className="bg-muted/30 border-border text-foreground text-sm h-9"
           />
-          <Button size="sm" className="bg-[#00D4AA] text-black hover:bg-[#00D4AA]/90 shrink-0" onClick={handleRefer} disabled={sending} aria-label="Send invitation">
+          <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 shrink-0" onClick={handleRefer} disabled={sending} aria-label="Send invitation">
             <Send className="h-3.5 w-3.5" />
           </Button>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="border-white/10 text-xs flex-1 h-8" onClick={copyLink}>
+          <Button variant="outline" size="sm" className="border-border text-xs flex-1 h-8" onClick={copyLink}>
             {copied ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
             Copy Referral Link
           </Button>
-          <Button variant="outline" size="sm" className="border-white/10 text-xs h-8" onClick={() => {
+          <Button variant="outline" size="sm" className="border-border text-xs h-8" onClick={() => {
             window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("I'm using SendQuote to close deals faster! Try it free: " + referralLink)}`, "_blank");
           }}>
             <Share2 className="h-3 w-3" />

@@ -114,11 +114,11 @@ export default function SettingsPage() {
                     <Input id="gst" value={gst} onChange={(e) => setGst(e.target.value.toUpperCase())} placeholder="22AAAAA0000A1Z5" />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
                       {gstChecking ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /> :
-                       gstValid === true ? <><CheckCircle className="h-4 w-4 text-[#00D4AA]" /><span className="text-xs text-[#00D4AA] ml-1">GST Valid</span></> :
+                       gstValid === true ? <><CheckCircle className="h-4 w-4 text-primary" /><span className="text-xs text-primary ml-1">GST Valid</span></> :
                        gstValid === false ? <><XCircle className="h-4 w-4 text-red-400" /><span className="text-xs text-red-400 ml-1">GST Invalid</span></> : null}
                     </div>
                   </div>
-                  {gst && gstValid === true && <p className="text-xs text-[#00D4AA]">Valid GST format ✓</p>}
+                  {gst && gstValid === true && <p className="text-xs text-primary">Valid GST format ✓</p>}
                   {gstValid === false && <p className="text-xs text-red-400">Invalid GST number format</p>}
                 </div>
               </div>

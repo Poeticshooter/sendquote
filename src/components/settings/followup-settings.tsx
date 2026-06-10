@@ -74,7 +74,7 @@ export function FollowupSettings() {
           </div>
         ) : (
           sequences.map((seq) => (
-            <div key={seq.id} className="flex items-center justify-between rounded-lg border border-white/[0.06] p-4">
+            <div key={seq.id} className="flex items-center justify-between rounded-lg border border-border p-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="font-medium text-sm">{seq.name}</p>

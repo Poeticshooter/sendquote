@@ -103,7 +103,7 @@ export default function DashboardPage() {
         <div className="rounded-full bg-red-500/10 p-4 mb-4">
           <FileText className="h-8 w-8 text-red-400" />
         </div>
-        <h3 className="text-lg font-semibold text-white mb-2">Failed to load dashboard</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-2">Failed to load dashboard</h3>
         <p className="text-sm text-muted-foreground mb-6 max-w-md">
           Something went wrong loading your data. This could be a temporary issue.
         </p>
@@ -208,7 +208,7 @@ export default function DashboardPage() {
                       <div className="text-right ml-4">
                         <p className="text-sm font-medium">₹{Number(q.total).toLocaleString("en-IN")}</p>
                         <span className={`text-xs ${
-                          q.status === "accepted" ? "text-[#00D4AA]" :
+                          q.status === "accepted" ? "text-primary" :
                           q.status === "sent" || q.status === "opened" ? "text-blue-400" :
                           q.status === "draft" ? "text-muted-foreground" : "text-red-400"
                         }`}>
@@ -231,7 +231,7 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <Link href="/quotes/new" className="flex items-center gap-3 rounded-lg border border-border p-3 hover:bg-muted/50 transition-colors">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#00D4AA]/10 text-[#00D4AA]">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Plus className="h-4 w-4" />
                 </div>
                 <div className="flex-1">

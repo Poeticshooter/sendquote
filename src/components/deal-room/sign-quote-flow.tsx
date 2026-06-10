@@ -143,7 +143,7 @@ export function SignQuoteFlow({ publicToken, quoteNumber, total = 0, onSigned }:
                 onClick={() => { setPaymentMethod("razorpay"); handleRazorpayPayment(); }}
                 disabled={loading}
               >
-                <Wallet className="h-6 w-6 text-[#00D4AA]" />
+                <Wallet className="h-6 w-6 text-primary" />
                 <div className="text-left">
                   <p className="font-medium">Pay with Razorpay</p>
                   <p className="text-sm text-muted-foreground">UPI, Credit Card, Net Banking</p>
@@ -155,7 +155,7 @@ export function SignQuoteFlow({ publicToken, quoteNumber, total = 0, onSigned }:
                 onClick={() => { setPaymentMethod("stripe"); }}
                 disabled={loading}
               >
-                <CreditCard className="h-6 w-6 text-[#00D4AA]" />
+                <CreditCard className="h-6 w-6 text-primary" />
                 <div className="text-left">
                   <p className="font-medium">Pay with Card (Stripe)</p>
                   <p className="text-sm text-muted-foreground">International cards, Google Pay, Apple Pay</p>

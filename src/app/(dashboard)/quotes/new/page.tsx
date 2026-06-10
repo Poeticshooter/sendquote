@@ -163,14 +163,14 @@ export default function NewQuotePage() {
             <p className="text-muted-foreground">Create a quote for your client.</p>
           </div>
         </div>
-        <Button type="button" variant="outline" size="sm" className="border-white/10 gap-2" onClick={() => setShowTemplates(!showTemplates)}>
+        <Button type="button" variant="outline" size="sm" className="border-border gap-2" onClick={() => setShowTemplates(!showTemplates)}>
           <FileText className="h-4 w-4" />
           {showTemplates ? "Hide" : "Templates"}
         </Button>
       </div>
 
       {showTemplates && (
-        <Card className="border-[#00D4AA]/10 bg-[#00D4AA]/[0.02]">
+        <Card className="border-primary/10 bg-primary/[0.02]">
           <CardContent className="pt-4">
             <TemplateSelector onSelect={handleTemplateSelect} />
           </CardContent>

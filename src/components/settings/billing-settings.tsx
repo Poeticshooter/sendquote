@@ -102,7 +102,7 @@ export function BillingSettings() {
     }
   }
 
-  if (loading) return <div className="h-32 animate-pulse rounded-xl bg-white/5" />;
+  if (loading) return <div className="h-32 animate-pulse rounded-xl bg-muted/30" />;
 
   return (
     <div className="space-y-6">
@@ -110,7 +110,7 @@ export function BillingSettings() {
         <CardHeader>
           <CardTitle>Current Plan</CardTitle>
           <CardDescription>
-            You&apos;re on the <span className="font-medium text-white capitalize">{profile?.plan || "starter"}</span> plan
+            You&apos;re on the <span className="font-medium text-foreground capitalize">{profile?.plan || "starter"}</span> plan
             <Badge variant="outline" className="ml-2">
               {profile?.subscription_status === "active" ? "Active" : profile?.plan === "starter" ? "Free" : "Inactive"}
             </Badge>
@@ -133,11 +133,11 @@ export function BillingSettings() {
                 <CardDescription>{plan.limit}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-3xl font-bold text-white">{plan.price}<span className="text-sm font-normal text-white/40">{plan.id !== "starter" ? "/mo" : ""}</span></p>
+                <p className="text-3xl font-bold text-foreground">{plan.price}<span className="text-sm font-normal text-muted-foreground">{plan.id !== "starter" ? "/mo" : ""}</span></p>
                 <ul className="space-y-2">
                   {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-white/60">
-                      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#00D4AA]" />
+                    <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
                       {f}
                     </li>
                   ))}

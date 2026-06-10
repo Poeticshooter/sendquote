@@ -11,14 +11,14 @@ export default function ComparisonsPage() {
       <main className="min-h-screen">
         {/* Hero */}
         <section className="px-4 pt-28 pb-12 text-center max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-1 text-xs font-medium bg-[#00D4AA]/10 text-[#00D4AA] px-3 py-1 rounded-full mb-4">
+          <div className="inline-flex items-center gap-1 text-xs font-medium bg-primary/10 text-primary px-3 py-1 rounded-full mb-4">
             <Trophy className="w-3 h-3" />
             Honest Comparisons
           </div>
           <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground">
-            SendQuote vs <span className="text-[#00D4AA]">The Competition</span>
+            SendQuote vs <span className="text-primary">The Competition</span>
           </h1>
-          <p className="mt-4 text-lg text-gray-400 max-w-2xl mx-auto">
+          <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
             We pit SendQuote head-to-head against the top quoting and proposal tools.
             No fluff, no bias — just honest feature-by-feature breakdowns so you can decide.
           </p>
@@ -41,9 +41,9 @@ export default function ComparisonsPage() {
               const Icon = item.icon;
               return (
                 <div key={item.title} className="bg-card border border-border rounded-xl p-5 text-center">
-                  <Icon className="w-6 h-6 text-[#00D4AA] mx-auto mb-3" />
+                  <Icon className="w-6 h-6 text-primary mx-auto mb-3" />
                   <h3 className="font-semibold text-foreground text-sm">{item.title}</h3>
-                  <p className="mt-1 text-sm text-gray-400">{item.desc}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
                 </div>
               );
             })}
@@ -56,19 +56,19 @@ export default function ComparisonsPage() {
             <h2 className="text-2xl font-bold text-foreground">
               Ready to Try SendQuote?
             </h2>
-            <p className="mt-2 text-gray-400">
+            <p className="mt-2 text-muted-foreground">
               Start for free. No credit card required.
             </p>
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 href="/signup"
-                className="inline-flex items-center gap-2 bg-[#00D4AA] text-black font-semibold px-6 py-3 rounded-lg hover:bg-[#00D4AA]/90 transition-colors duration-200"
+                className="inline-flex items-center gap-2 bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors duration-200"
               >
                 Get Started Free <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/pricing"
-                className="inline-flex items-center gap-2 text-gray-400 hover:text-foreground transition-colors duration-200 text-sm"
+                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors duration-200 text-sm"
               >
                 View Pricing
               </Link>

@@ -117,7 +117,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
 
         <div className="border-t p-4">
           <div className="flex items-center gap-3 text-sm">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#00D4AA]/10 text-[#00D4AA] font-medium text-xs">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#00D4AA]/10 text-primary font-medium text-xs">
               {profile ? planLabel[0] : "U"}
             </div>
             <div className="flex-1 truncate">

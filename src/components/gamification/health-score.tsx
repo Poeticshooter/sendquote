@@ -34,7 +34,7 @@ export function HealthScore() {
   const progress = data.nextMilestone > 0 ? (data.score / data.nextMilestone) * 100 : 100;
 
   return (
-    <Card className="border-white/[0.06] overflow-hidden">
+    <Card className="border-border overflow-hidden">
       <div className={`h-1.5 bg-gradient-to-r ${levelColors[data.level] || "from-gray-500 to-gray-400"}`} style={{ width: `${Math.min(progress, 100)}%` }} />
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium flex items-center gap-2">

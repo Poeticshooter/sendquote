@@ -35,13 +35,13 @@ export function TemplateSelector({ onSelect, className }: Props) {
   return (
     <div className={cn("space-y-3", className)}>
       <div className="flex items-center gap-2 mb-2">
-        <Sparkles className="h-4 w-4 text-[#00D4AA]" />
+        <Sparkles className="h-4 w-4 text-primary" />
         <span className="text-sm font-medium">Quick Templates</span>
       </div>
       <div className="flex gap-1.5 flex-wrap">
         {industries.map(ind => (
           <Button key={ind} variant={industry === ind ? "default" : "outline"} size="sm"
-            className={cn("text-xs h-7", industry === ind ? "bg-[#00D4AA] text-black" : "border-white/10")}
+            className={cn("text-xs h-7", industry === ind ? "bg-primary text-primary-foreground" : "border-border")}
             onClick={() => setIndustry(ind)}
           >
             {ind === "all" ? "All" : ind.charAt(0).toUpperCase() + ind.slice(1)}
@@ -58,11 +58,11 @@ export function TemplateSelector({ onSelect, className }: Props) {
         <div className="grid grid-cols-2 gap-2">
           {templates.map(t => (
             <button key={t.id} onClick={() => onSelect(t)}
-              className="text-left rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 hover:bg-white/[0.04] hover:border-[#00D4AA]/20 transition-all group"
+              className="text-left rounded-lg border border-border bg-muted/30 p-3 hover:bg-muted/20 hover:border-[#00D4AA]/20 transition-all group"
             >
               <div className="flex items-center gap-2 mb-1">
-                <FileText className="h-3.5 w-3.5 text-[#00D4AA]" />
-                <span className="text-xs font-medium text-white truncate">{t.name}</span>
+                <FileText className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs font-medium text-foreground truncate">{t.name}</span>
               </div>
               <p className="text-[10px] text-muted-foreground line-clamp-2">{t.description}</p>
             </button>

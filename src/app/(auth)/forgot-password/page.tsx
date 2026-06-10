@@ -30,14 +30,14 @@ export default function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <div className="flex min-h-screen items-center justify-center px-4 bg-[#0A0A0A]">
-        <Card className="w-full max-w-sm bg-[#141414] border-white/[0.06] text-white">
+      <div className="flex min-h-screen items-center justify-center px-4 bg-background">
+        <Card className="w-full max-w-sm bg-card border-border text-foreground">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl text-white">Check your email</CardTitle>
-            <CardDescription className="text-white/40">We&apos;ve sent a password reset link to {email}</CardDescription>
+          <CardTitle className="text-2xl text-foreground">Check your email</CardTitle>
+          <CardDescription className="text-muted-foreground">We&apos;ve sent a password reset link to {email}</CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <Link href="/login" className={buttonVariants({ variant: "outline", className: "border-white/10 text-white/70 hover:bg-white/5" })}>Back to Sign In</Link>
+            <Link href="/login" className={buttonVariants({ variant: "outline", className: "border-border text-foreground/70 hover:bg-muted/50" })}>Back to Sign In</Link>
           </CardContent>
         </Card>
       </div>
@@ -45,23 +45,23 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 bg-[#0A0A0A]">
-      <Card className="w-full max-w-sm bg-[#141414] border-white/[0.06] text-white">
+    <div className="flex min-h-screen items-center justify-center px-4 bg-background">
+      <Card className="w-full max-w-sm bg-card border-border text-foreground">
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto flex items-center justify-center gap-2 mb-4">
-            <Image src="/icon-192.webp" alt="SendQuote" width={192} height={192} className="mx-auto h-12 w-12" />
-            <span className="text-xl font-bold text-white">SendQuote</span>
+            <Image src="/logo.webp" alt="SendQuote" width={512} height={512} className="mx-auto h-12 w-12" />
+            <span className="text-xl font-bold text-foreground">SendQuote</span>
           </Link>
-          <CardTitle className="text-2xl text-white">Reset password</CardTitle>
-          <CardDescription className="text-white/40">Enter your email and we&apos;ll send you a reset link</CardDescription>
+          <CardTitle className="text-2xl text-foreground">Reset password</CardTitle>
+          <CardDescription className="text-muted-foreground">Enter your email and we&apos;ll send you a reset link</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleReset} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-white/70">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-white/5 border-white/10 text-white placeholder:text-white/30" placeholder="you@example.com" />
+              <Label htmlFor="email" className="text-foreground/70">Email</Label>
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground/50" placeholder="you@example.com" />
             </div>
-            <Button type="submit" className="w-full bg-[#00D4AA] text-black hover:bg-[#00D4AA]/90 font-semibold" disabled={loading}>
+            <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-semibold" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -72,8 +72,8 @@ export default function ForgotPasswordPage() {
               )}
             </Button>
           </form>
-          <p className="mt-6 text-center text-sm text-white/40">
-            Remember your password? <Link href="/login" className="text-[#00D4AA] hover:underline">Sign in</Link>
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            Remember your password? <Link href="/login" className="text-primary hover:underline">Sign in</Link>
           </p>
         </CardContent>
       </Card>

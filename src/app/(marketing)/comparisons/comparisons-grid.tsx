@@ -85,15 +85,15 @@ export function ComparisonsGrid() {
                   {/* Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#00D4AA]/10 text-[#00D4AA]">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                         <Icon className="h-5 w-5" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground">SendQuote vs {cmp.name}</h3>
-                        <p className="text-xs text-gray-500 mt-0.5">{cmp.tagline}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{cmp.tagline}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 text-[#00D4AA]">
+                    <div className="flex items-center gap-1 text-primary">
                       <Star className="w-3.5 h-3.5 fill-current" />
                       <span className="text-sm font-bold">{cmp.score}</span>
                     </div>
@@ -101,13 +101,13 @@ export function ComparisonsGrid() {
 
                   {/* Why SendQuote Wins */}
                   <div className="border-t border-border pt-4 mt-2">
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
                       Why SendQuote Wins
                     </p>
                     <ul className="space-y-1.5">
                       {cmp.whyWins.map((reason) => (
-                        <li key={reason} className="flex items-start gap-2 text-sm text-gray-400">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#00D4AA] mt-0.5 flex-shrink-0" />
+                        <li key={reason} className="flex items-start gap-2 text-sm text-muted-foreground">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-primary mt-0.5 flex-shrink-0" />
                           {reason}
                         </li>
                       ))}
@@ -115,7 +115,7 @@ export function ComparisonsGrid() {
                   </div>
 
                   {/* Read more link */}
-                  <div className="mt-4 flex items-center gap-1 text-sm font-medium text-[#00D4AA] opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <div className="mt-4 flex items-center gap-1 text-sm font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     Read full comparison <ArrowRight className="w-3.5 h-3.5" />
                   </div>
                 </div>

@@ -67,12 +67,12 @@ export function TeamSettings() {
         <div className="flex gap-3 items-end">
           <div className="flex-1 space-y-2">
             <Label>Invite by email</Label>
-            <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="colleague@company.com" className="bg-white/5 border-white/10" />
+            <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="colleague@company.com" className="bg-muted/30 border-border" />
           </div>
           <div className="space-y-2">
             <Label>Role</Label>
             <Select value={role} onValueChange={(v) => v && setRole(v)}>
-              <SelectTrigger className="h-9 w-28 border-white/10 bg-white/5 text-sm text-white">
+              <SelectTrigger className="h-9 w-28 border-border bg-muted/30 text-sm text-foreground">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -90,18 +90,18 @@ export function TeamSettings() {
             <p className="text-sm text-muted-foreground text-center py-8">No team members yet. Invite someone above.</p>
           ) : (
             members.map((m) => (
-              <div key={m.id} className="flex items-center justify-between rounded-lg border border-white/[0.06] p-3">
+              <div key={m.id} className="flex items-center justify-between rounded-lg border border-border p-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-xs font-medium text-white">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted/20 text-xs font-medium text-foreground">
                     {m.email?.[0]?.toUpperCase() || "?"}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-white">{m.email}</p>
+                    <p className="text-sm font-medium text-foreground">{m.email}</p>
                     <p className="text-xs text-muted-foreground"><Badge variant="outline" className="text-[10px]">{m.role}</Badge> · {m.status}</p>
                   </div>
                 </div>
                 {m.status === "invited" && (
-                  <button className="cursor-pointer text-muted-foreground hover:text-white transition-colors" onClick={() => handleRemoveInvite(m.id)} aria-label={`Remove invite for ${m.email}`}><X className="h-4 w-4" /></button>
+                  <button className="cursor-pointer text-muted-foreground hover:text-foreground transition-colors" onClick={() => handleRemoveInvite(m.id)} aria-label={`Remove invite for ${m.email}`}><X className="h-4 w-4" /></button>
                 )}
               </div>
             ))

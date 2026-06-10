@@ -1,6 +1,4 @@
-[project]
-id = "yabsujbilznpoayueokq"
-name = "SendQuote India"
+project_id = "yabsujbilznpoayueokq"
 
 [api]
 enabled = true
@@ -8,8 +6,7 @@ port = 54321
 schemas = ["public", "auth", "storage"]
 
 [db]
-schema = "public"
-migration_dir = "supabase/migrations"
+major_version = 17
 
 [auth]
 enabled = true
@@ -20,14 +17,11 @@ enable_signup = true
 
 [auth.email]
 enable_confirmations = true
-enable_autoconfirm = false
-secure_password = true
 
 [auth.external.google]
 enabled = true
-client_id = ""
-client_secret = ""
-redirect_uris = ["https://sendquote.in/auth/callback", "http://localhost:3000/auth/callback"]
+client_id = "placeholder"
+secret = "placeholder"
 
 [storage]
 enabled = false

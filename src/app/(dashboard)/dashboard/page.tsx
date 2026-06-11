@@ -11,8 +11,8 @@ import { useRouter } from "next/navigation";
 import { HealthScore } from "@/components/gamification/health-score";
 import { AchievementBadges } from "@/components/gamification/achievement-badges";
 import { ReferralWidget } from "@/components/gamification/referral-widget";
-import { PLAN_LIMITS } from "@/lib/plan-gates";
-import type { PlanTier } from "@/lib/plan-gates";
+import { PLAN_LIMITS } from "@/lib/plan-limits";
+import type { PlanTier } from "@/lib/plan-limits";
 
 export default function DashboardPage() {
   const router = useRouter();

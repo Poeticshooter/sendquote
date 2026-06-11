@@ -4,8 +4,8 @@ import { generateQuoteAI } from "@/lib/ai/generate-quote";
 import { AIGenerateSchema } from "@/lib/api-validation";
 import { requireAuth, parseError, success } from "@/lib/api-helper";
 import { createClient } from "@/lib/supabase/server";
-import { canAccess } from "@/lib/plan-gates";
-import type { PlanTier } from "@/lib/plan-gates";
+import { canAccess } from "@/lib/plan-limits";
+import type { PlanTier } from "@/lib/plan-limits";
 import { checkMemoryRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {

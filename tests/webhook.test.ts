@@ -1,4 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { NextRequest } from "next/server";
+
+function createNextRequest(input: RequestInfo | URL, init?: RequestInit): NextRequest {
+  return new Request(input, init) as unknown as NextRequest;
+}
 
 vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: vi.fn(() => ({
@@ -23,7 +28,7 @@ describe("Webhook Payment Processing", () => {
   it("rejects request with missing webhook secret", async () => {
     vi.stubEnv("RAZORPAY_WEBHOOK_SECRET", "");
     const { POST } = await import("@/app/api/webhook/razorpay/route");
-    const request = new Request("https://sendquote.in/api/webhook/razorpay", {
+    const request = createNextRequest("https://sendquote.in/api/webhook/razorpay", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({}),
@@ -36,7 +41,7 @@ describe("Webhook Payment Processing", () => {
 
   it("rejects request with invalid signature", async () => {
     const { POST } = await import("@/app/api/webhook/razorpay/route");
-    const request = new Request("https://sendquote.in/api/webhook/razorpay", {
+    const request = createNextRequest("https://sendquote.in/api/webhook/razorpay", {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -71,7 +76,7 @@ describe("Webhook Payment Processing", () => {
       .update(body)
       .digest("hex");
 
-    const request = new Request("https://sendquote.in/api/webhook/razorpay", {
+    const request = createNextRequest("https://sendquote.in/api/webhook/razorpay", {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -107,7 +112,7 @@ describe("Webhook Payment Processing", () => {
       .update(body)
       .digest("hex");
 
-    const request = new Request("https://sendquote.in/api/webhook/razorpay", {
+    const request = createNextRequest("https://sendquote.in/api/webhook/razorpay", {
       method: "POST",
       headers: {
         "content-type": "application/json",

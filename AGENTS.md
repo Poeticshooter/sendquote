@@ -1,3 +1,9 @@
+<!-- BEGIN:shell-setup -->
+# Shell & Tools
+
+Tools (node, pnpm, npm) are at standard paths via `~/.zshenv`. If a tool is missing, the shell needs its profile re-sourced — run `source ~/.zshenv` first.
+<!-- END:shell-setup -->
+
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
 

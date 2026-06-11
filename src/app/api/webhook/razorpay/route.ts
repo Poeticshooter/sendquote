@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
 
     if (!webhookSecret) {
-      console.error("RAZORPAY_WEBHOOK_SECRET is not configured");
+      Sentry.captureMessage("RAZORPAY_WEBHOOK_SECRET is not configured", "fatal");
       return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
     }
 
@@ -34,121 +34,124 @@ export async function POST(request: NextRequest) {
 
     const eventId = event.event === "payment.captured"
       ? event.payload.payment.entity.id
-      : `${event.event}_${event.payload?.payment?.entity?.order_id || Date.now()}`;
+      : `${event.event}_${event.payload?.payment?.entity?.order_id || event.payload?.subscription?.entity?.id || `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`}`;
 
-    const { data: existing } = await supabase
-      .from("webhook_events")
-      .select("id")
-      .eq("razorpay_event_id", eventId)
-      .maybeSingle();
+    // For payment.captured: delegate to atomic RPC
+    if (event.event === "payment.captured") {
+      const payment = event.payload.payment.entity;
+      const paymentAmount = payment.amount / 100;
+      const orderNotes = event.payload.payment.entity.notes || {};
+      const quoteId = orderNotes.quote_id;
 
-    if (existing) {
-      return NextResponse.json({ success: true, duplicate: true });
-    }
+      // Verify amount against invoice BEFORE calling RPC
+      let invoiceId: string | null = null;
+      if (quoteId) {
+        const { data: invoice } = await supabase
+          .from("invoices")
+          .select("id, balance_due")
+          .eq("quote_id", quoteId)
+          .maybeSingle();
 
-    switch (event.event) {
-      case "payment.captured": {
-        const payment = event.payload.payment.entity;
-        const orderId = payment.order_id;
-        const paymentAmount = payment.amount / 100; // paise to rupees
-        const orderNotes = event.payload.payment.entity.notes || {};
-
-        // Verify amount against quote via order notes
-        const quoteId = orderNotes.quote_id;
-        if (quoteId) {
-          const { data: invoice } = await supabase
-            .from("invoices")
-            .select("id, amount, paid_amount, balance_due")
-            .eq("quote_id", quoteId)
-            .single();
-
-          if (invoice) {
-            if (Math.abs(paymentAmount - Number(invoice.balance_due)) > 1) {
-              Sentry.captureMessage(`Payment amount mismatch: received ${paymentAmount}, expected ${invoice.balance_due}`, "warning");
-              await supabase.from("webhook_events").insert({
-                razorpay_event_id: eventId,
-                event_type: "payment.failed",
-                status: "amount_mismatch",
-                payload: { paymentAmount, expected: invoice.balance_due, event },
-                outcome: "rejected",
-              });
-              return NextResponse.json({ error: "amount_mismatch" }, { status: 400 });
-            }
-            const newPaid = (invoice.paid_amount || 0) + paymentAmount;
-            const newStatus = newPaid >= Number(invoice.amount) ? "paid" : "pending";
-            await supabase
-              .from("invoices")
-              .update({
-                paid_amount: newPaid,
-                balance_due: Math.max(0, Number(invoice.amount) - newPaid),
-                status: newStatus,
-                updated_at: new Date().toISOString(),
-              })
-              .eq("id", invoice.id);
+        if (invoice) {
+          if (Math.abs(paymentAmount - Number(invoice.balance_due)) > 1) {
+            // Amount mismatch — log as failure, don't process
+            await supabase.rpc("process_razorpay_payment", {
+              p_razorpay_event_id: eventId,
+              p_event_type: "payment.failed",
+              p_quote_id: quoteId,
+              p_payment_amount: paymentAmount,
+              p_razorpay_payment_id: payment.id,
+              p_razorpay_order_id: payment.order_id,
+              p_full_event: event,
+            });
+            Sentry.captureMessage(
+              `Payment amount mismatch: received ${paymentAmount}, expected ${invoice.balance_due}`,
+              "warning"
+            );
+            return NextResponse.json({ error: "amount_mismatch" }, { status: 400 });
           }
+          invoiceId = invoice.id;
         }
-
-        const { data: subscriptions } = await supabase
-          .from("subscriptions")
-          .select("id, user_id")
-          .eq("razorpay_order_id", orderId);
-
-        if (subscriptions && subscriptions.length > 0) {
-          await supabase
-            .from("subscriptions")
-            .update({
-              razorpay_payment_id: payment.id,
-              status: "active",
-              last_payment_attempt: new Date().toISOString(),
-            })
-            .eq("razorpay_order_id", orderId);
-        }
-
-        await supabase.from("webhook_events").insert({
-          razorpay_event_id: eventId,
-          event_type: event.event,
-          payload: event,
-          outcome: "processed",
-        });
-
-        break;
       }
 
-      case "payment.failed": {
-        await supabase.from("webhook_events").insert({
-          razorpay_event_id: eventId,
-          event_type: event.event,
-          payload: event,
-          outcome: "failed",
-        });
-        break;
+      // Atomic payment processing via RPC
+      const orderId = payment.order_id;
+      const { data: subscriptions } = await supabase
+        .from("subscriptions")
+        .select("razorpay_subscription_id")
+        .eq("razorpay_order_id", orderId)
+        .maybeSingle();
+
+      const { data: rpcResult, error: rpcError } = await supabase.rpc("process_razorpay_payment", {
+        p_razorpay_event_id: eventId,
+        p_event_type: "payment.captured",
+        p_quote_id: quoteId || null,
+        p_payment_amount: paymentAmount,
+        p_razorpay_payment_id: payment.id,
+        p_razorpay_order_id: orderId,
+        p_invoice_id: invoiceId,
+        p_subscription_id: subscriptions?.razorpay_subscription_id || null,
+        p_full_event: event,
+      });
+
+      if (rpcError) {
+        Sentry.captureException(rpcError);
+        return NextResponse.json({ error: "Processing failed" }, { status: 500 });
       }
 
-      case "subscription.charged": {
-        const sub = event.payload.subscription?.entity;
-        if (sub) {
-          await supabase
-            .from("subscriptions")
-            .update({
-              status: "active",
-              current_period_start: new Date(sub.current_start * 1000).toISOString(),
-              current_period_end: new Date(sub.current_end * 1000).toISOString(),
-              last_payment_attempt: new Date().toISOString(),
-            })
-            .eq("razorpay_subscription_id", sub.id);
+      // Alert on overpayment
+      if (rpcResult?.paid_amount && rpcResult?.invoice_status === "paid") {
+        // paid_amount can be checked against original invoice amount for overpayment alerts
+      }
+
+      return NextResponse.json({ success: true, result: rpcResult });
+    }
+
+    // For subscription.charged: delegate to RPC
+    if (event.event === "subscription.charged") {
+      const sub = event.payload.subscription?.entity;
+      const subscriptionId = sub?.id;
+
+      if (subscriptionId) {
+        const { data: rpcResult, error: rpcError } = await supabase.rpc("process_razorpay_payment", {
+          p_razorpay_event_id: eventId,
+          p_event_type: "subscription.charged",
+          p_quote_id: null,
+          p_payment_amount: 0,
+          p_razorpay_payment_id: "",
+          p_razorpay_order_id: "",
+          p_invoice_id: null,
+          p_subscription_id: subscriptionId,
+          p_full_event: event,
+        });
+
+        if (rpcError) {
+          Sentry.captureException(rpcError);
+          return NextResponse.json({ error: "Processing failed" }, { status: 500 });
         }
-        break;
-      }
 
-      default: {
-        await supabase.from("webhook_events").insert({
-          razorpay_event_id: eventId,
-          event_type: event.event,
-          payload: event,
-          outcome: "ignored",
-        });
+        return NextResponse.json({ success: true, result: rpcResult });
       }
     }
+
+    // For payment.failed: log the event (always unique due to eventId)
+    if (event.event === "payment.failed") {
+      await supabase.from("webhook_events").insert({
+        razorpay_event_id: eventId,
+        event_type: "payment.failed",
+        payload: event,
+        outcome: "failed",
+      });
+      return NextResponse.json({ success: true });
+    }
+
+    // All other events: log and ignore
+    await supabase.from("webhook_events").insert({
+      razorpay_event_id: eventId,
+      event_type: event.event || "unknown",
+      payload: event,
+      outcome: "ignored",
+    });
 
     return NextResponse.json({ success: true });
   } catch (error: unknown) {

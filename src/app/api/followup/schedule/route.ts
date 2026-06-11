@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       .from("followup_sequences")
       .select("*")
       .eq("is_active", true)
-      .or(`user_id.eq.${user.id},user_id.is.null`);
+      .or(`user_id.eq.${user.id},user_id.is.null,user_id.eq.00000000-0000-0000-0000-000000000000`);
 
     if (!sequences?.length) return success({ scheduled: 0 });
 

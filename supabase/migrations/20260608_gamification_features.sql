@@ -166,15 +166,15 @@ create policy "Users can read own schedule"
 
 -- 5. FOLLOW-UP SEQUENCE SEED DATA (default sequences for new users)
 insert into public.followup_sequences (user_id, name, trigger_days, trigger_condition, subject_template, body_template, is_active) values
-  ('00000000-0000-0000-0000-000000000000', 'Standard Follow-up', '{3,7}', 'sent',
+  (NULL, 'Standard Follow-up', '{3,7}', 'sent',
    'Following up on your quote {{quote_number}}',
    'Hi {{client_name}},\n\nI wanted to follow up on the quote I sent you ({{quote_number}}) for {{total}}. Have you had a chance to review it?\n\nIf you have any questions or would like to discuss further, I''m happy to help.\n\nBest regards,\n{{business_name}}',
    true),
-  ('00000000-0000-0000-0000-000000000000', 'Gentle Reminder', '{5,10}', 'opened_no_response',
+  (NULL, 'Gentle Reminder', '{5,10}', 'opened_no_response',
    'Checking in on {{quote_number}}',
    'Hi {{client_name}},\n\nI noticed you viewed the quote ({{quote_number}}) a few days ago. Just checking if you have any questions or need any clarification on the pricing or terms.\n\nHappy to hop on a quick call if that helps.\n\nBest,\n{{business_name}}',
    true),
-  ('00000000-0000-0000-0000-000000000000', 'Expiry Notice', '{3}', 'expiring_soon',
+  (NULL, 'Expiry Notice', '{3}', 'expiring_soon',
    'Your quote {{quote_number}} is expiring soon',
    'Hi {{client_name}},\n\nThis is a quick reminder that quote {{quote_number}} for {{total}} is expiring in 3 days.\n\nTo lock in the current pricing, please accept before {{valid_until}}.\n\nBest,\n{{business_name}}',
    true);
@@ -184,7 +184,7 @@ insert into public.profiles (user_id, business_name, plan, billing_cycle, monthl
 select
   au.id,
   au.raw_user_meta_data->>'business_name',
-  'starter',
+  'free',
   'monthly',
   0,
   'inactive',

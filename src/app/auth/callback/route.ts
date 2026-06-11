@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
           const { error: insertError } = await admin.from("profiles").insert({
             user_id: user.id,
             business_name: businessName,
-            plan: "starter",
+            plan: "free",
             billing_cycle: "monthly",
             monthly_quote_count: 0,
             subscription_status: "inactive",

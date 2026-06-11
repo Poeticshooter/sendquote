@@ -39,7 +39,8 @@ export default function DashboardPage() {
           .from("quotes")
           .select("id, client_name, quote_number, total, status, created_at")
           .eq("user_id", user.id)
-          .order("created_at", { ascending: false }),
+          .order("created_at", { ascending: false })
+          .limit(100),
       ]);
 
       const profile = profileResult.data;

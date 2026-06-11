@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { detectBot, rateLimitCheck } from "@/lib/security";
-import { verifyOrigin, verifyCsrfToken } from "@/lib/security/csrf";
+import { verifyOrigin } from "@/lib/security/csrf";
 import { v4 as uuid } from "uuid";
 
 const publicPaths = [
@@ -45,11 +45,6 @@ export async function middleware(request: NextRequest) {
       const originResult = verifyOrigin(request);
       if (!originResult.ok) {
         return NextResponse.json({ error: originResult.message }, { status: originResult.status, headers: { "X-Request-Id": requestId } });
-      }
-
-      const csrfResult = verifyCsrfToken(request);
-      if (!csrfResult.ok) {
-        return NextResponse.json({ error: csrfResult.message }, { status: csrfResult.status, headers: { "X-Request-Id": requestId } });
       }
     }
   }

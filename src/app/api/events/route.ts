@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
-    await requireAuth();
+    const user = await requireAuth();
 
     const body = await request.json();
     const result = eventSchema.safeParse(body);
@@ -36,12 +36,17 @@ export async function POST(request: NextRequest) {
 
     const { data: quote } = await supabase
       .from("quotes")
-      .select("public_token, status")
+      .select("public_token, status, user_id")
       .eq("id", quote_id)
       .maybeSingle();
 
     if (!quote) {
       return NextResponse.json({ error: "Quote not found" }, { status: 404 });
+    }
+
+    // Ownership check: only the quote owner can fire events
+    if (quote.user_id !== user.id) {
+      return NextResponse.json({ error: "Not authorized" }, { status: 403 });
     }
 
     const ua = request.headers.get("user-agent") || "";

@@ -107,9 +107,13 @@ export default function PortalPage() {
                 </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <a href={q.publicUrl} target="_blank" rel="noopener noreferrer" className={buttonVariants({ variant: "outline", size: "sm" })}>
-                    <ExternalLink className="mr-1 h-3 w-3" /> View Quote
-                  </a>
+                  {q.publicUrl ? (
+                    <a href={q.publicUrl} target="_blank" rel="noopener noreferrer" className={buttonVariants({ variant: "outline", size: "sm" })}>
+                      <ExternalLink className="mr-1 h-3 w-3" /> View Quote
+                    </a>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Use the link from your email to view this quote</span>
+                  )}
                   {q.contractUrl && (
                     <a href={q.contractUrl} target="_blank" rel="noopener noreferrer" className={buttonVariants({ variant: "outline", size: "sm" })}>
                       <Download className="mr-1 h-3 w-3" /> Contract

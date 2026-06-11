@@ -1,17 +1,15 @@
 import type { NextRequest} from "next/server";
 import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { checkMemoryRateLimit } from "@/lib/rate-limit";
+import { createClient } from "@/lib/supabase/server";
+import { requireAuth } from "@/lib/api-helper";
 
 const MAX_RETURNED_QUOTES = 50;
 
 export async function POST(request: NextRequest) {
   try {
-    const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
-    if (!checkMemoryRateLimit(ip, 10, 60_000)) {
-      return NextResponse.json({ error: "Too many requests. Try again later." }, { status: 429 });
-    }
+    // Require authentication — only sellers can search their own clients' quotes
+    const user = await requireAuth();
 
     const { email } = await request.json();
     if (!email || typeof email !== "string" || !email.includes("@")) {
@@ -20,10 +18,12 @@ export async function POST(request: NextRequest) {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    const supabase = createAdminClient();
+    // Scope query to the authenticated user's quotes only
+    const supabase = await createClient();
     const { data: quotes } = await supabase
       .from("quotes")
-      .select("id, quote_number, client_name, status, total, created_at, public_token")
+      .select("id, quote_number, client_name, status, total, created_at")
+      .eq("user_id", user.id)
       .eq("client_email", normalizedEmail)
       .order("created_at", { ascending: false })
       .limit(MAX_RETURNED_QUOTES);
@@ -39,7 +39,8 @@ export async function POST(request: NextRequest) {
       status: q.status,
       total: q.total,
       createdAt: q.created_at,
-      publicUrl: `/q/${q.public_token}`,
+      // Do NOT expose public_token — client must use the share link from their email
+      publicUrl: null,
     }));
 
     return NextResponse.json({ quotes: portalData });

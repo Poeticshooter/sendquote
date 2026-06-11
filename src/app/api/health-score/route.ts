@@ -9,7 +9,7 @@ export async function GET() {
     const supabase = await createClient();
 
     const { data: quotes } = await supabase
-      .from("quotes").select("status, total, created_at").eq("user_id", user.id);
+      .from("quotes").select("status, total, created_at").eq("user_id", user.id).limit(500);
 
     const { data: clients } = await supabase
       .from("clients").select("id").eq("user_id", user.id);

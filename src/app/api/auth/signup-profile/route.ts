@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     const { error } = await admin.from("profiles").upsert({
       user_id: userId,
       business_name: businessName || null,
-      plan: "starter",
+      plan: "free",
       billing_cycle: "monthly",
       monthly_quote_count: 0,
       subscription_status: "inactive",

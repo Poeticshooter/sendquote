@@ -96,7 +96,7 @@ export async function POST(request: Request) {
         await admin.from("followup_schedule").update({
           status: "sent",
           sent_at: now,
-        }).eq("id", item.id);
+        }).eq("id", item.id).eq("status", "pending"); // Prevent duplicate sends from concurrent cron
         processed++;
       }
     }

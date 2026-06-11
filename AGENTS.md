@@ -2,6 +2,8 @@
 # Shell & Tools
 
 Tools (node, pnpm, npm) are at standard paths via `~/.zshenv`. If a tool is missing, the shell needs its profile re-sourced — run `source ~/.zshenv` first.
+
+Available tools: node, pnpm, npm, bun, go, rust/cargo, gh, uv, flyctl, rg, nvim, jq, starship, httpie
 <!-- END:shell-setup -->
 
 <!-- BEGIN:nextjs-agent-rules -->

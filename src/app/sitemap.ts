@@ -21,6 +21,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const blogPosts: MetadataRoute.Sitemap = [
     { url: `${base}/blog/ai-quoting-for-indian-freelancers`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${base}/blog/ai-quote-generation-2026`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${base}/blog/increase-quote-acceptance-rate`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${base}/blog/buyer-intent-tracking-guide`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${base}/blog/why-interactive-quotes-win`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
   ];
 
   const comparisons: MetadataRoute.Sitemap = [

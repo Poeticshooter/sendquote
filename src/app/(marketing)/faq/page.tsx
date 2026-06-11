@@ -33,6 +33,12 @@ const faqs = [
   { q: "Do you support GST invoices?", a: "Yes. GST rates and amounts are built into quotes and invoices. Auto-generate tax-compliant invoices on acceptance." },
   { q: "What payment providers are supported?", a: "Razorpay for Indian payments (UPI, cards, net banking) and Stripe for international payments." },
   { q: "How secure is my data?", a: "All data encrypted in transit (TLS) and at rest. RBAC controls access. SOC 2 compliance in progress." },
+  { q: "How long does it take to get started?", a: "Under 2 minutes. Sign up, get a welcome email, and create your first AI-powered quote immediately. No onboarding calls needed." },
+  { q: "Can I export my data?", a: "Yes. Export all quotes, invoices, and client data as CSV/JSON from settings. You own your data entirely." },
+  { q: "Do you offer team collaboration?", a: "Yes. Paid plans allow team members to collaborate on quotes, manage approval workflows, and share deal rooms." },
+  { q: "What happens when I exceed my plan limit?", a: "We'll notify you by email. You can upgrade instantly from Settings — no proration charges, immediate access to higher limits." },
+  { q: "Can I cancel anytime?", a: "Yes. Cancel from Settings with one click. No lock-in contracts. Your data remains accessible on read-only basis until billing period ends." },
+  { q: "Do you offer discounts for annual billing?", a: "Yes. Annual plans save 20% compared to monthly billing. Pay for 10 months, get 12 months of access." },
 ];
 
 const faqSchema = {

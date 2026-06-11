@@ -10,6 +10,10 @@
     {
       "path": "/api/followup/process",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/reconciliation",
+      "schedule": "0 6 * * 1"
     }
   ]
 }

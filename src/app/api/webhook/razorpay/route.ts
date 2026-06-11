@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // For payment.failed: log the event (always unique due to eventId)
+    // For payment.failed: log event + notify user
     if (event.event === "payment.failed") {
       await supabase.from("webhook_events").insert({
         razorpay_event_id: eventId,
@@ -142,6 +142,41 @@ export async function POST(request: NextRequest) {
         payload: event,
         outcome: "failed",
       });
+
+      // Fire-and-forget dunning email (non-blocking)
+      if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== "placeholder") {
+        const orderId = event.payload?.payment?.entity?.order_id;
+        const errorCode = event.payload?.payment?.entity?.error_code || "";
+        const errorDesc = event.payload?.payment?.entity?.error_description || "Payment failed";
+
+        // Find the user who owns this order
+        if (orderId) {
+          const { data: subs } = await supabase
+            .from("subscriptions")
+            .select("user_id")
+            .eq("razorpay_order_id", orderId)
+            .maybeSingle();
+
+          if (subs?.user_id) {
+            const { data: userData } = await supabase.auth.admin.getUserById(subs.user_id);
+            const userEmail = userData?.user?.email;
+
+            if (userEmail) {
+              const { sendEmail } = await import("@/lib/email/send");
+              const subject = "Payment failed — action needed";
+              const html = `
+                <h1>Payment Failed</h1>
+                <p>Your recent payment could not be processed.</p>
+                <p><strong>Reason:</strong> ${errorDesc}${errorCode ? ` (${errorCode})` : ""}</p>
+                <p>Please check your payment method and try again.</p>
+                <p><a href="${process.env.NEXT_PUBLIC_APP_URL || "https://sendquote.in"}/settings" style="display:inline-block;padding:12px 24px;background:#14b8a6;color:white;text-decoration:none;border-radius:6px;">Update Payment Method</a></p>
+              `.trim();
+              sendEmail({ to: [userEmail], subject, html }).catch(() => {});
+            }
+          }
+        }
+      }
+
       return NextResponse.json({ success: true });
     }
 

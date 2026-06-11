@@ -43,6 +43,7 @@ export default function NewQuotePage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [clientCity, setClientCity] = useState("");
+  const [clientPincode, setClientPincode] = useState("");
   const [clientState, setClientState] = useState("");
   const [, setPincodeChecking] = useState(false);
 
@@ -127,7 +128,7 @@ export default function NewQuotePage() {
         client_name: clientName,
         client_email: clientEmail || "",
         client_phone: clientPhone || "",
-        client_address: [clientCity, clientState, pincode].filter(Boolean).join(", ") || undefined,
+        client_address: [clientCity, clientState, clientPincode].filter(Boolean).join(", ") || undefined,
         items: items.map(item => ({
           description: item.description,
           quantity: item.quantity,
@@ -227,6 +228,8 @@ export default function NewQuotePage() {
               <div className="space-y-2">
                 <Label htmlFor="pincode">Pincode</Label>
                 <Input id="pincode" placeholder="110001" maxLength={6}
+                  value={clientPincode}
+                  onChange={(e) => setClientPincode(e.target.value)}
                   onBlur={async (e) => {
                     const pin = e.target.value.trim();
                     if (pin.length !== 6) return;

@@ -4,6 +4,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { syncQuoteToCrm } from "@/lib/crm/sync";
 import { AcceptQuoteSchema } from "@/lib/api-validation";
 import { parseError } from "@/lib/api-helper";
+import { sendEmail } from "@/lib/email/send";
+import { quoteAcceptedEmail } from "@/lib/email/templates";
+import { escapeHtml } from "@/lib/email/escape";
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,11 +33,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: result.message }, { status: 409 });
     }
 
-    // Fire-and-forget CRM sync (non-critical)
+    // Fire-and-forget CRM sync + notifications (non-critical)
     if (result?.quote_id) {
       const { data: quote } = await supabase
         .from("quotes")
-        .select("id, quote_number, client_name, client_email, total, status, public_token, created_at")
+        .select("id, quote_number, client_name, client_email, total, status, public_token, user_id, created_at")
         .eq("id", result.quote_id)
         .single();
 
@@ -49,6 +52,19 @@ export async function POST(request: NextRequest) {
           public_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://sendquote.in"}/q/${quote.public_token}`,
           created_at: quote.created_at,
         }).catch((e) => console.error("CRM sync failed after acceptance:", e));
+
+        // Send acceptance notification to the quote owner
+        if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== "placeholder" && quote.user_id) {
+          const { subject, html } = quoteAcceptedEmail({
+            clientName: escapeHtml(quote.client_name || "Client"),
+            quoteNumber: quote.quote_number,
+            total: Number(quote.total),
+          });
+          const { data: userData } = await supabase.auth.admin.getUserById(quote.user_id);
+          if (userData?.user?.email) {
+            sendEmail({ to: [userData.user.email], subject, html }).catch(() => {});
+          }
+        }
       }
     }
 

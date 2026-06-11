@@ -3,6 +3,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendEmail } from "@/lib/email/send";
+import { signupWelcomeEmail } from "@/lib/email/templates";
+import { escapeHtml } from "@/lib/email/escape";
 
 const BodySchema = z.union([
   z.object({
@@ -100,6 +103,15 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error("Profile insert error:", error);
       return NextResponse.json({ error: "Failed to create profile" }, { status: 500 });
+    }
+
+    // Fire-and-forget welcome email
+    if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== "placeholder") {
+      const { subject, html } = signupWelcomeEmail(
+        escapeHtml(businessName || email.split("@")[0] || "there"),
+        `${process.env.NEXT_PUBLIC_APP_URL || "https://sendquote.in"}/dashboard`
+      );
+      sendEmail({ to: [email], subject, html }).catch(() => {});
     }
 
     return NextResponse.json({ success: true });

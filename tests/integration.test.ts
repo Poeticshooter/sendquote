@@ -59,7 +59,8 @@ describe("API Route Integration Tests", () => {
   it("GET /api/clients requires auth", async () => {
     await mockServerAuth(null);
     const { GET } = await import("@/app/api/clients/route");
-    const response = await GET();
+    const request = new NextRequest("http://localhost:3000/api/clients");
+    const response = await GET(request);
     expect(response.status).toBe(401);
   });
 

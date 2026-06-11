@@ -4,19 +4,34 @@ import { createClient } from "@/lib/supabase/server";
 import { CreateClientSchema } from "@/lib/api-validation";
 import { success, parseError, requireAuth } from "@/lib/api-helper";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth();
     const supabase = await createClient();
 
-    const { data, error } = await supabase
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
+    const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get("pageSize") || "50")));
+    const offset = (page - 1) * pageSize;
+
+    const { data, error, count } = await supabase
       .from("clients")
-      .select("*")
+      .select("*", { count: "exact" })
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(offset, offset + pageSize - 1);
 
     if (error) throw error;
-    return success(data);
+
+    return success({
+      clients: data,
+      pagination: {
+        total: count || 0,
+        page,
+        pageSize,
+        hasMore: offset + pageSize < (count || 0),
+      },
+    });
   } catch (e) {
     Sentry.captureException(e);
     return parseError(e);

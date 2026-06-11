@@ -1,6 +1,3 @@
-import "server-only";
-import { createClient } from "./supabase/server";
-
 export type PlanTier = "free" | "starter" | "growth" | "pro" | "enterprise";
 
 export const PLAN_LIMITS: Record<string, {
@@ -84,6 +81,7 @@ export const PLAN_LIMITS: Record<string, {
 };
 
 export async function getUserPlan(): Promise<{ plan: PlanTier; limits: typeof PLAN_LIMITS[PlanTier] }> {
+  const { createClient } = await import("./supabase/server");
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
@@ -100,7 +98,7 @@ export async function getUserPlan(): Promise<{ plan: PlanTier; limits: typeof PL
 }
 
 export async function checkQuoteLimit(): Promise<{ allowed: boolean; used: number; limit: number }> {
-  const supabase = await createClient();
+  const { createClient } = await import("./supabase/server");
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 

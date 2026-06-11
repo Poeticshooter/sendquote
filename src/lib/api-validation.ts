@@ -11,6 +11,7 @@ export const CreateQuoteSchema = z.object({
   client_name: z.string().min(1, "Client name is required").max(200),
   client_email: z.string().email("Invalid email").max(320).optional().or(z.literal("")),
   client_phone: z.string().max(50).optional().or(z.literal("")),
+  client_address: z.string().max(500).optional().or(z.literal("")),
   items: z.array(QuoteItemSchema).min(1, "At least one item is required").max(500),
   notes: z.string().max(5000).optional().or(z.literal("")),
   terms: z.string().max(10000).optional().or(z.literal("")),

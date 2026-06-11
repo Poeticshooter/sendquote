@@ -1,8 +1,8 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import * as Sentry from "@sentry/nextjs";
+import crypto from "crypto";
 
 const CACHE_TTL_HOURS = 24;
-
-import crypto from "crypto";
 
 function hash(str: string): string {
   return crypto.createHash("sha256").update(str).digest("hex").slice(0, 32);
@@ -29,7 +29,8 @@ export async function getCachedResponse(
       .limit(1)
       .maybeSingle();
     return data?.response || null;
-  } catch {
+  } catch (e) {
+    Sentry.captureException(e);
     return null;
   }
 }
@@ -48,7 +49,7 @@ export async function setCachedResponse(
       response,
       provider,
     });
-  } catch {
-    // Cache write failures are non-critical
+  } catch (e) {
+    Sentry.captureException(e);
   }
 }

@@ -11,6 +11,8 @@ import { useRouter } from "next/navigation";
 import { HealthScore } from "@/components/gamification/health-score";
 import { AchievementBadges } from "@/components/gamification/achievement-badges";
 import { ReferralWidget } from "@/components/gamification/referral-widget";
+import { PLAN_LIMITS } from "@/lib/plan-gates";
+import type { PlanTier } from "@/lib/plan-gates";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -74,8 +76,8 @@ export default function DashboardPage() {
         totalRevenue: quotes.filter((q) => q.status === "accepted").reduce((s: number, q: { total: number }) => s + Number(q.total), 0),
         winRate: quotes.length > 0 ? Math.round((quotes.filter((q) => q.status === "accepted").length / quotes.length) * 100) : 0,
         recentQuotes: quotes.slice(0, 5),
-        plan: profile?.plan || "starter",
-        monthlyLimit: profile?.plan === "free" ? 5 : profile?.plan === "starter" ? 50 : 99999,
+        plan: profile?.plan || "free",
+        monthlyLimit: PLAN_LIMITS[profile?.plan as PlanTier]?.quotes_per_month ?? PLAN_LIMITS.free.quotes_per_month,
         usedThisMonth: profile?.monthly_quote_count || 0,
       });
       setLoading(false);

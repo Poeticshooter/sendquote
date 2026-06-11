@@ -17,7 +17,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-sidebar backdrop-blur-xl lg:hidden">
+    <nav aria-label="Main navigation" className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-sidebar backdrop-blur-xl lg:hidden">
       <div className="flex items-center justify-around h-16 px-2">
         {items.map((item) => {
           const isActive = item.href === "/dashboard"
@@ -29,6 +29,7 @@ export function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
                 "flex flex-col items-center justify-center gap-0.5 rounded-lg px-3 py-1.5 text-[11px] font-medium transition-colors min-w-[56px]",
                 item.highlight

@@ -1,10 +1,13 @@
 import { initProviders, generateWithFallback } from "./providers";
 import { getCachedResponse, setCachedResponse } from "./cache";
+import * as Sentry from "@sentry/nextjs";
 
 let aiProviders: ReturnType<typeof initProviders> | null = null;
 
 function getProviders() {
-  aiProviders = initProviders();
+  if (!aiProviders) {
+    aiProviders = initProviders();
+  }
   return aiProviders;
 }
 
@@ -179,7 +182,7 @@ Guidelines:
       const parsed = JSON.parse(jsonMatch[0]);
 
       // Cache the successful response (fire-and-forget)
-      setCachedResponse(prompt, systemPrompt, content, provider).catch(() => {});
+      setCachedResponse(prompt, systemPrompt, content, provider).catch((e) => Sentry.captureException(e));
 
       return {
         items: parsed.items || [],

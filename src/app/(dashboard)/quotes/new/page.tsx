@@ -127,6 +127,7 @@ export default function NewQuotePage() {
         client_name: clientName,
         client_email: clientEmail || "",
         client_phone: clientPhone || "",
+        client_address: [clientCity, clientState, pincode].filter(Boolean).join(", ") || undefined,
         items: items.map(item => ({
           description: item.description,
           quantity: item.quantity,

@@ -72,6 +72,7 @@ export async function createQuote(quote: {
   client_name: string;
   client_email?: string;
   client_phone?: string;
+  client_address?: string;
   items: { description: string; quantity: number; rate: number; unit?: string }[];
   notes?: string;
   terms?: string;
@@ -98,6 +99,7 @@ export async function createQuote(quote: {
       client_name: quote.client_name,
       client_email: quote.client_email,
       client_phone: quote.client_phone,
+      client_address: quote.client_address || null,
       status: "draft",
       subtotal,
       gst_rate: quote.gst_rate || 0,

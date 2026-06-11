@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
       client_name: data.client_name,
       client_email: data.client_email || undefined,
       client_phone: data.client_phone || undefined,
+      client_address: data.client_address || undefined,
       items: data.items,
       notes: data.notes || undefined,
       terms: data.terms || undefined,

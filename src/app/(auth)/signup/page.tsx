@@ -103,7 +103,8 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 bg-background">
+    <main className="flex min-h-screen items-center justify-center px-4 bg-background">
+      <h1 className="sr-only">Create an Account</h1>
       <Card className="w-full max-w-sm bg-card border-border text-foreground">
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto flex items-center justify-center gap-2 mb-4">
@@ -156,6 +157,6 @@ export default function SignupPage() {
           </p>
         </CardContent>
       </Card>
-    </div>
+    </main>
   );
 }

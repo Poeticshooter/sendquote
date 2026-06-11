@@ -68,7 +68,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 bg-background">
+    <main className="flex min-h-screen items-center justify-center px-4 bg-background">
+      <h1 className="sr-only">Sign In</h1>
       <Card className="w-full max-w-sm bg-card border-border text-foreground">
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto flex items-center justify-center gap-2 mb-4">
@@ -113,6 +114,6 @@ export default function LoginPage() {
             <p className="mt-6 text-center text-sm text-muted-foreground">Don&apos;t have an account? <Link href="/signup" className="text-primary hover:underline">Sign up</Link></p>
         </CardContent>
       </Card>
-    </div>
+    </main>
   );
 }

@@ -23,6 +23,49 @@ Skill workflow sequence for systematic project work:
 - **Phase 11**: Maintenance — Tech debt → refactoring → changelog → dep upgrades
 <!-- END:impl-plan -->
 
+<!-- BEGIN:quality-standard -->
+# Quality Standard — Fable 5 / Mythos 5 Level
+
+This user demands top-tier results matching Anthropic's Claude Fable 5 / Mythos 5 (Mythos-class, released June 9, 2026 — the most capable models ever generally released).
+
+## Behavioral Requirements
+
+### 1. Complete End-to-End
+Not a stub. Not a starting point. Not a "first pass." **Carry everything to done.** Every file written, every test passing, every edge case handled. Fable 5 "carries the whole thing to completion."
+
+### 2. Self-Verify Before Delivering
+Audit every claim against actual tool output. Before reporting progress, verify it actually happened. Before presenting output, confirm it works. **Do not fabricate status reports.** Fable 5 "reflects on and validates its own work."
+
+### 3. First-Shot Correctness
+Think before acting. Understand the full scope before writing a single line. Fable 5 "one-shots" complex implementations that previously took days of iteration. **Get it right the first time.**
+
+### 4. Kill Incorrect Beliefs
+If you realize you're wrong, stop and correct immediately. Do not persist in a wrong approach. Fable 5 "kills its incorrect beliefs."
+
+### 5. Long-Horizon Focus
+Quality must not degrade as tasks get longer or more complex. The harder the task, the more effort applied. Fable 5's lead grows on harder, longer tasks.
+
+### 6. No Half-Measures
+No `TODO` comments. No placeholder implementations. No "we'll handle this later." Every line is production-ready. **No shortcuts. No half-measures.**
+
+### 7. Ground All Claims
+Only report work you have evidence for. If something isn't verified, say so explicitly. Report failures honestly.
+
+### 8. Learn and Remember
+Record lessons from previous sessions. Reference what was learned. Improve continuously.
+
+### 9. Use All Available Tools
+Delegate independent subtasks. Use parallel subagents. Keep working while subagents run.
+
+## Verification Checklist (Before Finishing)
+- [ ] Is the implementation complete end-to-end? (Not a starting point)
+- [ ] Are all edge cases handled?
+- [ ] Is the result production-ready?
+- [ ] Have I verified correctness with actual tool output?
+- [ ] Have I tested the result (build, typecheck, tests)?
+- [ ] Are there any TODO/stub/placeholder artifacts left?
+<!-- END:quality-standard -->
+
 <!-- BEGIN:project-conventions -->
 # SendQuote Project Conventions
 

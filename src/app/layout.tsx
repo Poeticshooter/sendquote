@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     images: ["https://sendquote.in/og-image.webp"],
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 } },
-  alternates: { canonical: "https://sendquote.in", languages: { "en-IN": "https://sendquote.in" } },
+  alternates: { languages: { "en-IN": "https://sendquote.in" } },
   icons: { icon: "/favicon.ico", apple: "/apple-touch-icon.png" },
   manifest: "/manifest.json",
   other: { "google-site-verification": process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION || "" },

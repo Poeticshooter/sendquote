@@ -3,8 +3,24 @@ import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — SendQuote",
+  title: "Privacy Policy",
+  description: "SendQuote's privacy policy outlines how we collect, use, and protect your personal data in compliance with Indian data protection laws.",
+  openGraph: {
+    title: "Privacy Policy | SendQuote",
+    description: "SendQuote's privacy policy outlines how we collect, use, and protect your personal data in compliance with Indian data protection laws.",
+    url: "https://sendquote.in/privacy",
+    siteName: "SendQuote",
+    locale: "en_IN",
+    type: "website",
+    images: [{ url: "https://sendquote.in/og-image.webp", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Privacy Policy | SendQuote",
+    description: "SendQuote's privacy policy — how we collect, use, and protect your data.",
+  },
   robots: { index: false, follow: true },
+  alternates: { canonical: "https://sendquote.in/privacy" },
 };
 
 export default function PrivacyPage() {

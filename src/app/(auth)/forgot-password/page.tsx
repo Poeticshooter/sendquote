@@ -30,7 +30,8 @@ export default function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <div className="flex min-h-screen items-center justify-center px-4 bg-background">
+      <main className="flex min-h-screen items-center justify-center px-4 bg-background">
+        <h1 className="sr-only">Forgot Password</h1>
         <Card className="w-full max-w-sm bg-card border-border text-foreground">
           <CardHeader className="text-center">
           <CardTitle className="text-2xl text-foreground">Check your email</CardTitle>
@@ -40,12 +41,13 @@ export default function ForgotPasswordPage() {
             <Link href="/login" className={buttonVariants({ variant: "outline", className: "border-border text-foreground/70 hover:bg-muted/50" })}>Back to Sign In</Link>
           </CardContent>
         </Card>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 bg-background">
+    <main className="flex min-h-screen items-center justify-center px-4 bg-background">
+      <h1 className="sr-only">Forgot Password</h1>
       <Card className="w-full max-w-sm bg-card border-border text-foreground">
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto flex items-center justify-center gap-2 mb-4">
@@ -77,6 +79,6 @@ export default function ForgotPasswordPage() {
           </p>
         </CardContent>
       </Card>
-    </div>
+    </main>
   );
 }

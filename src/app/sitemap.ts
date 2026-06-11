@@ -19,6 +19,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/signup`, lastModified: now, changeFrequency: "yearly", priority: 0.5 },
   ];
 
+  const blogPosts: MetadataRoute.Sitemap = [
+    { url: `${base}/blog/ai-quoting-for-indian-freelancers`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+  ];
+
   const comparisons: MetadataRoute.Sitemap = [
     { url: `${base}/comparisons`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/comparisons/vs-pandadoc`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
@@ -27,5 +31,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/comparisons/vs-better-proposals`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
   ];
 
-  return [...core, ...comparisons];
+  return [...core, ...blogPosts, ...comparisons];
 }

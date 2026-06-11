@@ -3,8 +3,24 @@ import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 
 export const metadata: Metadata = {
-  title: "Terms of Service — SendQuote",
+  title: "Terms of Service",
+  description: "SendQuote's terms of service govern the use of our AI-powered quoting platform. Read about your rights, obligations, and our policies.",
+  openGraph: {
+    title: "Terms of Service | SendQuote",
+    description: "SendQuote's terms of service govern the use of our AI-powered quoting platform. Read about your rights, obligations, and our policies.",
+    url: "https://sendquote.in/terms",
+    siteName: "SendQuote",
+    locale: "en_IN",
+    type: "website",
+    images: [{ url: "https://sendquote.in/og-image.webp", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Terms of Service | SendQuote",
+    description: "SendQuote's terms of service — your rights, obligations, and our policies.",
+  },
   robots: { index: false },
+  alternates: { canonical: "https://sendquote.in/terms" },
 };
 
 export default function TermsPage() {

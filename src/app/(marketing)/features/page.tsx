@@ -4,9 +4,26 @@ import { FeaturesGrid } from "@/components/landing/features-grid";
 import { Footer } from "@/components/landing/footer";
 
 export const metadata: Metadata = {
-  title: "Features — SendQuote",
-  description: "Discover how SendQuote helps you create, send, and close quotes faster with AI-powered features.",
-  openGraph: { title: "Features | SendQuote" },
+  title: "Features",
+  description:
+    "Explore SendQuote's AI-powered quoting features: smart quotes, deal rooms, e-signatures, buyer tracking, GST invoices, CRM sync, and team collaboration.",
+  openGraph: {
+    title: "Features | SendQuote",
+    description:
+      "Explore SendQuote's AI-powered quoting features: smart quotes, deal rooms, e-signatures, buyer tracking, GST invoices, CRM sync, and team collaboration.",
+    url: "https://sendquote.in/features",
+    siteName: "SendQuote",
+    locale: "en_IN",
+    type: "website",
+    images: [{ url: "https://sendquote.in/og-image.webp", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Features | SendQuote",
+    description:
+      "Explore SendQuote's AI-powered quoting features: smart quotes, deal rooms, e-signatures, buyer tracking, GST invoices, CRM sync, and team collaboration.",
+  },
+  alternates: { canonical: "https://sendquote.in/features" },
 };
 
 export default function FeaturesPage() {

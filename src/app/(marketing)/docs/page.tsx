@@ -3,9 +3,23 @@ import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 
 export const metadata: Metadata = {
-  title: "Documentation — SendQuote",
-  description: "Learn how to use SendQuote to create, send, and close quotes faster.",
-  openGraph: { title: "Documentation | SendQuote" },
+  title: "Documentation",
+  description: "Learn how to use SendQuote to create, send, and close quotes faster with step-by-step guides, tutorials, and API references.",
+  openGraph: {
+    title: "Documentation | SendQuote",
+    description: "Learn how to use SendQuote to create, send, and close quotes faster with step-by-step guides, tutorials, and API references.",
+    url: "https://sendquote.in/docs",
+    siteName: "SendQuote",
+    locale: "en_IN",
+    type: "website",
+    images: [{ url: "https://sendquote.in/og-image.webp", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Documentation | SendQuote",
+    description: "Learn how to use SendQuote to create, send, and close quotes faster.",
+  },
+  alternates: { canonical: "https://sendquote.in/docs" },
 };
 
 const sections = [

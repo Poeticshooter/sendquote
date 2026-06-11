@@ -3,9 +3,23 @@ import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 
 export const metadata: Metadata = {
-  title: "Changelog — SendQuote",
+  title: "Changelog",
   description: "Latest updates, features, and improvements to SendQuote.",
-  openGraph: { title: "Changelog | SendQuote" },
+  openGraph: {
+    title: "Changelog | SendQuote",
+    description: "Latest updates, features, and improvements to SendQuote.",
+    url: "https://sendquote.in/changelog",
+    siteName: "SendQuote",
+    locale: "en_IN",
+    type: "website",
+    images: [{ url: "https://sendquote.in/og-image.webp", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Changelog | SendQuote",
+    description: "Latest updates, features, and improvements to SendQuote.",
+  },
+  alternates: { canonical: "https://sendquote.in/changelog" },
 };
 
 const changes = [

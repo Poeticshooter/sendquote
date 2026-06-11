@@ -4,9 +4,23 @@ import { Footer } from "@/components/landing/footer";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Blog — SendQuote",
+  title: "Blog",
   description: "AI quoting tips, sales strategies, and business growth insights for Indian businesses.",
-  openGraph: { title: "Blog | SendQuote" },
+  openGraph: {
+    title: "Blog | SendQuote",
+    description: "AI quoting tips, sales strategies, and business growth insights for Indian businesses.",
+    url: "https://sendquote.in/blog",
+    siteName: "SendQuote",
+    locale: "en_IN",
+    type: "website",
+    images: [{ url: "https://sendquote.in/og-image.webp", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog | SendQuote",
+    description: "AI quoting tips, sales strategies, and business growth insights for Indian businesses.",
+  },
+  alternates: { canonical: "https://sendquote.in/blog" },
 };
 
 const posts = [

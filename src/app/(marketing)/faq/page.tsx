@@ -3,9 +3,24 @@ import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 
 export const metadata: Metadata = {
-  title: "FAQ — SendQuote",
-  description: "Answers to common questions about SendQuote, AI quote generation, pricing, payments, and integrations.",
-  openGraph: { title: "FAQ | SendQuote" },
+  title: "FAQ",
+  description:
+    "Frequently asked questions about SendQuote's AI-powered quoting platform, pricing, features, and how it works for Indian businesses.",
+  openGraph: {
+    title: "FAQ | SendQuote",
+    description: "Frequently asked questions about SendQuote's AI-powered quoting platform.",
+    url: "https://sendquote.in/faq",
+    siteName: "SendQuote",
+    locale: "en_IN",
+    type: "website",
+    images: [{ url: "https://sendquote.in/og-image.webp", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FAQ | SendQuote",
+    description: "Frequently asked questions about SendQuote.",
+  },
+  alternates: { canonical: "https://sendquote.in/faq" },
 };
 
 const faqs = [
@@ -42,7 +57,7 @@ export default function FAQPage() {
           <div className="mt-10 space-y-6">
             {faqs.map((faq, i) => (
               <div key={i} className="rounded-xl border bg-card p-6">
-                <h3 className="font-semibold text-base">{faq.q}</h3>
+                <h2 className="font-semibold text-base">{faq.q}</h2>
                 <p className="mt-2 text-sm text-gray-400 leading-relaxed">{faq.a}</p>
               </div>
             ))}

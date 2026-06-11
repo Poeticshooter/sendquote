@@ -10,7 +10,7 @@ const cspHeader = `
   frame-src 'self' https://*.razorpay.com;
   object-src 'none';
   base-uri 'self';
-  form-action 'self';
+  form-action 'self' https://*.razorpay.com https://api.razorpay.com;
   frame-ancestors 'none';
   upgrade-insecure-requests;
 `;
@@ -25,8 +25,7 @@ const nextConfig: NextConfig = {
   trailingSlash: false,
   skipTrailingSlashRedirect: true,
   typescript: {
-    // Build runs fine on CI (Vercel) but OOMs on 4GB local machine during TS check
-    ignoreBuildErrors: process.env.CI === "true" ? false : true,
+    ignoreBuildErrors: false,
   },
 
   async headers() {

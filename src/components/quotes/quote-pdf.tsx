@@ -129,7 +129,7 @@ export function QuotePDF({
   subtotal,
   discount,
   gstRate,
-  _gstAmount,
+  gstAmount: _gstAmount,
   cgstRate,
   cgstAmount,
   sgstRate,

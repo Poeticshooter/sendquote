@@ -17,13 +17,18 @@ describe("PDF Generation", () => {
         total={64900}
         gstRate={18}
         gstAmount={9900}
+        cgstRate={9}
+        cgstAmount={4950}
+        sgstRate={9}
+        sgstAmount={4950}
+        igstRate={0}
+        igstAmount={0}
         businessName="Test Business"
         status="sent"
       />
     );
     expect(result).toBeTruthy();
     expect(result.length).toBeGreaterThan(100);
-    // Should contain PDF header
     expect(result).toContain("%PDF");
   });
 
@@ -38,6 +43,14 @@ describe("PDF Generation", () => {
         items={[{ description: "Consulting", quantity: 1, rate: 1000, amount: 1000 }]}
         subtotal={1000}
         total={1000}
+        gstRate={0}
+        gstAmount={0}
+        cgstRate={0}
+        cgstAmount={0}
+        sgstRate={0}
+        sgstAmount={0}
+        igstRate={0}
+        igstAmount={0}
         businessName="Test Business"
         status="draft"
       />
@@ -58,11 +71,20 @@ describe("PDF Generation", () => {
         items={[{ description: "Service", quantity: 1, rate: 1000, amount: 1000 }]}
         subtotal={1000}
         total={1000}
+        gstRate={0}
+        gstAmount={0}
+        cgstRate={0}
+        cgstAmount={0}
+        sgstRate={0}
+        sgstAmount={0}
+        igstRate={0}
+        igstAmount={0}
         businessName="Test Business"
         status="sent"
       />
     );
     expect(result).toBeTruthy();
+    expect(result.length).toBeGreaterThan(100);
     expect(result).toContain("%PDF");
   });
 });

@@ -5,6 +5,7 @@ export const QuoteItemSchema = z.object({
   quantity: z.number().min(0.01, "Quantity must be > 0").max(999999),
   rate: z.number().min(0, "Rate must be >= 0").max(999999999),
   unit: z.string().max(50).optional(),
+  hsn_code: z.string().max(8).optional().or(z.literal("")),
 });
 
 export const CreateQuoteSchema = z.object({
@@ -18,7 +19,11 @@ export const CreateQuoteSchema = z.object({
   payment_terms: z.string().max(1000).optional().or(z.literal("")),
   valid_until: z.string().max(50).optional().or(z.literal("")),
   tax: z.number().min(0).max(999999999).optional(),
+  discount: z.number().min(0).max(999999999).optional(),
+  discount_type: z.enum(["percentage", "fixed"]).optional(),
   gst_rate: z.number().min(0).max(100).optional(),
+  is_inter_state: z.boolean().optional(),
+  place_of_supply: z.string().max(50).optional().or(z.literal("")),
   organization_id: z.string().uuid().optional().or(z.literal("")),
 });
 

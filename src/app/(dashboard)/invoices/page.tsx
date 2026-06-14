@@ -3,19 +3,14 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Receipt } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 
-const statusColors: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
-  paid: "default",
-  pending: "outline",
-  overdue: "destructive",
-  cancelled: "secondary",
-};
+
 
 export default function InvoicesPage() {
   const router = useRouter();
@@ -58,7 +53,7 @@ export default function InvoicesPage() {
                 </div>
                 <div className="text-right">
                   <p className="font-semibold">₹{Number(inv.total || inv.amount).toLocaleString("en-IN")}</p>
-                  <Badge variant={statusColors[inv.status] || "outline"}>{inv.status}</Badge>
+                   <StatusBadge status={inv.status} />
                 </div>
               </div>
               <div className="mt-2 flex gap-4 text-xs text-muted-foreground">

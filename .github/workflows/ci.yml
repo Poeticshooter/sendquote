@@ -37,6 +37,6 @@ jobs:
           cache: "pnpm"
       - run: pnpm install
       - name: Dependency audit
-        run: pnpm audit --audit-level=high || echo "Audit found issues - review manually"
-      - name: Check for known vulnerabilities
-        run: pnpm audit --audit-level=critical || true
+        run: pnpm audit --audit-level=high
+      - name: Check for known vulnerabilities (advisory only)
+        run: pnpm audit --audit-level=critical || echo "::warning::pnpm audit found critical or higher vulnerabilities. Review manually."

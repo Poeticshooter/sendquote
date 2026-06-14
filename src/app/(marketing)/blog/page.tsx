@@ -4,11 +4,11 @@ import { Footer } from "@/components/landing/footer";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Blog",
-  description: "AI quoting tips, sales strategies, and business growth insights for Indian businesses.",
+  title: "Blog: AI Quoting Tips & Sales Strategies for Indian SMBs | SendQuote",
+  description: "Practical sales tips, quoting best practices, and business growth guides for Indian SMB owners. Learn how AI-powered quoting, GST invoices, and deal rooms can help you close deals faster.",
   openGraph: {
-    title: "Blog | SendQuote",
-    description: "AI quoting tips, sales strategies, and business growth insights for Indian businesses.",
+    title: "Blog: AI Quoting, GST Invoice Tips & Sales Strategies for Indian Businesses | SendQuote",
+    description: "Learn how AI-powered quoting, GST-compliant invoices, and interactive deal rooms can help Indian SMBs close deals faster. Sales tips, guides, and best practices.",
     url: "https://sendquote.in/blog",
     siteName: "SendQuote",
     locale: "en_IN",
@@ -17,8 +17,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Blog | SendQuote",
-    description: "AI quoting tips, sales strategies, and business growth insights for Indian businesses.",
+    title: "AI Quoting & Sales Tips for Indian SMBs | SendQuote Blog",
+    description: "Sales strategies, quoting best practices, and business growth guides for Indian small business owners. AI-powered quoting, GST invoices, and deal rooms.",
   },
   alternates: { canonical: "https://sendquote.in/blog" },
 };

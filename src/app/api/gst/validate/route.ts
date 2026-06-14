@@ -22,7 +22,6 @@ export async function GET(request: NextRequest) {
       formatted,
       stateCode,
       stateName: stateCode ? STATE_CODES[stateCode] || "Unknown" : null,
-      panNumber: formatted.substring(2, 12),
     });
   } catch (e) {
     return parseError(e);

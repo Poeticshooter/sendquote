@@ -12,17 +12,17 @@ import type { PlanType, Profile } from "@/types";
 
 const plans = [
   {
-    id: "starter", name: "Starter", price: "Free", limit: "50 quotes/month",
-    features: ["50 quotes/month", "Basic templates", "E-signature", "Buyer tracking", "PDF export"],
+    id: "free", name: "Starter", price: "Free", limit: "5 quotes/month",
+    features: ["5 quotes/month", "Basic templates", "E-signature", "Buyer tracking", "PDF export"],
     popular: false,
   },
   {
-    id: "growth", name: "Growth", price: "₹6,499", limit: "Unlimited quotes",
+    id: "growth", name: "Growth", price: "₹499", limit: "Unlimited quotes",
     features: ["Unlimited quotes", "AI quote generation", "CRM sync", "Approval workflows", "Smart follow-ups", "In-quote chat", "Priority support"],
     popular: true,
   },
   {
-    id: "pro", name: "Pro", price: "₹16,499", limit: "Unlimited quotes",
+    id: "pro", name: "Pro", price: "₹999", limit: "Unlimited quotes",
     features: ["Everything in Growth", "Deal Room with portal", "Win/loss analytics", "Contract automation", "Custom branding", "API access", "Multi-team governance", "Dedicated support"],
     popular: false,
   },
@@ -46,18 +46,14 @@ export function BillingSettings() {
 
   async function handleUpgrade(planId: PlanType) {
     if (!profile) return;
-    if (planId === "starter") {
-      setProcessing(true);
-      const { error } = await supabase.from("profiles").update({ plan: "starter", updated_at: new Date().toISOString() }).eq("id", profile.id);
-      if (error) { toast.error("Failed to downgrade"); setProcessing(false); return; }
-      setProfile({ ...profile, plan: "starter" });
-      toast.success("Downgraded to Starter plan");
-      setProcessing(false);
+    // Free is current plan, nothing to do
+    if (planId === "free") {
+      toast.info("You're already on the Starter plan.");
       return;
     }
 
     setProcessing(true);
-    const amount = planId === "growth" ? 6499 : 16499;
+    const amount = planId === "growth" ? 49900 : 99900; // paise
 
     const res = await fetch("/api/payments/razorpay", {
       method: "POST",
@@ -110,9 +106,9 @@ export function BillingSettings() {
         <CardHeader>
           <CardTitle>Current Plan</CardTitle>
           <CardDescription>
-            You&apos;re on the <span className="font-medium text-foreground capitalize">{profile?.plan || "starter"}</span> plan
+            You&apos;re on the <span className="font-medium text-foreground capitalize">{profile?.plan || "free"}</span> plan
             <Badge variant="outline" className="ml-2">
-              {profile?.subscription_status === "active" ? "Active" : profile?.plan === "starter" ? "Free" : "Inactive"}
+              {profile?.subscription_status === "active" ? "Active" : "Free"}
             </Badge>
           </CardDescription>
         </CardHeader>
@@ -133,7 +129,7 @@ export function BillingSettings() {
                 <CardDescription>{plan.limit}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-3xl font-bold text-foreground">{plan.price}<span className="text-sm font-normal text-muted-foreground">{plan.id !== "starter" ? "/mo" : ""}</span></p>
+                <p className="text-3xl font-bold text-foreground">{plan.price}<span className="text-sm font-normal text-muted-foreground">{plan.id !== "free" ? "/mo" : ""}</span></p>
                 <ul className="space-y-2">
                   {plan.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -148,7 +144,7 @@ export function BillingSettings() {
                   onClick={() => handleUpgrade(plan.id as PlanType)}
                   disabled={isCurrent || processing}
                 >
-                  {isCurrent ? "Current Plan" : processing ? <Loader2 className="h-4 w-4 animate-spin" /> : plan.id === "starter" ? "Downgrade" : `Upgrade to ${plan.name}`}
+                  {isCurrent ? "Current Plan" : processing ? <Loader2 className="h-4 w-4 animate-spin" /> : `Upgrade to ${plan.name}`}
                 </Button>
               </CardContent>
             </Card>

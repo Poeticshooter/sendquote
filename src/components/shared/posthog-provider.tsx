@@ -1,12 +1,18 @@
 "use client";
 
-import { useEffect, Suspense } from "react";
+import { useEffect, useCallback, Suspense } from "react";
 import posthog from "posthog-js";
 import { PostHogPageView } from "./posthog-pageview";
 
+function isAnalyticsAllowed(): boolean {
+  if (typeof window === "undefined") return false;
+  const consent = localStorage.getItem("sendquote_cookies_accepted");
+  return consent === "true";
+}
+
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+  const initPosthog = useCallback(() => {
+    if (process.env.NEXT_PUBLIC_POSTHOG_KEY && !posthog.__loaded) {
       posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
         api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://app.posthog.com",
         capture_pageview: false,
@@ -16,6 +22,18 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
       });
     }
   }, []);
+
+  useEffect(() => {
+    if (isAnalyticsAllowed()) {
+      initPosthog();
+    }
+
+    const handleConsent = () => {
+      if (isAnalyticsAllowed()) initPosthog();
+    };
+    window.addEventListener("sendquote:consent", handleConsent);
+    return () => window.removeEventListener("sendquote:consent", handleConsent);
+  }, [initPosthog]);
 
   return (
     <>

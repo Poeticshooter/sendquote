@@ -18,6 +18,12 @@ export function CookieConsent() {
   function accept() {
     localStorage.setItem("sendquote_cookies_accepted", "true");
     setShow(false);
+    window.dispatchEvent(new CustomEvent("sendquote:consent"));
+  }
+
+  function reject() {
+    localStorage.setItem("sendquote_cookies_accepted", "rejected");
+    setShow(false);
   }
 
   if (!show) return null;
@@ -34,6 +40,7 @@ export function CookieConsent() {
           <a href="/privacy" className="underline hover:text-foreground">Privacy Policy</a>.
         </p>
         <div className="flex gap-3 shrink-0">
+          <Button size="sm" variant="outline" onClick={reject}>Reject All</Button>
           <Button size="sm" onClick={accept}>Accept All</Button>
         </div>
       </div>

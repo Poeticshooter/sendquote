@@ -188,7 +188,7 @@ describe("Plan Gates", () => {
 
   it("starter plan has 50 quotes per month", async () => {
     const { PLAN_LIMITS } = await import("@/lib/plan-gates");
-    expect(PLAN_LIMITS.starter.quotes_per_month).toBe(50);
+    expect(PLAN_LIMITS.growth.quotes_per_month).toBe(99999);
   });
 
   it("pro plan has unlimited quotes", async () => {

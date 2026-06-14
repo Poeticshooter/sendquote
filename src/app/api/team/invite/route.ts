@@ -4,15 +4,23 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { v4 as uuid } from "uuid";
 import { success, parseError, requireAuth } from "@/lib/api-helper";
+import { checkMemoryRateLimit } from "@/lib/rate-limit";
+import { canAccess } from "@/lib/plan-limits";
+
+const TeamRoleSchema = z.enum(["admin", "member", "viewer"]);
 
 const TeamInviteSchema = z.object({
   email: z.string().email("Valid email is required"),
-  role: z.string().max(50).optional(),
+  role: TeamRoleSchema.optional().default("member"),
 });
 
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
+    if (!checkMemoryRateLimit(`team-invite:${user.id}`, 10, 60_000)) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     const body = await request.json();
     const { email, role } = TeamInviteSchema.parse(body);
 
@@ -21,7 +29,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase.from("team_members").insert({
       account_user_id: user.id,
       email,
-      role: role || "member",
+      role,
       status: "invited",
       invite_token: uuid(),
     }).select().single();

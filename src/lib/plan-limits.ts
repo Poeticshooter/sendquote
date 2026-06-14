@@ -1,4 +1,4 @@
-export type PlanTier = "free" | "starter" | "growth" | "pro" | "enterprise";
+export type PlanTier = "free" | "growth" | "pro" | "enterprise";
 
 export const PLAN_LIMITS: Record<string, {
   quotes_per_month: number;
@@ -14,7 +14,6 @@ export const PLAN_LIMITS: Record<string, {
   team_members: number;
 }> = {
   free: { quotes_per_month: 5, ai_generation: false, crm_sync: false, approval_workflows: false, ai_followups: false, buyer_chat: false, analytics: false, api_access: false, custom_branding: false, contract_automation: false, team_members: 1 },
-  starter: { quotes_per_month: 50, ai_generation: true, crm_sync: false, approval_workflows: false, ai_followups: false, buyer_chat: false, analytics: true, api_access: false, custom_branding: false, contract_automation: false, team_members: 3 },
   growth: { quotes_per_month: 99999, ai_generation: true, crm_sync: true, approval_workflows: true, ai_followups: true, buyer_chat: true, analytics: true, api_access: false, custom_branding: false, contract_automation: false, team_members: 5 },
   pro: { quotes_per_month: 99999, ai_generation: true, crm_sync: true, approval_workflows: true, ai_followups: true, buyer_chat: true, analytics: true, api_access: true, custom_branding: true, contract_automation: true, team_members: 20 },
   enterprise: { quotes_per_month: 999999, ai_generation: true, crm_sync: true, approval_workflows: true, ai_followups: true, buyer_chat: true, analytics: true, api_access: true, custom_branding: true, contract_automation: true, team_members: 999 },

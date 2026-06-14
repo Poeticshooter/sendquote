@@ -6,6 +6,7 @@ import { success, parseError, requireAuth, apiError } from "@/lib/api-helper";
 import { sendEmail } from "@/lib/email/send";
 import { quoteReceivedEmail } from "@/lib/email/templates";
 import { escapeHtml } from "@/lib/email/escape";
+import { trackEvent } from "@/lib/analytics";
 
 export async function POST(request: NextRequest) {
   try {
@@ -75,6 +76,8 @@ export async function POST(request: NextRequest) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ quote_id }),
     }).catch((e) => console.error("Follow-up scheduling failed:", e));
+
+    trackEvent("quote_sent", { quoteId: quote_id, userId: user.id, hasEmail: !!recipient });
 
     return success({
       success: true,

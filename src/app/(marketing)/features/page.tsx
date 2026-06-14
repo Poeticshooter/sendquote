@@ -4,13 +4,13 @@ import { FeaturesGrid } from "@/components/landing/features-grid";
 import { Footer } from "@/components/landing/footer";
 
 export const metadata: Metadata = {
-  title: "Features",
+  title: "Features: AI Quoting, GST Invoices, Deal Rooms & e-Signature for Indian Businesses | SendQuote",
   description:
-    "Explore SendQuote's AI-powered quoting features: smart quotes, deal rooms, e-signatures, buyer tracking, GST invoices, CRM sync, and team collaboration.",
+    "Explore SendQuote's AI-powered quoting features built for Indian SMBs: AI quote generator (60 seconds), interactive deal rooms, e-signature collection, GST-ready invoices, buyer intent tracking, CRM sync, approval workflows, and team collaboration. Everything you need to close deals faster.",
   openGraph: {
-    title: "Features | SendQuote",
+    title: "SendQuote Features: AI Quote Generator, GST Invoices & Deal Rooms for Indian SMBs",
     description:
-      "Explore SendQuote's AI-powered quoting features: smart quotes, deal rooms, e-signatures, buyer tracking, GST invoices, CRM sync, and team collaboration.",
+      "AI-powered quoting (60 seconds), interactive deal rooms with e-signature, GST-compliant invoices, buyer intent tracking, CRM sync (HubSpot/Pipedrive), and team collaboration. Built for Indian businesses.",
     url: "https://sendquote.in/features",
     siteName: "SendQuote",
     locale: "en_IN",
@@ -19,9 +19,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Features | SendQuote",
+    title: "SendQuote Features: AI Quote Generator, GST Invoices & Deal Rooms",
     description:
-      "Explore SendQuote's AI-powered quoting features: smart quotes, deal rooms, e-signatures, buyer tracking, GST invoices, CRM sync, and team collaboration.",
+      "Create GST-ready quotes in 60 seconds with AI. Deal rooms, e-signature, Razorpay payments, buyer tracking, and CRM sync. Built for Indian SMBs.",
   },
   alternates: { canonical: "https://sendquote.in/features" },
 };

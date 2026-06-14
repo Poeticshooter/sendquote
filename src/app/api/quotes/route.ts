@@ -4,6 +4,7 @@ import { getQuotes, createQuote, generateQuoteNumber } from "@/lib/supabase/quer
 import { CreateQuoteSchema } from "@/lib/api-validation";
 import { success, parseError, requireAuth, apiError } from "@/lib/api-helper";
 import { checkQuoteLimit } from "@/lib/plan-gates";
+import { trackEvent } from "@/lib/analytics";
 
 export async function GET() {
   try {
@@ -43,8 +44,15 @@ export async function POST(request: NextRequest) {
       payment_terms: data.payment_terms || undefined,
       valid_until: data.valid_until || undefined,
       gst_rate: data.gst_rate,
+      discount: data.discount,
+      discount_type: data.discount_type,
+      is_inter_state: data.is_inter_state,
+      place_of_supply: data.place_of_supply || undefined,
       organization_id: data.organization_id || undefined,
     });
+
+    // Track: quote created
+    trackEvent("quote_created", { hasItems: data.items.length > 0, userId: user.id });
 
     return success(quote, 201);
   } catch (e) {

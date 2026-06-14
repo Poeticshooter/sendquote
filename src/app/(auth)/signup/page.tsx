@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { Turnstile } from "@/components/ui/turnstile";
+import { trackClientEvent } from "@/lib/analytics";
 
 async function createProfile(userId: string, businessName: string, email: string) {
   const res = await fetch("/api/auth/signup-profile", {
@@ -30,7 +31,7 @@ export default function SignupPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [businessName, setBusinessName] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
   const supabase = createClient();
@@ -40,24 +41,27 @@ export default function SignupPage() {
     setLoading(true);
 
     // Verify Turnstile token
-    if (turnstileToken) {
-      const verifyRes = await fetch("/api/auth/verify-turnstile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: turnstileToken }),
-      });
-      const verifyData = await verifyRes.json();
-      if (!verifyData.success) {
-        toast.error("Security check failed. Please try again.");
-        setLoading(false);
-        return;
-      }
+    if (!turnstileToken) {
+      toast.error("Security check required. Please complete the verification.");
+      setLoading(false);
+      return;
+    }
+
+    const verifyRes = await fetch("/api/auth/verify-turnstile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: turnstileToken }),
+    });
+    const verifyData = await verifyRes.json();
+    if (!verifyData.success) {
+      toast.error("Security check failed. Please try again.");
+      setLoading(false);
+      return;
     }
 
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { business_name: businessName } },
     });
 
     if (error) { toast.error(error.message); setLoading(false); return; }
@@ -70,7 +74,7 @@ export default function SignupPage() {
 
     // Create profile row in database
     try {
-      await createProfile(data.user.id, businessName, email);
+      await createProfile(data.user.id, "", email);
     } catch (profileError) {
       console.error("Profile creation failed:", profileError);
       toast.error("Failed to create your profile. Please try again.");
@@ -79,6 +83,9 @@ export default function SignupPage() {
     }
 
     // Check if user is auto-confirmed (email confirmation disabled in Supabase)
+    // Track signup conversion event
+    trackClientEvent("signup", { method: "email", userId: data.user.id });
+
     if (data.user.email_confirmed_at) {
       toast.success("Account created! Welcome to SendQuote.");
       router.refresh();
@@ -90,13 +97,11 @@ export default function SignupPage() {
   }
 
   async function handleGoogle() {
-    const state = crypto.randomUUID();
-    document.cookie = `oauth_state=${state}; path=/; max-age=600; secure; samesite=lax`;
+    trackClientEvent("signup_start", { method: "google" });
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
-        queryParams: { state },
       },
     });
     if (error) toast.error(error.message);
@@ -108,7 +113,7 @@ export default function SignupPage() {
       <Card className="w-full max-w-sm bg-card border-border text-foreground">
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto flex items-center justify-center gap-2 mb-4">
-            <Image src="/logo.webp" alt="SendQuote" width={512} height={512} className="h-[66px] w-[66px]" />
+            <Image src="/logo-icon.svg" alt="SendQuote" width={36} height={36} className="h-[66px] w-[66px]" />
             <span className="text-2xl font-bold text-foreground">SendQuote</span>
           </Link>
           <CardTitle className="text-2xl text-foreground">Create your account</CardTitle>
@@ -116,10 +121,6 @@ export default function SignupPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignup} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-foreground/70">Business Name</Label>
-              <Input id="name" value={businessName} onChange={(e) => setBusinessName(e.target.value)} required className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground/50" placeholder="Acme Corp" />
-            </div>
             <div className="space-y-2">
               <Label htmlFor="email" className="text-foreground/70">Work Email</Label>
               <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground/50" placeholder="you@company.com" />

@@ -55,13 +55,10 @@ export default function LoginPage() {
   }
 
   async function handleGoogle() {
-    const state = crypto.randomUUID();
-    document.cookie = `oauth_state=${state}; path=/; max-age=600; secure; samesite=lax`;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
-        queryParams: { state },
       },
     });
     if (error) toast.error(error.message);
@@ -73,7 +70,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm bg-card border-border text-foreground">
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto flex items-center justify-center gap-2 mb-4">
-            <Image src="/logo.webp" alt="SendQuote" width={512} height={512} className="h-[66px] w-[66px]" />
+            <Image src="/logo-icon.svg" alt="SendQuote" width={36} height={36} className="h-[66px] w-[66px]" />
             <span className="text-2xl font-bold text-foreground">SendQuote</span>
           </Link>
           <CardTitle className="text-2xl text-foreground">Welcome back</CardTitle>

@@ -17,6 +17,7 @@ export async function getQuotes(orgId?: string, page = 0, pageSize = 50) {
   let query = supabase
     .from("quotes")
     .select("id, quote_number, client_name, client_email, client_phone, status, total, subtotal, gst_rate, gst_amount, notes, terms, payment_terms, valid_until, created_at, updated_at, public_token, organization_id, user_id")
+    .or("is_deleted.is.null,is_deleted.eq.false")
     .order("created_at", { ascending: false });
 
   if (orgId) {
@@ -42,6 +43,7 @@ export async function getQuote(id: string) {
     .from("quotes")
     .select("*, quote_items(*)")
     .eq("id", id)
+    .or("is_deleted.is.null,is_deleted.eq.false")
     .single();
 
   if (error) throw error;
@@ -73,13 +75,17 @@ export async function createQuote(quote: {
   client_email?: string;
   client_phone?: string;
   client_address?: string;
-  items: { description: string; quantity: number; rate: number; unit?: string }[];
+  items: { description: string; quantity: number; rate: number; unit?: string; hsn_code?: string }[];
   notes?: string;
   terms?: string;
   payment_terms?: string;
   valid_until?: string;
   tax?: number;
   gst_rate?: number;
+  discount?: number;
+  discount_type?: "percentage" | "fixed";
+  is_inter_state?: boolean;
+  place_of_supply?: string;
   organization_id?: string;
 }) {
   const supabase = await createClient();
@@ -87,8 +93,25 @@ export async function createQuote(quote: {
   requireUser(user);
 
   const subtotal = quote.items.reduce((s, i) => s + i.quantity * i.rate, 0);
-  const gstAmount = quote.gst_rate ? subtotal * (quote.gst_rate / 100) : 0;
-  const total = subtotal + gstAmount - (quote.tax || 0);
+  const gstRate = quote.gst_rate || 0;
+
+  // Apply discount BEFORE tax (standard Indian GST practice)
+  const discountType = quote.discount_type || "percentage";
+  const discountAmount = discountType === "percentage"
+    ? subtotal * ((quote.discount || 0) / 100)
+    : (quote.discount || 0);
+  const taxableAmount = subtotal - discountAmount;
+
+  const gstAmount = gstRate ? taxableAmount * (gstRate / 100) : 0;
+
+  // Split GST into CGST/SGST (intra-state) or IGST (inter-state)
+  const isInterState = quote.is_inter_state ?? false;
+  const halfGstRate = isInterState ? 0 : gstRate / 2;
+  const halfGstAmount = isInterState ? 0 : gstAmount / 2;
+  const igstRate = isInterState ? gstRate : 0;
+  const igstAmount = isInterState ? gstAmount : 0;
+
+  const total = taxableAmount + gstAmount;
   const token = uuid();
 
   const { data, error } = await supabase
@@ -102,14 +125,23 @@ export async function createQuote(quote: {
       client_address: quote.client_address || null,
       status: "draft",
       subtotal,
-      gst_rate: quote.gst_rate || 0,
+      discount: discountAmount,
+      discount_type: discountType,
+      gst_rate: gstRate,
       gst_amount: gstAmount,
+      cgst_rate: halfGstRate,
+      cgst_amount: halfGstAmount,
+      sgst_rate: halfGstRate,
+      sgst_amount: halfGstAmount,
+      igst_rate: igstRate,
+      igst_amount: igstAmount,
       total,
       notes: quote.notes,
       terms: quote.terms,
       payment_terms: quote.payment_terms,
       valid_until: quote.valid_until,
       public_token: token,
+      place_of_supply: quote.place_of_supply || null,
       organization_id: quote.organization_id,
     })
     .select()
@@ -125,6 +157,7 @@ export async function createQuote(quote: {
     quantity: item.quantity,
     rate: item.rate,
     unit: item.unit || "pc",
+    hsn_code: item.hsn_code || null,
     amount: item.quantity * item.rate,
     sort_order: index,
   }));
@@ -134,8 +167,7 @@ export async function createQuote(quote: {
     .insert(itemsToInsert);
 
   if (itemsError) {
-    // Compensation action: rollback the quote creation
-    await supabase.from("quotes").delete().eq("id", data.id).eq("user_id", user.id);
+    await supabase.from("quotes").update({ is_deleted: true, deleted_at: new Date().toISOString() }).eq("id", data.id);
     throw new Error(`Failed to create quote items: ${itemsError.message}`);
   }
 
@@ -181,6 +213,15 @@ export async function updateQuoteStatus(id: string, status: string) {
     .single();
 
   if (error) throw error;
+
+  // Log status change to audit trail
+  await supabase.from("quote_events").insert({
+    quote_id: id,
+    event_type: `status:${status}`,
+    notes: `Status changed from "${existing.status}" to "${status}"`,
+    metadata: { previous_status: existing.status, new_status: status },
+  });
+
   return data;
 }
 

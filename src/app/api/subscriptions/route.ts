@@ -19,7 +19,7 @@ export async function GET() {
       .order("created_at", { ascending: false });
 
     return success({
-      plan: profile?.plan || "starter",
+      plan: profile?.plan || "free",
       status: profile?.subscription_status || "active",
       expiry: profile?.plan_expiry,
       billingCycle: profile?.billing_cycle || "monthly",

@@ -164,9 +164,16 @@ AS $$
 DECLARE
   v_quote_id UUID;
   v_quote_number TEXT;
+  v_next INTEGER;
   v_result JSONB;
 BEGIN
-  SELECT quote_number FROM public.generateQuoteNumber() INTO v_quote_number;
+  INSERT INTO public.profiles (user_id, quote_counter)
+  VALUES (p_user_id, 1)
+  ON CONFLICT (user_id) DO UPDATE SET quote_counter = profiles.quote_counter + 1
+  RETURNING quote_counter INTO v_next;
+
+  v_quote_number := 'QTE-' || TO_CHAR(NOW(), 'YYYY') || '-' || LPAD(COALESCE(v_next, 1)::TEXT, 4, '0');
+
   INSERT INTO public.quotes (user_id, client_name, client_email, client_phone, currency, notes, terms, valid_until, status, quote_number, subtotal, tax, total)
   VALUES (p_user_id, p_client_name, p_client_email, p_client_phone, p_currency, p_notes, p_terms, p_valid_until, 'draft', v_quote_number, 0, 0, 0)
   RETURNING id INTO v_quote_id;
@@ -246,7 +253,7 @@ BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='admin_audit_log') THEN
     ALTER TABLE public.admin_audit_log ENABLE ROW LEVEL SECURITY;
     DROP POLICY IF EXISTS "Only admins can view audit log" ON public.admin_audit_log;
-    CREATE POLICY "Only admins can view audit log" ON public.admin_audit_log FOR SELECT USING (true);
+    CREATE POLICY "Only admins can view audit log" ON public.admin_audit_log FOR SELECT USING (auth.uid() IN (SELECT user_id FROM public.profiles WHERE plan IN ('enterprise', 'pro')));
   END IF;
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='ai_cache') THEN
     ALTER TABLE public.ai_cache ENABLE ROW LEVEL SECURITY;
@@ -287,5 +294,14 @@ BEGIN
     UPDATE public.invoices SET balance_due = 0 WHERE balance_due IS NULL;
     ALTER TABLE public.invoices ALTER COLUMN amount SET NOT NULL;
     ALTER TABLE public.invoices ALTER COLUMN balance_due SET NOT NULL;
+  END IF;
+END $$;
+
+-- Migration 16: Fix webhook_events.status column (missing from initial schema)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='webhook_events') THEN
+    ALTER TABLE public.webhook_events ADD COLUMN IF NOT EXISTS status text;
+    UPDATE public.webhook_events SET status = 'processed' WHERE status IS NULL;
   END IF;
 END $$;

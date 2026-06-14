@@ -24,7 +24,7 @@ function header() {
         <table cellpadding="0" cellspacing="0" border="0">
           <tr>
             <td align="center" style="padding-bottom:20px;">
-              <img src="https://sendquote.in/logo.webp" alt="SendQuote" width="48" height="48" style="display:block;width:48px;height:48px;border-radius:12px;" />
+              <img src="${APP_URL}/logo-icon.svg" alt="SendQuote" width="36" height="36" style="display:block;width:36px;height:36px;border-radius:12px;" />
             </td>
           </tr>
           <tr>
@@ -45,7 +45,7 @@ function footer() {
       <td align="center" style="padding:16px 0 0 0;">
         <span style="color:#606060;font-size:13px;line-height:1.8;">
           SendQuote · AI-Powered Quoting Platform<br/>
-          <a href="https://sendquote.in" style="${S.footerLink}">sendquote.in</a>
+          <a href="${APP_URL}" style="${S.footerLink}">sendquote.in</a>
           &nbsp;·&nbsp; <a href="mailto:support@sendquote.in" style="${S.footerLink}">support@sendquote.in</a><br/>
           <span style="color:#505050;font-size:12px;">© ${new Date().getFullYear()} SendQuote. All rights reserved.</span>
         </span>
@@ -73,6 +73,8 @@ function btnSecondary(href: string, text: string) {
     </tr>
   </table>`;
 }
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://sendquote.in";
 
 export function wrapEmail(content: string) {
   return `<!DOCTYPE html>

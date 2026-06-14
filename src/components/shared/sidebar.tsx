@@ -48,16 +48,16 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
       supabase.from("profiles").select("plan, monthly_quote_count").eq("user_id", user.id).single()
         .then(({ data }) => {
           if (cancelled || !data) return;
-          const plan = data.plan || "starter";
+          const plan = data.plan || "free";
           setShowAdmin(plan === "pro" || plan === "enterprise");
-          const limit = plan === "starter" ? 50 : plan === "growth" ? 9999 : 99999;
+          const limit = plan === "free" ? 5 : plan === "growth" ? 99999 : 99999;
           setProfile({ plan, used: data.monthly_quote_count || 0, limit });
         });
     });
     return () => { cancelled = true; };
   }, [supabase]);
 
-  const planLabel = profile?.plan === "starter" ? "Free" :
+  const planLabel = profile?.plan === "free" || !profile?.plan ? "Free" :
     profile?.plan === "growth" ? "Growth" :
     profile?.plan === "pro" ? "Pro" : "Enterprise";
 
@@ -78,7 +78,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
       >
         <div className="flex h-16 items-center justify-between border-b px-4">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <Image src="/logo.webp" alt="SendQuote" width={512} height={512} className="h-[60px] w-[60px]" />
+            <Image src="/logo-icon.svg" alt="SendQuote" width={36} height={36} className="h-[60px] w-[60px]" />
             <span className="text-xl font-bold">SendQuote</span>
           </Link>
           <button

@@ -4,22 +4,14 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, FileText, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Quote } from "@/types";
 
-const statusColors: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
-  draft: "secondary",
-  sent: "outline",
-  opened: "default",
-  accepted: "default",
-  changes_requested: "outline",
-  expired: "destructive",
-  archived: "outline",
-};
+
 
 const PAGE_SIZE = 20;
 
@@ -100,9 +92,7 @@ export default function QuotesPage() {
                       </div>
                       <div className="text-right mr-3">
                         <p className="font-semibold">₹{Number(quote.total).toLocaleString("en-IN")}</p>
-                        <Badge variant={statusColors[quote.status] || "outline"}>
-                          {quote.status}
-                        </Badge>
+                        <StatusBadge status={quote.status} />
                       </div>
                     </div>
                   </Link>

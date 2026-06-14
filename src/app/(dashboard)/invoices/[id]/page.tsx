@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MessageCircle } from "lucide-react";
 import Link from "next/link";
+import { getWhatsAppInvoiceMessage } from "@/lib/share";
 
 interface InvoiceDetail {
   id: string;
@@ -52,7 +53,7 @@ export default function InvoiceDetailPage() {
           <h2 className="text-2xl font-bold tracking-tight">{invoice.invoice_number}</h2>
           <p className="text-muted-foreground">{invoice.client_name}</p>
         </div>
-        <Badge>{invoice.status}</Badge>
+        <StatusBadge status={invoice.status} />
       </div>
 
       <Card>
@@ -78,6 +79,25 @@ export default function InvoiceDetailPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Share on WhatsApp */}
+      <button
+        onClick={() => {
+          const url = getWhatsAppInvoiceMessage({
+            clientName: invoice.client_name,
+            businessName: "SendQuote",
+            invoiceNumber: invoice.invoice_number,
+            invoiceUrl: `${window.location.origin}/invoices/${invoice.id}`,
+            amount: Number(invoice.balance_due),
+            dueDate: invoice.due_date ? new Date(invoice.due_date).toLocaleDateString("en-IN") : undefined,
+          });
+          window.open(url, "_blank", "noopener,noreferrer");
+        }}
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-3 text-sm font-semibold text-white hover:bg-[#1DA851] transition-colors"
+      >
+        <MessageCircle className="h-4 w-4" />
+        Share Invoice on WhatsApp
+      </button>
     </div>
   );
 }

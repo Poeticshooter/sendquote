@@ -4,22 +4,19 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { ArrowLeft, Copy, Send, FileDown, MessageSquare, Eye, Smartphone, Monitor, Tablet, Bot, Sparkles } from "lucide-react";
+import { ArrowLeft, Copy, Send, FileDown, MessageSquare, Eye, Smartphone, Monitor, Tablet, Bot, Sparkles, MessageCircle } from "lucide-react";
 import { FollowUpPanel } from "@/components/quotes/follow-up-panel";
 import { DealCopilot } from "@/components/quotes/deal-copilot";
 import Link from "next/link";
 import type { Quote, QuoteItem } from "@/types";
 
-const statusColors: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
-  draft: "secondary", sent: "outline", opened: "default", accepted: "default",
-  changes_requested: "outline", expired: "destructive", archived: "outline",
-};
+
 
 interface ChatMessage {
   id: string;
@@ -138,7 +135,7 @@ export default function QuoteDetailPage() {
             <h2 className="text-2xl font-bold tracking-tight">{quote.quote_number}</h2>
             <div className="flex items-center gap-2 mt-1">
               <p className="text-muted-foreground">{quote.client_name}</p>
-              <Badge variant={statusColors[quote.status]}>{quote.status}</Badge>
+              <StatusBadge status={quote.status} />
             </div>
           </div>
         </div>
@@ -216,6 +213,20 @@ export default function QuoteDetailPage() {
                     {typeof window !== "undefined" ? `${window.location.origin}/q/${quote.public_token}` : `https://sendquote.in/q/${quote.public_token}`}
                   </code>
                   <Button variant="outline" size="sm" onClick={copyLink}><Copy className="h-4 w-4" /></Button>
+                </div>
+                <div className="mt-4 flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => {
+                      const url = `${window.location.origin}/q/${quote.public_token}`;
+                      const text = `*Quote ${quote.quote_number}*\n\nView & sign here:\n${url}\n\nPowered by SendQuote`;
+                      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+                    }}
+                  >
+                    <MessageCircle className="mr-1.5 h-4 w-4" /> Share on WhatsApp
+                  </Button>
                 </div>
               </CardContent>
             </Card>

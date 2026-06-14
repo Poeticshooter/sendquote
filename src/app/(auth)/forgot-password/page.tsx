@@ -51,7 +51,7 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-sm bg-card border-border text-foreground">
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto flex items-center justify-center gap-2 mb-4">
-            <Image src="/logo.webp" alt="SendQuote" width={512} height={512} className="mx-auto h-12 w-12" />
+            <Image src="/logo-icon.svg" alt="SendQuote" width={36} height={36} className="mx-auto h-12 w-12" />
             <span className="text-xl font-bold text-foreground">SendQuote</span>
           </Link>
           <CardTitle className="text-2xl text-foreground">Reset password</CardTitle>

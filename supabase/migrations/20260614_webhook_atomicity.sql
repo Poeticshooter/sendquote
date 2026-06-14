@@ -202,14 +202,19 @@ BEGIN
   -- Generate invoice number
   v_invoice_number := 'INV-' || TO_CHAR(NOW(), 'YYYY-MM') || '-' || UPPER(SUBSTR(MD5(NOW()::TEXT), 1, 8));
 
-  -- Create invoice
+  -- Create invoice with GST split fields
   INSERT INTO public.invoices (
     user_id, quote_id, invoice_number, client_name, client_email,
-    amount, subtotal, gst_rate, gst_amount, paid_amount, balance_due, status,
+    amount, subtotal, gst_rate, gst_amount,
+    cgst_rate, cgst_amount, sgst_rate, sgst_amount, igst_rate, igst_amount,
+    paid_amount, balance_due, status,
     organization_id
   ) VALUES (
     v_quote.user_id, v_quote.id, v_invoice_number, v_quote.client_name, v_quote.client_email,
     v_quote.total, v_quote.subtotal, v_quote.gst_rate, v_quote.gst_amount,
+    COALESCE(v_quote.cgst_rate, 0), COALESCE(v_quote.cgst_amount, 0),
+    COALESCE(v_quote.sgst_rate, 0), COALESCE(v_quote.sgst_amount, 0),
+    COALESCE(v_quote.igst_rate, 0), COALESCE(v_quote.igst_amount, 0),
     0, v_quote.total, 'pending',
     v_quote.organization_id
   );

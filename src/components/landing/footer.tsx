@@ -2,8 +2,8 @@ import Link from "next/link";
 
 const footerLinks = {
   Product: [{ href: "/pricing", label: "Pricing" }, { href: "/#features", label: "Features" }, { href: "/changelog", label: "Changelog" }, { href: "/docs", label: "Documentation" }],
-  Company: [{ href: "/blog", label: "Blog" }, { href: "/contact", label: "Contact" }, { href: "/privacy", label: "Privacy" }, { href: "/terms", label: "Terms" }],
-  Resources: [{ href: "/docs", label: "Documentation" }, { href: "/faq", label: "FAQ" }],
+  Company: [{ href: "/about", label: "About" }, { href: "/blog", label: "Blog" }, { href: "/contact", label: "Contact" }, { href: "/privacy", label: "Privacy" }, { href: "/terms", label: "Terms" }],
+  Support: [{ href: "mailto:support@sendquote.in", label: "Email: support@sendquote.in (4hr reply)" }, { href: "/faq", label: "FAQ" }, { href: "/docs", label: "Documentation" }],
 };
 
 export function Footer() {

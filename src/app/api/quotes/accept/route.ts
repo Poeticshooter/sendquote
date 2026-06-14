@@ -33,6 +33,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: result.message }, { status: 409 });
     }
 
+    // Track quote accepted event (non-blocking)
+    if (result?.quote_id) {
+      try {
+        await supabase.from("analytics_events").insert({
+          event_type: "quote_accepted",
+          user_id: result.quote_id,
+          event_data: { quote_id: result.quote_id, invoice_number: result?.invoice_number },
+        });
+      } catch { /* non-critical */ }
+    }
+
     // Fire-and-forget CRM sync + notifications (non-critical)
     if (result?.quote_id) {
       const { data: quote } = await supabase

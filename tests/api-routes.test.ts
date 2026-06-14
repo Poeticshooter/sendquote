@@ -54,7 +54,7 @@ describe("Plan Gates", () => {
     const { PLAN_LIMITS } = await import("@/lib/plan-gates");
     expect(PLAN_LIMITS.free).toBeDefined();
     expect(PLAN_LIMITS.free.quotes_per_month).toBe(5);
-    expect(PLAN_LIMITS.starter.quotes_per_month).toBe(50);
+    expect(PLAN_LIMITS.growth.quotes_per_month).toBe(99999);
   });
 });
 

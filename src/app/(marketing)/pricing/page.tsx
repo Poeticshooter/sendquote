@@ -5,9 +5,12 @@ import { CTASection } from "@/components/landing/cta-section";
 import { Footer } from "@/components/landing/footer";
 
 export const metadata: Metadata = {
-  title: "Pricing",
-  description: "Simple, transparent pricing for businesses of all sizes. Start free, upgrade as you grow.",
-  openGraph: { title: "SendQuote Pricing", description: "Simple, transparent pricing for businesses of all sizes." },
+  title: "Pricing: Free, Growth & Pro Plans for Indian SMBs (₹0–₹16,499/yr)",
+  description: "SendQuote pricing for Indian businesses — start free with 5 GST-ready quotes/month. Growth at ₹499/mo includes AI quote generation, e-signatures, CRM sync, and buyer chat. No hidden fees. Cancel anytime.",
+  openGraph: {
+    title: "SendQuote Pricing: Free, Growth & Pro Plans for Indian SMBs",
+    description: "Start free with 5 GST-ready quotes/month. Growth at ₹499/mo includes AI generation, e-signatures, CRM sync, and buyer chat.",
+  },
 };
 
 const reviewSchema = {
@@ -30,20 +33,6 @@ const reviewSchema = {
           { "@type": "Offer", name: "Pro", price: 16499, priceCurrency: "INR" },
         ],
       },
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: "4.8",
-        ratingCount: "127",
-        bestRating: "5",
-      },
-      review: [
-        {
-          "@type": "Review",
-          author: { "@type": "Person", name: "Rajesh K." },
-          reviewRating: { "@type": "Rating", ratingValue: "5" },
-          reviewBody: "SendQuote helped me close 3 new contracts last month. My quotes look so professional now.",
-        },
-      ],
     },
     {
       "@type": "HowTo",

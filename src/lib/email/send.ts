@@ -21,7 +21,15 @@ export async function sendEmail({ to, subject, html, from, replyTo }: SendEmailP
     const res = await fetch(RESEND_API, {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: fromAddr, to, subject, html, ...(replyTo ? { reply_to: replyTo } : {}) }),
+      body: JSON.stringify({
+        from: fromAddr,
+        to,
+        subject,
+        html,
+        ...(replyTo ? { reply_to: replyTo } : {}),
+        tracking_opens: true,
+        tracking_clicks: true,
+      }),
     });
 
     if (!res.ok) {

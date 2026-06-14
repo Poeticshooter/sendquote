@@ -9,6 +9,29 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* ===== Typography Scale ===== */
+  --text-display: 2.5rem;
+  --text-heading-1: 1.75rem;
+  --text-heading-2: 1.25rem;
+  --text-subheading: 1rem;
+  --text-body: 0.875rem;
+  --text-caption: 0.75rem;
+  --text-label: 0.6875rem;
+
+  /* ===== Shadow System ===== */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.10), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+
+  /* ===== Motion Tokens ===== */
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -58,6 +81,10 @@
 :root:not(.dark) {
   --background: #F5F5F0;
   --foreground: #1A1A1A;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
   --card: #FFFFFF;
   --card-foreground: #1A1A1A;
   --popover: #FFFFFF;
@@ -93,6 +120,10 @@
 .dark {
   --background: #0A0A0A;
   --foreground: #F5F5F5;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
   --card: #141414;
   --card-foreground: #F5F5F5;
   --popover: #141414;

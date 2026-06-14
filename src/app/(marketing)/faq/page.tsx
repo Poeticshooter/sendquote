@@ -3,12 +3,12 @@ import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 
 export const metadata: Metadata = {
-  title: "FAQ",
+  title: "FAQ: GST Invoicing, AI Quotes & Pricing Questions Answered | SendQuote",
   description:
-    "Frequently asked questions about SendQuote's AI-powered quoting platform, pricing, features, and how it works for Indian businesses.",
+    "All your questions about SendQuote's AI-powered quoting platform answered: GST invoices, free plan limits, pricing, e-signatures, payment integration, data security, and team collaboration for Indian businesses.",
   openGraph: {
-    title: "FAQ | SendQuote",
-    description: "Frequently asked questions about SendQuote's AI-powered quoting platform.",
+    title: "FAQ: AI Quoting, GST Invoices & Pricing for Indian SMBs | SendQuote",
+    description: "Get answers about SendQuote's AI-powered quoting platform — free plan (5 quotes/mo), GST invoices, e-signatures, payment integration, and team features.",
     url: "https://sendquote.in/faq",
     siteName: "SendQuote",
     locale: "en_IN",
@@ -17,8 +17,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "FAQ | SendQuote",
-    description: "Frequently asked questions about SendQuote.",
+    title: "FAQ: GST Invoicing, AI Quotes & Pricing | SendQuote",
+    description: "Free plan includes 5 GST-ready quotes/month. AI generation, e-signatures, buyer tracking, and Razorpay integration for Indian businesses.",
   },
   alternates: { canonical: "https://sendquote.in/faq" },
 };
@@ -28,7 +28,7 @@ const faqs = [
   { q: "How does AI quote generation work?", a: "Describe your project briefly — AI generates complete line items, pricing, terms, and notes in under 60 seconds. Review and adjust before sending." },
   { q: "Can I accept payments inside the quote?", a: "Yes. Integrated Razorpay and Stripe allow buyers to sign and pay in one click. Supports credit cards, UPI, and bank transfers." },
   { q: "Which CRMs do you integrate with?", a: "HubSpot, Salesforce, and Pipedrive. Bi-directional sync creates deals from quotes and updates stages on acceptance." },
-  { q: "Is there a free plan?", a: "Yes. Starter plan is free with 50 quotes per month, basic templates, e-signature, and buyer tracking." },
+  { q: "Is there a free plan?", a: "Yes. Starter plan is free with 5 quotes per month, basic templates, e-signature, and buyer tracking." },
   { q: "Can clients negotiate inside the quote?", a: "Yes. The Deal Room allows clients to request changes, adjust quantities, and counter-offer — all inside the quote page." },
   { q: "Do you support GST invoices?", a: "Yes. GST rates and amounts are built into quotes and invoices. Auto-generate tax-compliant invoices on acceptance." },
   { q: "What payment providers are supported?", a: "Razorpay for Indian payments (UPI, cards, net banking) and Stripe for international payments." },

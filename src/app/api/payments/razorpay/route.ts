@@ -2,6 +2,7 @@ import type { NextRequest} from "next/server";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { parseError, requireAuth } from "@/lib/api-helper";
+import { checkMemoryRateLimit } from "@/lib/rate-limit";
 import { z } from "zod";
 
 const PaymentRequestSchema = z.object({
@@ -12,6 +13,9 @@ const PaymentRequestSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth();
+    if (!checkMemoryRateLimit(`payment:${user.id}`, 10, 60_000)) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
     const body = await request.json();
     const { quote_id, currency } = PaymentRequestSchema.parse(body);
 
@@ -36,7 +40,7 @@ export async function POST(request: NextRequest) {
     const amountToCollect = invoice?.balance_due ?? quote.total;
     const verifiedAmount = Math.round(Number(amountToCollect) * 100);
 
-    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
     if (!keyId || !keySecret) {

@@ -49,7 +49,7 @@ export function generateContractHtml(data: ContractData): string {
                   <p style="margin:0;color:#94a3b8;font-size:13px;">${escapeHtml(data.quoteNumber)} · ${new Date(data.signedAt).toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}</p>
                 </td>
                 <td align="right" valign="top">
-                  <img src="https://sendquote.in/logo.webp" alt="SendQuote" width="40" height="40" style="border-radius:10px;opacity:0.9;" />
+                  <img src="https://sendquote.in/logo-icon.svg" alt="SendQuote" width="36" height="36" style="border-radius:10px;opacity:0.9;" />
                 </td>
               </tr>
             </table>

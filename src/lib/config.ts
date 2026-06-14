@@ -7,6 +7,7 @@ const REQUIRED_VARS = [
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
   "SUPABASE_SERVICE_ROLE_KEY",
+  "ENCRYPTION_KEY",
 ] as const;
 const OPTIONAL_VARS = [
   "GROQ_API_KEY", "RESEND_API_KEY", "OPENROUTER_API_KEY", "GEMINI_API_KEY",
@@ -37,11 +38,6 @@ function validateEnv(): { valid: boolean; missing: string[] } {
   }
 
   return { valid: missing.length === 0, missing };
-}
-
-// Run validation on module load
-if (typeof window === "undefined") {
-  validateEnv();
 }
 
 export const config = {

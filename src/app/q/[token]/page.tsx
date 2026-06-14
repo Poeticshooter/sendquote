@@ -40,6 +40,9 @@ export default async function PublicQuotePage({ params }: Props) {
 
   if (!quote) notFound();
 
+  // Record quote view (non-blocking — fire and forget)
+  supabase.rpc("increment_quote_view", { quote_id: quote.id });
+
   return (
     <div className="min-h-screen bg-gray-50 pb-32">
       <div className="mx-auto max-w-3xl px-4 py-8">

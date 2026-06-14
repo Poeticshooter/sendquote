@@ -27,6 +27,7 @@ export default function SettingsPage() {
   const [phone, setPhone] = useState("");
   const [gst, setGst] = useState("");
   const [gstValid, setGstValid] = useState<boolean | null>(null);
+  const [upiId, setUpiId] = useState("");
   const [gstChecking, setGstChecking] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -39,6 +40,7 @@ export default function SettingsPage() {
           setBusinessName(data.business_name || "");
           setPhone(data.phone || "");
           setGst(data.gst_number || "");
+          setUpiId(data.upi_id || "");
         }
         setLoading(false);
       });
@@ -64,7 +66,7 @@ export default function SettingsPage() {
     setSaving(true);
     const { error } = await supabase
       .from("profiles")
-      .update({ business_name: businessName, phone, gst_number: gst, updated_at: new Date().toISOString() })
+      .update({ business_name: businessName, phone, gst_number: gst, upi_id: upiId, updated_at: new Date().toISOString() })
       .eq("id", profile.id);
 
     if (error) toast.error(error.message);
@@ -121,6 +123,11 @@ export default function SettingsPage() {
                   {gst && gstValid === true && <p className="text-xs text-primary">Valid GST format ✓</p>}
                   {gstValid === false && <p className="text-xs text-red-400">Invalid GST number format</p>}
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="upi">UPI ID <span className="text-xs text-muted-foreground font-normal">(appears on invoices for instant payment)</span></Label>
+                <Input id="upi" value={upiId} onChange={(e) => setUpiId(e.target.value)} placeholder="business@okhdfcbank" />
+                {upiId && <p className="text-xs text-muted-foreground">Clients can scan a QR code and pay via GPay, PhonePe, or Paytm</p>}
               </div>
               <Button onClick={saveProfile} disabled={saving}>{saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Save Changes</Button>
             </CardContent>

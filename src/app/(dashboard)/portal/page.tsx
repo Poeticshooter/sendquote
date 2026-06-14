@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { toast } from "sonner";
 import { Search, FileText, Download, ExternalLink } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -24,10 +24,7 @@ interface PortalQuote {
   paymentCount: number;
 }
 
-const statusColors: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
-  draft: "secondary", sent: "outline", opened: "default", accepted: "default",
-  expired: "destructive",
-};
+
 
 export default function PortalPage() {
   const [email, setEmail] = useState("");
@@ -102,7 +99,7 @@ export default function PortalPage() {
                   </div>
                   <div className="text-right">
                     <p className="font-bold">{formatINR(q.total)}</p>
-                    <Badge variant={statusColors[q.status] || "outline"}>{q.status}</Badge>
+                    <StatusBadge status={q.status} />
                   </div>
                 </div>
 
@@ -127,7 +124,7 @@ export default function PortalPage() {
                     {q.invoices.map((inv, i) => (
                       <div key={i} className="flex justify-between text-sm">
                         <span>{inv.number}</span>
-                        <span>{formatINR(inv.amount)} — <Badge variant="outline" className="text-xs">{inv.status}</Badge></span>
+                        <span>{formatINR(inv.amount)} — <StatusBadge status={inv.status} /></span>
                       </div>
                     ))}
                   </div>

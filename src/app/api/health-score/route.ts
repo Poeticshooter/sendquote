@@ -36,8 +36,8 @@ export async function GET() {
     score += profile?.monthly_quote_count && profile.monthly_quote_count > 0 ? 10 : 0;
     score = Math.min(score, 100);
 
-    const level = score >= 80 ? "elite" : score >= 60 ? "pro" : score >= 40 ? "growing" : score >= 20 ? "starter" : "beginner";
-    const levelLabel = { beginner: "Getting Started", starter: "Active Seller", growing: "Growing Business", pro: "Pro Seller", elite: "Top Performer" }[level];
+    const level = score >= 80 ? "elite" : score >= 60 ? "pro" : score >= 40 ? "growing" : score >= 20 ? "rising" : "beginner";
+    const levelLabel = { beginner: "Getting Started", rising: "Active Seller", growing: "Growing Business", pro: "Pro Seller", elite: "Top Performer" }[level];
 
     const nextMilestone = score < 20 ? 20 : score < 40 ? 40 : score < 60 ? 60 : score < 80 ? 80 : 100;
 

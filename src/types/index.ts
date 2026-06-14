@@ -67,7 +67,7 @@ export type InvoiceStatus = 'pending' | 'paid' | 'overdue' | 'cancelled'
 
 export type SubscriptionStatus = 'active' | 'inactive' | 'cancelled' | 'expired'
 
-export type PlanType = 'starter' | 'growth' | 'pro' | 'enterprise'
+export type PlanType = 'free' | 'growth' | 'pro' | 'enterprise'
 
 export type TeamRole = 'admin' | 'member' | 'viewer'
 

@@ -32,9 +32,11 @@ export async function POST(request: NextRequest) {
     const event = JSON.parse(body);
     const supabase = createAdminClient();
 
+    // Deterministic eventId from event body for idempotency (avoids Math.random() duplicates)
+    const deterministicId = crypto.createHash("sha256").update(body).digest("hex").slice(0, 16);
     const eventId = event.event === "payment.captured"
       ? event.payload.payment.entity.id
-      : `${event.event}_${event.payload?.payment?.entity?.order_id || event.payload?.subscription?.entity?.id || `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`}`;
+      : `${event.event}_${event.payload?.payment?.entity?.order_id || event.payload?.subscription?.entity?.id || deterministicId}`;
 
     // For payment.captured: delegate to atomic RPC
     if (event.event === "payment.captured") {
@@ -107,19 +109,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, result: rpcResult });
     }
 
-    // For subscription.charged: delegate to RPC
+    // For subscription.charged: validate amount then delegate to RPC
     if (event.event === "subscription.charged") {
       const sub = event.payload.subscription?.entity;
+      const payment = event.payload.payment?.entity;
       const subscriptionId = sub?.id;
+      const paymentAmount = payment ? payment.amount / 100 : 0;
 
       if (subscriptionId) {
+        // Verify charged amount matches expected
+        const { data: expectedSub } = await supabase
+          .from("subscriptions")
+          .select("total_amount")
+          .eq("razorpay_subscription_id", subscriptionId)
+          .maybeSingle();
+
+        if (expectedSub?.total_amount && paymentAmount > 0) {
+          const expected = Number(expectedSub.total_amount);
+          if (paymentAmount < expected - 1) {
+            Sentry.captureMessage(
+              `Subscription charge underpayment: received ${paymentAmount}, expected ${expected}`,
+              "warning"
+            );
+            return NextResponse.json({ error: "amount_mismatch" }, { status: 400 });
+          }
+        }
+
         const { data: rpcResult, error: rpcError } = await supabase.rpc("process_razorpay_payment", {
           p_razorpay_event_id: eventId,
           p_event_type: "subscription.charged",
           p_quote_id: null,
-          p_payment_amount: 0,
-          p_razorpay_payment_id: "",
-          p_razorpay_order_id: "",
+          p_payment_amount: paymentAmount,
+          p_razorpay_payment_id: payment?.id || "",
+          p_razorpay_order_id: payment?.order_id || "",
           p_invoice_id: null,
           p_subscription_id: subscriptionId,
           p_full_event: event,
@@ -134,8 +156,19 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // For payment.failed: log event + notify user
+    // For payment.failed: dedup check, log event + notify user
     if (event.event === "payment.failed") {
+      // Check if this failure was already processed (idempotency check)
+      const { data: existingFail } = await supabase
+        .from("webhook_events")
+        .select("id")
+        .eq("razorpay_event_id", eventId)
+        .maybeSingle();
+
+      if (existingFail) {
+        return NextResponse.json({ success: true, note: "duplicate" });
+      }
+
       await supabase.from("webhook_events").insert({
         razorpay_event_id: eventId,
         event_type: "payment.failed",
@@ -171,7 +204,9 @@ export async function POST(request: NextRequest) {
                 <p>Please check your payment method and try again.</p>
                 <p><a href="${process.env.NEXT_PUBLIC_APP_URL || "https://sendquote.in"}/settings" style="display:inline-block;padding:12px 24px;background:#14b8a6;color:white;text-decoration:none;border-radius:6px;">Update Payment Method</a></p>
               `.trim();
-              sendEmail({ to: [userEmail], subject, html }).catch(() => {});
+              sendEmail({ to: [userEmail], subject, html }).catch((e) => {
+                Sentry.captureException(e, { extra: { context: "payment.failed dunning email", userId: subs.user_id } });
+              });
             }
           }
         }

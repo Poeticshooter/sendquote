@@ -7,12 +7,9 @@ import { PostHogProvider } from "@/components/shared/posthog-provider";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { CookieConsent } from "@/components/shared/cookie-consent";
 import { SkipNav } from "@/components/shared/skip-nav";
-import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Suspense } from "react";
-import { GoogleAnalytics } from "@/components/shared/google-analytics";
 import { FormbricksProvider } from "@/components/shared/formbricks-provider";
-import { VoiceAssistantWrapper } from "@/components/shared/voice-assistant-wrapper";
 
 const interSans = Inter({ variable: "--font-sans", subsets: ["latin"], display: "swap" });
 const jetbrainsMono = JetBrains_Mono({ variable: "--font-mono", subsets: ["latin"], display: "swap" });
@@ -54,7 +51,7 @@ const jsonLd = {
     {
       "@type": "Organization", "@id": "https://sendquote.in/#organization",
       name: "SendQuote", alternateName: "SendQuote India", url: "https://sendquote.in",
-      logo: { "@type": "ImageObject", url: "https://sendquote.in/logo.webp", width: 512, height: 512 },
+      logo: { "@type": "ImageObject", url: "https://sendquote.in/logo-icon.svg", width: 36, height: 36 },
       address: { "@type": "PostalAddress", addressCountry: "IN" },
       sameAs: ["https://twitter.com/sendquote", "https://sendquote.in"],
       contactPoint: [
@@ -68,14 +65,14 @@ const jsonLd = {
       "@type": "SoftwareApplication", "@id": "https://sendquote.in/#software",
       name: "SendQuote", applicationCategory: "BusinessApplication", operatingSystem: "Web",
       offers: [
-        { "@type": "Offer", price: "0", priceCurrency: "INR", name: "Starter", description: "Free plan with 50 quotes/month" },
-        { "@type": "Offer", price: "6499", priceCurrency: "INR", name: "Growth", description: "Unlimited quotes + AI features" },
-        { "@type": "Offer", price: "16499", priceCurrency: "INR", name: "Pro", description: "Unlimited everything + priority support" },
+        { "@type": "Offer", price: "0", priceCurrency: "INR", name: "Starter", description: "Free plan with 5 quotes/month. Includes e-signature and basic templates." },
+        { "@type": "Offer", price: "499", priceCurrency: "INR", name: "Growth (monthly)", description: "Unlimited quotes, AI generation, CRM sync, buyer chat, and approvals." },
+        { "@type": "Offer", price: "4990", priceCurrency: "INR", name: "Growth (annual)", description: "Unlimited quotes, AI generation, CRM sync, buyer chat, and approvals." },
+        { "@type": "Offer", price: "16499", priceCurrency: "INR", name: "Pro (annual)", description: "Everything in Growth plus branded deal rooms, API access, and contract automation." },
       ],
       featureList: ["AI quote generation", "Interactive deal rooms", "Buyer intent tracking", "E-signature", "GST invoices", "CRM integration", "Approval workflows", "Team collaboration"],
       screenshot: "https://sendquote.in/og-image.webp",
       softwareVersion: "2.0",
-      aggregateRating: { "@type": "AggregateRating", ratingValue: "4.8", ratingCount: "127", bestRating: "5" },
     },
     {
       "@type": "WebSite", "@id": "https://sendquote.in/#website",
@@ -122,14 +119,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <PostHogProvider>
             <FormbricksProvider />
             <Suspense fallback={null}>
-              <GoogleAnalytics />
               {children}
             </Suspense>
             <CookieConsent />
             <Toaster richColors position="top-right" />
-            <Analytics />
             <SpeedInsights />
-            <VoiceAssistantWrapper />
           </PostHogProvider>
         </ThemeProvider>
       </body>

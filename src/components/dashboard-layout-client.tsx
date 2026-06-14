@@ -5,6 +5,12 @@ import { Sidebar } from "@/components/shared/sidebar";
 import { UserNav } from "@/components/shared/user-nav";
 import { BottomNav } from "@/components/shared/bottom-nav";
 import { CommandPalette } from "@/components/shared/command-palette";
+import dynamic from "next/dynamic";
+
+const VoiceAssistant = dynamic(
+  () => import("@/components/shared/voice-assistant").then((mod) => mod.VoiceAssistant),
+  { ssr: false }
+);
 
 export default function DashboardLayoutClient({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -25,6 +31,7 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
       </div>
       <BottomNav />
       <CommandPalette />
+      <VoiceAssistant />
     </div>
   );
 }

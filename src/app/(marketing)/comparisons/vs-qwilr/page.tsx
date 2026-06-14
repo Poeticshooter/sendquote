@@ -136,10 +136,7 @@ export default function VsQwilrPage() {
       <main className="min-h-screen">
         {/* Hero */}
         <section className="px-4 pt-28 pb-12 text-center max-w-4xl mx-auto">
-          <div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+          <div}}}
           >
             <span className="inline-flex items-center gap-1 text-xs font-medium bg-primary/10 text-primary px-3 py-1 rounded-full mb-4">
               Comparison
@@ -157,10 +154,7 @@ export default function VsQwilrPage() {
         {/* Quick verdict */}
         <section className="px-4 pb-12 max-w-4xl mx-auto">
           <div
-            className="bg-card border border-border rounded-xl p-6 md:p-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            className="bg-card border border-border rounded-xl p-6 md:p-8"}}}
           >
             <div className="flex items-center gap-2 mb-3">
               <Zap className="w-5 h-5 text-primary" />
@@ -247,10 +241,7 @@ export default function VsQwilrPage() {
               return (
                 <div
                   key={item.title}
-                  className="bg-card border border-border rounded-xl p-5"
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.2 + idx * 0.05 }}
+                  className="bg-card border border-border rounded-xl p-5"}}}
                 >
                   <Icon className="w-5 h-5 text-primary mb-2" />
                   <h3 className="font-semibold text-foreground text-sm">{item.title}</h3>

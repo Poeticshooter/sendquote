@@ -74,7 +74,7 @@ export function ComparisonsGrid() {
         {comparisons.map((cmp, idx) => {
           const Icon = cmp.icon;
           return (
-            <m.div
+            <div
               key={cmp.slug}
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}

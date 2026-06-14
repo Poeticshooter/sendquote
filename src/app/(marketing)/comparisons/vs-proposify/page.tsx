@@ -136,7 +136,7 @@ export default function VsProposifyPage() {
       <main className="min-h-screen">
         {/* Hero */}
         <section className="px-4 pt-28 pb-12 text-center max-w-4xl mx-auto">
-          <m.div
+          <div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -156,7 +156,7 @@ export default function VsProposifyPage() {
 
         {/* Quick verdict */}
         <section className="px-4 pb-12 max-w-4xl mx-auto">
-          <m.div
+          <div
             className="bg-card border border-border rounded-xl p-6 md:p-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -245,7 +245,7 @@ export default function VsProposifyPage() {
             ].map((item, idx) => {
               const Icon = item.icon;
               return (
-                <m.div
+                <div
                   key={item.title}
                   className="bg-card border border-border rounded-xl p-5"
                   initial={{ opacity: 0, y: 16 }}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { m } from "@/components/shared/motion-client";
+// import { m } from "@/components/shared/motion-client";
 import {
   FileText,
   IndianRupee,
@@ -120,7 +120,7 @@ export function ComparisonsGrid() {
                   </div>
                 </div>
               </Link>
-            </m.div>
+            </div>
           );
         })}
       </div>

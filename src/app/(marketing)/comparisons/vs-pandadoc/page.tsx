@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
-import { m } from "@/components/shared/motion-client";
+// import { m } from "@/components/shared/motion-client";
 import {
   ArrowRight,
   Check,
@@ -157,7 +157,7 @@ export default function VsPandaDocPage() {
               Which quoting tool is better for Indian businesses? We break down
               features, pricing, and localisation side by side.
             </p>
-          </m.div>
+          </div>
         </section>
 
         {/* Quick verdict */}
@@ -181,7 +181,7 @@ export default function VsPandaDocPage() {
               payments, and a generous free tier — everything an Indian business
               needs to start quoting today.
             </p>
-          </m.div>
+          </div>
         </section>
 
         {/* Feature comparison table */}
@@ -259,7 +259,7 @@ export default function VsPandaDocPage() {
                   <Icon className="w-5 h-5 text-primary mb-2" />
                   <h3 className="font-semibold text-foreground text-sm">{item.title}</h3>
                   <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
-                </m.div>
+                </div>
               );
             })}
           </div>

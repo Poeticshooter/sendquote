@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
-import { m } from "@/components/shared/motion-client";
+// import { m } from "@/components/shared/motion-client";
 import {
   ArrowRight,
   Check,
@@ -151,7 +151,7 @@ export default function VsProposifyPage() {
               Proposify has beautiful templates — but does it have AI, Indian
               localisation, or a free plan? Let&apos;s find out.
             </p>
-          </m.div>
+          </div>
         </section>
 
         {/* Quick verdict */}
@@ -174,7 +174,7 @@ export default function VsProposifyPage() {
               and no mobile app, it&apos;s harder to justify when SendQuote offers
               AI quoting, native Razorpay, GST compliance, and a free tier.
             </p>
-          </m.div>
+          </div>
         </section>
 
         {/* Feature comparison table */}
@@ -255,7 +255,7 @@ export default function VsProposifyPage() {
                   <Icon className="w-5 h-5 text-primary mb-2" />
                   <h3 className="font-semibold text-foreground text-sm">{item.title}</h3>
                   <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
-                </m.div>
+                </div>
               );
             })}
           </div>

@@ -75,7 +75,7 @@ export function ComparisonsGrid() {
           const Icon = cmp.icon;
           return (
             <div
-              key={cmp.slug}}}}
+              key={cmp.slug}
             >
               <Link href={`/comparisons/${cmp.slug}`} className="group block">
                 <div className="bg-card border border-border rounded-xl p-6 h-full transition-all duration-200 hover:border-[#00D4AA]/30 hover:shadow-[0_0_20px_rgba(0,212,170,0.08)]">

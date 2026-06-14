@@ -153,7 +153,7 @@ export default function VsBetterProposalsPage() {
         {/* Quick verdict */}
         <section className="px-4 pb-12 max-w-4xl mx-auto">
           <div
-            className="bg-card border border-border rounded-xl p-6 md:p-8"}
+            className="bg-card border border-border rounded-xl p-6 md:p-8"
           >
             <div className="flex items-center gap-2 mb-3">
               <Zap className="w-5 h-5 text-primary" />
@@ -240,7 +240,7 @@ export default function VsBetterProposalsPage() {
               return (
                 <div
                   key={item.title}
-                  className="bg-card border border-border rounded-xl p-5"}
+                  className="bg-card border border-border rounded-xl p-5"
                 >
                   <Icon className="w-5 h-5 text-primary mb-2" />
                   <h3 className="font-semibold text-foreground text-sm">{item.title}</h3>

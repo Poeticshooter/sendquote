@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 
 interface UpgradeModalProps {
@@ -29,18 +28,7 @@ const TRIGGER_COPY = {
 };
 
 export function UpgradeModal({ isOpen, onClose, trigger, featureName }: UpgradeModalProps) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      setVisible(true);
-    } else {
-      const timer = setTimeout(() => setVisible(false), 200);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
-
-  if (!visible) return null;
+  if (!isOpen) return null;
 
   const copy = TRIGGER_COPY[trigger];
 

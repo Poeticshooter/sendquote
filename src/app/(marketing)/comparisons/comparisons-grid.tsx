@@ -71,7 +71,7 @@ export function ComparisonsGrid() {
   return (
     <section className="px-4 pb-16 max-w-6xl mx-auto">
       <div className="grid md:grid-cols-2 gap-6">
-        {comparisons.map((cmp, idx) => {
+        {comparisons.map((cmp, _idx) => {
           const Icon = cmp.icon;
           return (
             <div

@@ -235,7 +235,7 @@ export default function VsProposifyPage() {
               { icon: Infinity, title: "Free Tier", desc: "Start free with 50 quotes/month. Proposify starts at $49/month with no free plan." },
               { icon: Smartphone, title: "Mobile App", desc: "Send and manage quotes from your phone. Proposify has no mobile app." },
               { icon: Users, title: "Deal Rooms", desc: "Clients can negotiate and counter-offer inside the quote. Proposify lacks this feature entirely." },
-            ].map((item, idx) => {
+            ].map((item, _idx) => {
               const Icon = item.icon;
               return (
                 <div

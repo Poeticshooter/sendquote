@@ -239,7 +239,7 @@ export default function VsPandaDocPage() {
               { icon: Infinity, title: "Free Tier Available", desc: "Start at $0 with 50 quotes/month. PandaDoc's cheapest plan is $35/month." },
               { icon: Smartphone, title: "Mobile-Optimised", desc: "Full mobile experience for sending quotes on the go. Buyers can view, negotiate, and sign from any device." },
               { icon: Users, title: "Built for Indian Teams", desc: "Multi-user, deal rooms, approval workflows — tailored for how Indian businesses operate." },
-            ].map((item, idx) => {
+            ].map((item, _idx) => {
               const Icon = item.icon;
               return (
                 <div

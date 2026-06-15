@@ -235,7 +235,7 @@ export default function VsQwilrPage() {
               { icon: Infinity, title: "Free Tier", desc: "Start at $0 with 50 quotes/month. Qwilr starts at $35/month with no free plan." },
               { icon: Users, title: "Deal Rooms", desc: "Clients can negotiate and counter-offer inside the quote. Qwilr lacks this feature." },
               { icon: Globe, title: "Indian-First Approach", desc: "Built from the ground up for Indian businesses — from pricing to payment gateways." },
-            ].map((item, idx) => {
+            ].map((item, _idx) => {
               const Icon = item.icon;
               return (
                 <div

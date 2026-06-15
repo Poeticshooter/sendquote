@@ -13,7 +13,8 @@ export async function sendEmail({ to, subject, html, from, replyTo }: SendEmailP
   const fromAddr = from || process.env.RESEND_FROM || "SendQuote <quotes@sendquote.in>";
 
   if (!apiKey || apiKey === "placeholder") {
-    console.log("[Email] Not configured. Would send:", { to, subject });
+    // Email not configured — this is expected in development
+    console.warn("[Email] Not configured:", { to: to.length, subject });
     return { success: false as const, reason: "not_configured" };
   }
 

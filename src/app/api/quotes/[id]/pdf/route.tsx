@@ -72,7 +72,6 @@ export async function GET(
         subtotal={Number(quote.subtotal) || 0}
         discount={Number(quote.discount) || undefined}
         gstRate={quote.gst_rate}
-        gstAmount={Number(quote.gst_amount) || 0}
         cgstRate={quote.cgst_rate}
         cgstAmount={Number(quote.cgst_amount) || 0}
         sgstRate={quote.sgst_rate}

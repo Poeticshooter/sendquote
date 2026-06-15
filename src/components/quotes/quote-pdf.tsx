@@ -97,7 +97,6 @@ export interface QuotePDFProps {
   subtotal: number;
   discount?: number;
   gstRate: number;
-  gstAmount: number;
   cgstRate: number;
   cgstAmount: number;
   sgstRate: number;
@@ -129,7 +128,6 @@ export function QuotePDF({
   subtotal,
   discount,
   gstRate,
-  gstAmount: _gstAmount,
   cgstRate,
   cgstAmount,
   sgstRate,

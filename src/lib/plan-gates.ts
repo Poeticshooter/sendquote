@@ -1,8 +1,8 @@
 import { createClient } from "./supabase/server";
-import { PLAN_LIMITS, canAccess } from "./plan-limits";
+import { PLAN_LIMITS } from "./plan-limits";
 import type { PlanTier } from "./plan-limits";
 
-export { PLAN_LIMITS, canAccess };
+export { PLAN_LIMITS };
 export type { PlanTier };
 
 export async function getUserPlan(): Promise<{ plan: PlanTier; limits: typeof PLAN_LIMITS[PlanTier] }> {

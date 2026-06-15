@@ -266,7 +266,7 @@ export function QuotePDF({
         )}
         {upiQrDataUrl && upiId && (
           <View style={styles.upiSection}>
-            <Image src={upiQrDataUrl} style={styles.upiQrImage} />
+            <Image src={upiQrDataUrl} style={styles.upiQrImage} alt="UPI QR code for instant payment" />
             <View>
               <Text style={styles.upiTitle}>Scan to Pay Instantly</Text>
               <Text style={styles.upiSubtitle}>{upiId}</Text>

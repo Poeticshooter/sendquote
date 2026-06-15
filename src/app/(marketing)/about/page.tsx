@@ -82,7 +82,7 @@ export default function AboutPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold">Who It's For</h2>
+              <h2 className="text-2xl font-semibold">Who It&apos;s For</h2>
               <p className="mt-3 text-muted-foreground leading-relaxed">
                 Freelance consultants, small manufacturing businesses, service providers, interior designers,
                 digital marketing agencies, IT services firms, and any Indian business that sends quotes

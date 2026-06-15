@@ -13,7 +13,7 @@ interface UpgradeModalProps {
 const TRIGGER_COPY = {
   quote_limit: {
     title: "You've hit your monthly quote limit",
-    subtitle: "You're using SendQuote more than most new users.",
+    subtitle: "You&apos;re using SendQuote more than most new users.",
     highlight: "Upgrade to send unlimited quotes and see when clients open them.",
   },
   invoice_limit: {

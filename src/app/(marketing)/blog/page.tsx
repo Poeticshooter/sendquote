@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 };
 
 const posts = [
-  { slug: "ai-quote-generation-2026", title: "AI Quote Generation: How Indian Businesses Are Closing Deals 5x Faster in 2026", excerpt: "AI-generated quotes are cutting creation time from hours to seconds. Here's what that means for Indian sales teams.", date: "2026-05-15", tags: ["AI", "Quotes", "Sales"] },
+  { slug: "ai-quote-generation-2026", title: "AI Quote Generation: How Indian Businesses Are Closing Deals 5x Faster in 2026", excerpt: "AI-generated quotes are cutting creation time from hours to seconds. Here&apos;s what that means for Indian sales teams.", date: "2026-05-15", tags: ["AI", "Quotes", "Sales"] },
   { slug: "increase-quote-acceptance-rate", title: "10 Proven Ways to Increase Your Quote Acceptance Rate", excerpt: "Small changes in how you present quotes can dramatically improve close rates for Indian SMEs.", date: "2026-05-01", tags: ["Sales Tips", "Conversion"] },
   { slug: "buyer-intent-tracking-guide", title: "Buyer Intent Tracking for B2B Sales: Complete Guide 2026", excerpt: "Understand exactly when your prospects are ready to buy with real-time quote analytics.", date: "2026-04-15", tags: ["Analytics", "B2B Sales"] },
   { slug: "why-interactive-quotes-win", title: "Why Interactive Quotes Close 3x Faster Than PDFs", excerpt: "Static PDFs are dead. Interactive quote pages engage buyers and drive faster decisions.", date: "2026-04-01", tags: ["Digital", "Conversion"] },

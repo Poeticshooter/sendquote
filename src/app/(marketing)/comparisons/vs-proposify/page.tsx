@@ -231,7 +231,7 @@ export default function VsProposifyPage() {
             {[
               { icon: Sparkles, title: "AI-Powered Drafting", desc: "Proposify has no AI. SendQuote generates complete quotes from a brief description in seconds." },
               { icon: IndianRupee, title: "INR Pricing & GST", desc: "Built-in GST rates, INR pricing, and tax-compliant invoices. Proposify lacks Indian tax support." },
-              { icon: Wallet, title: "Razorpay Native", desc: "Accept UPI, cards, and net banking inside the quote. Proposify doesn't support Razorpay." },
+              { icon: Wallet, title: "Razorpay Native", desc: "Accept UPI, cards, and net banking inside the quote. Proposify doesn&apos;t support Razorpay." },
               { icon: Infinity, title: "Free Tier", desc: "Start free with 50 quotes/month. Proposify starts at $49/month with no free plan." },
               { icon: Smartphone, title: "Mobile App", desc: "Send and manage quotes from your phone. Proposify has no mobile app." },
               { icon: Users, title: "Deal Rooms", desc: "Clients can negotiate and counter-offer inside the quote. Proposify lacks this feature entirely." },

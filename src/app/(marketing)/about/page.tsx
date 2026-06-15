@@ -53,7 +53,7 @@ export default function AboutPage() {
                 Indian SMBs lose deals every day because creating professional quotes takes too long,
                 sending them is cumbersome, and tracking client responses is impossible with email attachments.
                 Existing tools are either too complex (ERP systems) or not India-specific (global SaaS
-                that doesn't understand GST, UPI, or WhatsApp-based business communication).
+                that doesn&apos;t understand GST, UPI, or WhatsApp-based business communication).
               </p>
             </section>
 

@@ -231,7 +231,7 @@ export default function VsBetterProposalsPage() {
             {[
               { icon: Sparkles, title: "AI-Powered Drafting", desc: "Better Proposals has no AI. SendQuote generates complete quotes from a brief description in seconds." },
               { icon: IndianRupee, title: "INR Pricing & GST", desc: "Built-in GST rates, INR pricing, and tax-compliant invoices. Better Proposals lacks Indian tax support." },
-              { icon: Wallet, title: "Razorpay Native", desc: "Accept UPI, cards, and net banking inside the quote. Better Proposals doesn't support Razorpay." },
+              { icon: Wallet, title: "Razorpay Native", desc: "Accept UPI, cards, and net banking inside the quote. Better Proposals doesn&apos;t support Razorpay." },
               { icon: Infinity, title: "Free Tier", desc: "Start free with 50 quotes/month. Better Proposals only offers a 14-day trial." },
               { icon: Smartphone, title: "Mobile App", desc: "Send and manage quotes from your phone. Better Proposals has no mobile app." },
               { icon: Users, title: "Deal Rooms", desc: "Clients can negotiate and counter-offer inside the quote. Better Proposals lacks deal rooms entirely." },

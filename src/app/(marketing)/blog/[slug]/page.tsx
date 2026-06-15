@@ -59,7 +59,7 @@ Include testimonials and case studies in your quotes. SendQuote's content blocks
 Urgency drives action. SendQuote automatically adds countdown timers to quotes, creating healthy closing pressure.
 
 ## 6. Track Buyer Intent
-Know exactly when your prospect is most interested. SendQuote tracks section-level engagement — when they spend time on pricing, it's time to call.
+Know exactly when your prospect is most interested. SendQuote tracks section-level engagement — when they spend time on pricing, it&apos;s time to call.
 
 ## 7. Send Personalized Follow-Ups
 AI-drafted follow-up emails triggered by buyer behavior recover 20%+ of "ghosted" quotes.
@@ -82,7 +82,7 @@ Timing matters. SendQuote's auto-follow-up engine sends personalized messages wh
 
 ## What is Buyer Intent?
 
-Buyer intent refers to the signals a prospect sends when they're actively considering a purchase. In the context of quoting, these signals include:
+Buyer intent refers to the signals a prospect sends when they&apos;re actively considering a purchase. In the context of quoting, these signals include:
 - Multiple views of the pricing section
 - Returning to the quote after initial review
 - Sharing the quote link with colleagues
@@ -114,7 +114,7 @@ Sales teams using intent tracking close 40% more deals by reaching out at the ex
     date: "2026-04-01",
     author: "SendQuote Team",
     tags: ["interactive quotes", "digital proposals", "sales conversion", "Indian businesses"],
-    body: `Static PDF quotes have a fundamental problem: they're passive. Your prospect reads, sets it aside, and has to take multiple steps to act. Each step is a drop-off point.
+    body: `Static PDF quotes have a fundamental problem: they&apos;re passive. Your prospect reads, sets it aside, and has to take multiple steps to act. Each step is a drop-off point.
 
 ## The Problem with PDF Quotes
 

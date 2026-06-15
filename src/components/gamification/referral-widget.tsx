@@ -69,7 +69,7 @@ export function ReferralWidget() {
             Copy Referral Link
           </Button>
           <Button variant="outline" size="sm" className="border-border text-xs h-8" onClick={() => {
-            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("I'm using SendQuote to close deals faster! Try it free: " + referralLink)}`, "_blank");
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("I&apos;m using SendQuote to close deals faster! Try it free: " + referralLink)}`, "_blank");
           }}>
             <Share2 className="h-3 w-3" />
           </Button>

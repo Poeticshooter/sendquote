@@ -34,7 +34,7 @@ const STEPS = [
   },
   {
     id: "done",
-    title: "You're All Set",
+    title: "You&apos;re All Set",
     description: "Start sending professional quotes",
     icon: Check,
   },
@@ -281,7 +281,7 @@ export function OnboardingWizard() {
               </div>
             </div>
             <h2 className="text-xl font-bold text-foreground">
-              You're All Set, {businessName || "Friend"}!
+              You&apos;re All Set, {businessName || "Friend"}!
             </h2>
             <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
               Here&apos;s your quick-start checklist:

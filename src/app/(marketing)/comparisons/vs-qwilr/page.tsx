@@ -231,7 +231,7 @@ export default function VsQwilrPage() {
             {[
               { icon: Sparkles, title: "AI-Powered Drafting", desc: "Qwilr has no AI. SendQuote generates complete quotes from a brief description in seconds." },
               { icon: IndianRupee, title: "INR Pricing & GST", desc: "Built-in GST rates, INR pricing, and tax-compliant invoices. Qwilr lacks Indian tax support." },
-              { icon: Wallet, title: "Razorpay Native", desc: "Accept UPI, cards, and net banking inside the quote. Qwilr doesn't support Razorpay." },
+              { icon: Wallet, title: "Razorpay Native", desc: "Accept UPI, cards, and net banking inside the quote. Qwilr doesn&apos;t support Razorpay." },
               { icon: Infinity, title: "Free Tier", desc: "Start at $0 with 50 quotes/month. Qwilr starts at $35/month with no free plan." },
               { icon: Users, title: "Deal Rooms", desc: "Clients can negotiate and counter-offer inside the quote. Qwilr lacks this feature." },
               { icon: Globe, title: "Indian-First Approach", desc: "Built from the ground up for Indian businesses — from pricing to payment gateways." },

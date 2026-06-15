@@ -25,7 +25,7 @@ export function VoiceAssistant() {
   const [speaking, setSpeaking] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", text: "Hi! I'm your SendQuote AI assistant. Ask me anything about creating quotes, closing deals, or using the platform." },
+    { role: "assistant", text: "Hi! I&apos;m your SendQuote AI assistant. Ask me anything about creating quotes, closing deals, or using the platform." },
   ]);
   const [transcript, setTranscript] = useState("");
   const [textInput, setTextInput] = useState("");
@@ -50,7 +50,7 @@ export function VoiceAssistant() {
       });
 
       const data = await res.json();
-      const reply = data.response || "I'm not sure how to respond to that.";
+      const reply = data.response || "I&apos;m not sure how to respond to that.";
 
       setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
 
@@ -66,7 +66,7 @@ export function VoiceAssistant() {
       }
     } catch (e) {
       console.error("Voice assistant error:", e);
-      setMessages((prev) => [...prev, { role: "assistant", text: "Sorry, I couldn't process that. Please try again." }]);
+      setMessages((prev) => [...prev, { role: "assistant", text: "Sorry, I couldn&apos;t process that. Please try again." }]);
     }
     setProcessing(false);
   }

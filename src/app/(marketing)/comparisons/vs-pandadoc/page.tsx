@@ -235,7 +235,7 @@ export default function VsPandaDocPage() {
             {[
               { icon: Zap, title: "AI-Powered Quoting", desc: "Generate complete quotes from a brief description in under 60 seconds. PandaDoc's AI is generic." },
               { icon: IndianRupee, title: "INR Pricing & GST", desc: "Priced in INR with built-in GST rates, invoice generation, and tax-compliant documents." },
-              { icon: Wallet, title: "Razorpay Native", desc: "Accept UPI, credit cards, and net banking inside the quote. PandaDoc doesn't support Razorpay." },
+              { icon: Wallet, title: "Razorpay Native", desc: "Accept UPI, credit cards, and net banking inside the quote. PandaDoc doesn&apos;t support Razorpay." },
               { icon: Infinity, title: "Free Tier Available", desc: "Start at $0 with 50 quotes/month. PandaDoc's cheapest plan is $35/month." },
               { icon: Smartphone, title: "Mobile-Optimised", desc: "Full mobile experience for sending quotes on the go. Buyers can view, negotiate, and sign from any device." },
               { icon: Users, title: "Built for Indian Teams", desc: "Multi-user, deal rooms, approval workflows — tailored for how Indian businesses operate." },

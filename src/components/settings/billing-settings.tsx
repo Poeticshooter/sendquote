@@ -48,7 +48,7 @@ export function BillingSettings() {
     if (!profile) return;
     // Free is current plan, nothing to do
     if (planId === "free") {
-      toast.info("You're already on the Starter plan.");
+      toast.info("You&apos;re already on the Starter plan.");
       return;
     }
 

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "Pricing: Free, Growth & Pro Plans for Indian SMBs (₹0–₹16,499/yr)",
   description: "SendQuote pricing for Indian businesses — start free with 5 GST-ready quotes/month. Growth at ₹499/mo includes AI quote generation, e-signatures, CRM sync, and buyer chat. No hidden fees. Cancel anytime.",
   openGraph: {
-    title: "SendQuote Pricing: Free, Growth & Pro Plans for Indian SMBs",
+    title: "Pricing: Free, Growth & Pro Plans for Indian SMBs (₹0–₹16,499/yr)",
     description: "Start free with 5 GST-ready quotes/month. Growth at ₹499/mo includes AI generation, e-signatures, CRM sync, and buyer chat.",
   },
 };

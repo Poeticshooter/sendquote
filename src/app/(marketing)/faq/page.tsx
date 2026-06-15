@@ -3,11 +3,11 @@ import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 
 export const metadata: Metadata = {
-  title: "FAQ: GST Invoicing, AI Quotes & Pricing Questions Answered | SendQuote",
+  title: "FAQ: GST Invoicing, AI Quotes & Pricing Questions Answered",
   description:
     "All your questions about SendQuote's AI-powered quoting platform answered: GST invoices, free plan limits, pricing, e-signatures, payment integration, data security, and team collaboration for Indian businesses.",
   openGraph: {
-    title: "FAQ: AI Quoting, GST Invoices & Pricing for Indian SMBs | SendQuote",
+    title: "FAQ: GST Invoicing, AI Quotes & Pricing Questions Answered",
     description: "Get answers about SendQuote's AI-powered quoting platform — free plan (5 quotes/mo), GST invoices, e-signatures, payment integration, and team features.",
     url: "https://sendquote.in/faq",
     siteName: "SendQuote",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "FAQ: GST Invoicing, AI Quotes & Pricing | SendQuote",
+    title: "FAQ: GST Invoicing, AI Quotes & Pricing Questions Answered",
     description: "Free plan includes 5 GST-ready quotes/month. AI generation, e-signatures, buyer tracking, and Razorpay integration for Indian businesses.",
   },
   alternates: { canonical: "https://sendquote.in/faq" },

@@ -3,10 +3,10 @@ import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 
 export const metadata: Metadata = {
-  title: "Changelog: Product Updates & New Features | SendQuote",
+  title: "Changelog: Product Updates & New Features",
   description: "Stay up to date with the latest SendQuote features, improvements, and bug fixes. AI quote generation, GST invoices, deal rooms, e-signatures, and more — shipped regularly.",
   openGraph: {
-    title: "Changelog: New Features & Updates for Indian SMBs | SendQuote",
+    title: "Changelog: Product Updates & New Features",
     description: "Latest SendQuote product updates including AI quote generation improvements, GST invoice features, deal room enhancements, CRM integrations, and platform improvements.",
     url: "https://sendquote.in/changelog",
     siteName: "SendQuote",
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Changelog | SendQuote",
+    title: "Changelog: Product Updates & New Features",
     description: "Latest updates, features, and improvements to SendQuote.",
   },
   alternates: { canonical: "https://sendquote.in/changelog" },

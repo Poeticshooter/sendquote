@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/server";
 import { v4 as uuid } from "uuid";
 import { success, parseError, requireAuth } from "@/lib/api-helper";
 import { checkMemoryRateLimit } from "@/lib/rate-limit";
-import { canAccess } from "@/lib/plan-limits";
 
 const TeamRoleSchema = z.enum(["admin", "member", "viewer"]);
 

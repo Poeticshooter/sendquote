@@ -5,7 +5,7 @@ const cspHeader = `
   script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.razorpay.com https://*.posthog.com https://cdn.jsdelivr.net;
   style-src 'self' 'unsafe-inline';
   img-src 'self' blob: data: https://*.supabase.co https://*.razorpay.com;
-  font-src 'self';
+  font-src 'self' https://*.perplexity.ai;
   connect-src 'self' https://*.supabase.co https://*.posthog.com https://*.sentry.io https://*.resend.com https://*.razorpay.com https://api.groq.com https://api.jsdelivr.com https://cdn.jsdelivr.net;
   frame-src 'self' https://*.razorpay.com;
   object-src 'none';

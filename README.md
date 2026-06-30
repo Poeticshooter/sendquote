@@ -16,7 +16,7 @@ SendQuote is a production-grade SaaS platform for Indian businesses to create, s
 | Email | Resend |
 | Monitoring | Sentry (errors) + PostHog (analytics) |
 | Animation | Motion (Framer Motion) |
-| Testing | Vitest (unit, 119 tests) + Playwright (E2E) |
+| Testing | Vitest (unit, 153 tests) + Playwright (E2E) |
 | Deployment | Vercel |
 
 ## Quick Start

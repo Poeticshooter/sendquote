@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/client";
 import * as Sentry from "@sentry/nextjs";
 import crypto from "crypto";
 
@@ -15,7 +15,7 @@ export async function getCachedResponse(
   try {
     const promptHash = hash(prompt);
     const systemHash = hash(system);
-    const supabase = createAdminClient();
+    const supabase = createClient();
     const { data } = await supabase
       .from("ai_cache")
       .select("response")
@@ -42,7 +42,7 @@ export async function setCachedResponse(
   provider: string,
 ): Promise<void> {
   try {
-    const supabase = createAdminClient();
+    const supabase = createClient();
     await supabase.from("ai_cache").insert({
       prompt_hash: hash(prompt),
       system_hash: hash(system),

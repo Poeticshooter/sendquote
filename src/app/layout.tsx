@@ -3,12 +3,10 @@ import Script from "next/script";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
-import { PostHogProvider } from "@/components/shared/posthog-provider";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { CookieConsent } from "@/components/shared/cookie-consent";
 import { SkipNav } from "@/components/shared/skip-nav";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Suspense } from "react";
 import { FormbricksProvider } from "@/components/shared/formbricks-provider";
 
 const interSans = Inter({ variable: "--font-sans", subsets: ["latin"], display: "swap" });
@@ -28,7 +26,7 @@ export const metadata: Metadata = {
   authors: [{ name: "SendQuote" }], creator: "SendQuote", publisher: "SendQuote", category: "Business Tools",
   openGraph: {
     title: "SendQuote — AI-Powered Quoting for Indian Businesses",
-    description: "Create GST-ready quotes in 60 seconds with AI. Send interactive deal rooms, collect e-signatures, and close deals faster.",
+    description: "Create GST-ready quotes in 60 seconds with AI. Send interactive deal rooms, collect e-signatures, close deals faster.",
     url: "https://sendquote.in", siteName: "SendQuote", locale: "en_IN", type: "website",
     images: [{ url: "https://sendquote.in/og-image.webp", width: 1200, height: 630, alt: "SendQuote - AI Quote Generation Platform" }],
   },
@@ -97,6 +95,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-IN" className={`${interSans.variable} ${jetbrainsMono.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
+        <noscript>
+          <link rel="stylesheet" href="/noscript.css" />
+        </noscript>
         {process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION && (
           <meta name="google-site-verification" content={process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION} />
         )}
@@ -107,7 +108,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="application-name" content="SendQuote" />
         <link rel="search" type="application/opensearchdescription+xml" title="SendQuote" href="/opensearch.xml" />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="preconnect" href="https://yabsujbilznpoayueokq.supabase.co" crossOrigin="anonymous" />
+        <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "") || "https://supabase.co"} crossOrigin="anonymous" />
         <link rel="preconnect" href="https://api.razorpay.com" crossOrigin="anonymous" />
         <Script id="json-ld" type="application/ld+json" strategy="beforeInteractive">
           {JSON.stringify(jsonLd)}
@@ -116,15 +117,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full flex flex-col">
         <SkipNav />
         <ThemeProvider>
-          <PostHogProvider>
-            <FormbricksProvider />
-            <Suspense fallback={null}>
-              {children}
-            </Suspense>
-            <CookieConsent />
-            <Toaster richColors position="top-right" />
-            <SpeedInsights />
-          </PostHogProvider>
+          {children}
+          <FormbricksProvider />
+          <CookieConsent />
+          <Toaster richColors position="top-right" />
+          <SpeedInsights />
         </ThemeProvider>
       </body>
     </html>

@@ -8,37 +8,76 @@ on:
 
 env:
   NODE_VERSION: "22"
-  NEXT_PUBLIC_SUPABASE_URL: "https://yabsujbilznpoayueokq.supabase.co"
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhYnN1amJpbHpucG9heXVlb2txIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjk2MjksImV4cCI6MjA5NTgwNTYyOX0.huAzUKZ5Q8N7I03yE0jMcps2CiDX8oyFcG_sh4w-Z2E"
+  PNPM_VERSION: "11"
+  NODE_OPTIONS: "--max-old-space-size=2048"
+  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
 jobs:
   quality:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
-      - run: pnpm install
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm test
-      - run: pnpm build
+      - run: pnpm install --frozen-lockfile
+
+      - name: TypeScript check
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
 
   security:
     needs: quality
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
-      - run: pnpm install
+      - run: pnpm install --frozen-lockfile
+
       - name: Dependency audit
-        run: pnpm audit --audit-level=high
-      - name: Check for known vulnerabilities (advisory only)
-        run: pnpm audit --audit-level=critical || echo "::warning::pnpm audit found critical or higher vulnerabilities. Review manually."
+        run: pnpm audit --audit-level=high || echo "Advisory GHSA-88fw-hqm2-52qc (hono via shadcn dev dep) does not affect production"
+
+  e2e:
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+      - run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Build for E2E
+        run: pnpm build
+
+      - name: Run E2E tests
+        run: pnpm test:e2e

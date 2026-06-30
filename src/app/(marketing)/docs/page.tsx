@@ -1,4 +1,6 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useState } from "react";
 import { Navbar } from "@/components/landing/navbar";
@@ -26,7 +28,7 @@ function ExpandableSection({ icon: Icon, title, children }: { icon: React.Forwar
     <div className="border border-border rounded-xl overflow-hidden">
       <button
         onClick={() => setOpen(!open)}
-        className=&quot;flex w-full items-center justify-between gap-4 px-5 py-4 text-left hover:bg-muted/30 transition-colors"
+        className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left hover:bg-muted/30 transition-colors"
       >
         <div className="flex items-center gap-3">
           <Icon className="h-5 w-5 text-primary shrink-0" />
@@ -45,7 +47,7 @@ function ExpandableSection({ icon: Icon, title, children }: { icon: React.Forwar
 
 const sections: Section[] = [
   {
-    id: &quot;getting-started",
+    id: "getting-started",
     icon: FileText,
     title: "Getting Started — Create Your First Quote in 2 Minutes",
     content: () => (
@@ -58,17 +60,17 @@ const sections: Section[] = [
         <p>After signing up, enter your business name and phone. This appears on every quote and invoice you send. Add your GST number, address, and UPI ID later in Settings.</p>
 
         <h4 className="font-semibold text-foreground pt-3">3. Create a Quote</h4>
-        <p>Click <strong>&quot;Create Quote"</strong> from the dashboard or quotes page.</p>
+        <p>Click <strong>"Create Quote"</strong> from the dashboard or quotes page.</p>
         <ul className="list-disc pl-5 space-y-1">
           <li>Enter the client name and email</li>
           <li>Add line items: description, quantity, rate — HSN code is optional for initial drafts</li>
           <li>Set GST rate — the system automatically splits into CGST + SGST (intra-state) or IGST (inter-state)</li>
           <li>Add a subject line, notes, and payment terms</li>
-          <li>Click <strong>&quot;Save Quote"</strong></li>
+          <li>Click <strong>"Save Quote"</strong></li>
         </ul>
 
         <h4 className="font-semibold text-foreground pt-3">4. Send the Quote</h4>
-        <p>Open the quote and click <strong>&quot;Send"</strong>. Your client receives an email with a link. You can also:</p>
+        <p>Open the quote and click <strong>{'"Send"'}</strong>. Your client receives an email with a link. You can also:</p>
         <ul className="list-disc pl-5 space-y-1">
           <li>Copy the quote link and share it on WhatsApp</li>
           <li>Download as PDF</li>
@@ -78,7 +80,7 @@ const sections: Section[] = [
     ),
   },
   {
-    id: &quot;quotes",
+    id: "quotes",
     icon: FileText,
     title: "Quotes — Complete Guide",
     content: () => (
@@ -110,7 +112,7 @@ const sections: Section[] = [
     ),
   },
   {
-    id: &quot;invoices",
+    id: "invoices",
     icon: IndianRupee,
     title: "Invoices — GST Compliant Billing",
     content: () => (
@@ -141,7 +143,7 @@ const sections: Section[] = [
     ),
   },
   {
-    id: &quot;tracking",
+    id: "tracking",
     icon: Eye,
     title: "Client Activity Tracking",
     content: () => (
@@ -154,7 +156,7 @@ const sections: Section[] = [
           <li><strong>Last viewed</strong> — Timestamp of most recent open</li>
           <li><strong>Device type</strong> — Mobile, tablet, or desktop</li>
         </ul>
-        <p>You can see this data on the quote detail page under the <strong>&quot;Activity"</strong> tab. Use this information to follow up at the right moment — when interest is at its peak.</p>
+        <p>You can see this data on the quote detail page under the <strong>{'"Activity"'}</strong> tab. Use this information to follow up at the right moment — when interest is at its peak.</p>
 
         <h4 className="font-semibold text-foreground pt-3">Email Open Tracking</h4>
         <p>Emails sent via SendQuote include tracking pixels. You'll know when the email was delivered and opened. Subject lines are designed for high open rates:</p>
@@ -167,13 +169,13 @@ const sections: Section[] = [
     ),
   },
   {
-    id: &quot;whatsapp",
+    id: "whatsapp",
     icon: MessageCircle,
     title: "WhatsApp Sharing",
     content: () => (
       <>
         <h4 className="font-semibold text-foreground">Share on WhatsApp</h4>
-        <p>Indian businesses use WhatsApp daily. Every quote and invoice page has a <strong>&quot;Share on WhatsApp"</strong> button. Clicking it opens WhatsApp with a pre-written message:</p>
+        <p>Indian businesses use WhatsApp daily. Every quote and invoice page has a <strong>{'"Share on WhatsApp"'}</strong> button. Clicking it opens WhatsApp with a pre-written message:</p>
 
         <div className="bg-muted/30 rounded-lg p-4 text-xs font-mono leading-relaxed">
           Dear [Client Name],<br />
@@ -200,7 +202,7 @@ const sections: Section[] = [
     ),
   },
   {
-    id: &quot;payments",
+    id: "payments",
     icon: IndianRupee,
     title: "Payments — Razorpay + UPI",
     content: () => (
@@ -218,7 +220,7 @@ const sections: Section[] = [
         <p>Online payments are processed through Razorpay. The workflow:</p>
         <ol className="list-decimal pl-5 space-y-1">
           <li>Invoice is generated with a payment link</li>
-          <li>Client clicks &quot;Pay Now" on the invoice page</li>
+          <li>Client clicks "Pay Now" on the invoice page</li>
           <li>Razorpay checkout opens — supports UPI, cards, net banking</li>
           <li>Payment webhook updates the invoice status automatically</li>
         </ol>
@@ -227,7 +229,7 @@ const sections: Section[] = [
     ),
   },
   {
-    id: &quot;profile",
+    id: "profile",
     icon: FileText,
     title: "Business Profile & Settings",
     content: () => (
@@ -253,7 +255,7 @@ const sections: Section[] = [
     ),
   },
   {
-    id: &quot;faq",
+    id: "faq",
     icon: FileText,
     title: "Frequently Asked Questions",
     content: () => (

@@ -96,4 +96,9 @@ export const ApprovalCheckSchema = z.object({
   quote_id: z.string().uuid("Invalid quote ID"),
 });
 
+export const TeamInviteSchema = z.object({
+  email: z.string().email("Valid email is required"),
+  role: z.enum(["admin", "member", "viewer"]).optional().default("member"),
+});
+
 export const SubscriptionSchema = z.object({}).optional();

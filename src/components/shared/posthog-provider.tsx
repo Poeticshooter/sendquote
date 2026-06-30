@@ -4,33 +4,26 @@ import { useEffect, useCallback, Suspense } from "react";
 import posthog from "posthog-js";
 import { PostHogPageView } from "./posthog-pageview";
 
-function isAnalyticsAllowed(): boolean {
-  if (typeof window === "undefined") return false;
-  const consent = localStorage.getItem("sendquote_cookies_accepted");
-  return consent === "true";
-}
-
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   const initPosthog = useCallback(() => {
-    if (process.env.NEXT_PUBLIC_POSTHOG_KEY && !posthog.__loaded) {
-      posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
-        api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://app.posthog.com",
-        capture_pageview: false,
-        loaded: (ph) => {
-          if (process.env.NODE_ENV !== "production") ph.opt_out_capturing();
-        },
-      });
-    }
+    try {
+      const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+      const host = process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com";
+      if (key && !posthog.__loaded) {
+        posthog.init(key, {
+          api_host: host,
+          capture_pageview: false,
+          loaded: (ph) => {
+            if (process.env.NODE_ENV !== "production") ph.opt_out_capturing();
+          },
+        });
+      }
+    } catch { /* posthog init failed silently */ }
   }, []);
 
   useEffect(() => {
-    if (isAnalyticsAllowed()) {
-      initPosthog();
-    }
-
-    const handleConsent = () => {
-      if (isAnalyticsAllowed()) initPosthog();
-    };
+    try { initPosthog(); } catch { /* */ }
+    const handleConsent = () => { try { initPosthog(); } catch { /* */ } };
     window.addEventListener("sendquote:consent", handleConsent);
     return () => window.removeEventListener("sendquote:consent", handleConsent);
   }, [initPosthog]);

@@ -21,10 +21,9 @@ export async function GET() {
 
     // Audit log this access
     await admin.from("admin_audit_log").insert({
-      admin_user_id: user.id,
       admin_action: "view_admin_stats",
       target_type: "system",
-      details: { userCount, quoteCount },
+      details: { userId: user.id, userCount, quoteCount },
     });
 
     return NextResponse.json({

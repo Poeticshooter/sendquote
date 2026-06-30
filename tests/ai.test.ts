@@ -5,7 +5,13 @@ const originalFetch = global.fetch;
 describe("generateQuoteAI", () => {
   beforeEach(() => {
     vi.stubEnv("GROQ_API_KEY", "placeholder");
+    vi.stubEnv("MISTRAL_API_KEY", "placeholder");
+    vi.stubEnv("OPENROUTER_API_KEY", "placeholder");
+    vi.stubEnv("CEREBRAS_API_KEY", "placeholder");
+    vi.stubEnv("GEMINI_API_KEY", "placeholder");
     vi.stubEnv("GROQ_MODEL", "llama-3.3-70b-versatile");
+    // Clear module cache so each test gets a fresh aiProviders
+    vi.resetModules();
   });
 
   afterEach(() => {

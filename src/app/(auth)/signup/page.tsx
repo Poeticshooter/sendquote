@@ -1,10 +1,11 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -113,7 +114,7 @@ export default function SignupPage() {
       <Card className="w-full max-w-sm bg-card border-border text-foreground">
         <CardHeader className="text-center">
           <Link href="/" className="mx-auto flex items-center justify-center gap-2 mb-4">
-            <Image src="/logo-icon.svg" alt="SendQuote" width={36} height={36} className="h-[66px] w-[66px]" />
+            <Logo size={66} variant="icon" className="h-[66px] w-[66px]" />
             <span className="text-2xl font-bold text-foreground">SendQuote</span>
           </Link>
           <CardTitle className="text-2xl text-foreground">Create your account</CardTitle>

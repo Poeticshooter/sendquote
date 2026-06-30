@@ -67,11 +67,6 @@
     "typescript": "^5",
     "vitest": "^4.1.8"
   },
-  "pnpm": {
-    "overrides": {
-      "postcss": ">=8.5.10"
-    }
-  },
   "lint-staged": {
     "*.{ts,tsx}": [
       "eslint --fix"

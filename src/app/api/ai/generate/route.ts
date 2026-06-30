@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { generateQuoteAI } from "@/lib/ai/generate-quote";
 import { AIGenerateSchema } from "@/lib/api-validation";
@@ -14,10 +15,7 @@ export async function POST(request: NextRequest) {
 
     // Per-user AI rate limit: 20 requests per minute
     if (!checkMemoryRateLimit(`ai:${user.id}`, 20, 60_000)) {
-      return new Response(JSON.stringify({ error: "Too many AI requests. Please wait." }), {
-        status: 429,
-        headers: { "Content-Type": "application/json" },
-      });
+      return NextResponse.json({ error: "Too many AI requests. Please wait." }, { status: 429 });
     }
 
     // Check plan gate — free users cannot use AI generation
@@ -30,10 +28,7 @@ export async function POST(request: NextRequest) {
 
     const plan = (profile?.plan || "free") as PlanTier;
     if (!canAccess("ai_generation", plan)) {
-      return new Response(JSON.stringify({ error: "AI generation not available on your plan" }), {
-        status: 403,
-        headers: { "Content-Type": "application/json" },
-      });
+      return NextResponse.json({ error: "AI generation not available on your plan" }, { status: 403 });
     }
 
     const body = await request.json();

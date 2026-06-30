@@ -40,7 +40,7 @@ function log(level: LogLevel, message: string, meta?: Record<string, unknown>) {
       console.warn(line);
       break;
     default:
-      console.log(line);
+      console.warn(line);
   }
 }
 

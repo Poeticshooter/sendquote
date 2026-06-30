@@ -13,7 +13,7 @@ export class GroqProvider implements AIProvider {
   }
 
   isAvailable() {
-    return !!this.apiKey;
+    return !!this.apiKey && this.apiKey !== "placeholder";
   }
 
   async generate(prompt: string, system: string): Promise<string> {
@@ -49,32 +49,48 @@ export class OpenRouterProvider implements AIProvider {
   }
 
   isAvailable() {
-    return !!this.apiKey;
+    return !!this.apiKey && this.apiKey !== "placeholder";
   }
 
   async generate(prompt: string, system: string): Promise<string> {
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.apiKey}`,
-        "HTTP-Referer": "https://sendquote.in",
-        "X-Title": "SendQuote",
-      },
-      body: JSON.stringify({
-        model: "deepseek/deepseek-chat-v3-0324:free",
-        messages: [
-          { role: "system", content: system },
-          { role: "user", content: prompt },
-        ],
-        temperature: 0.2,
-        max_tokens: 2048,
-      }),
-      signal: AbortSignal.timeout(30000),
-    });
-    if (!res.ok) throw new Error(`OpenRouter API error: ${res.status}`);
-    const data = await res.json();
-    return data.choices?.[0]?.message?.content || "";
+    const models = [
+      "deepseek/deepseek-chat-v3-0324",
+      "qwen/qwen-2.5-72b-instruct",
+      "google/gemini-2.0-flash-001",
+    ];
+    let lastError: string = "";
+    for (const model of models) {
+      try {
+        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.apiKey}`,
+            "HTTP-Referer": "https://sendquote.in",
+            "X-Title": "SendQuote",
+          },
+          body: JSON.stringify({
+            model,
+            messages: [
+              { role: "system", content: system },
+              { role: "user", content: prompt },
+            ],
+            temperature: 0.2,
+            max_tokens: 2048,
+          }),
+          signal: AbortSignal.timeout(30000),
+        });
+        if (!res.ok) {
+          lastError = `OpenRouter ${model} error: ${res.status}`;
+          continue;
+        }
+        const data = await res.json();
+        return data.choices?.[0]?.message?.content || "";
+      } catch {
+        continue;
+      }
+    }
+    throw new Error(lastError || "OpenRouter: all models failed");
   }
 }
 
@@ -87,7 +103,7 @@ export class GeminiProvider implements AIProvider {
   }
 
   isAvailable() {
-    return !!this.apiKey;
+    return !!this.apiKey && this.apiKey !== "placeholder";
   }
 
   async generate(prompt: string, system: string): Promise<string> {
@@ -108,6 +124,78 @@ export class GeminiProvider implements AIProvider {
   }
 }
 
+export class MistralProvider implements AIProvider {
+  name = "mistral";
+  private apiKey: string;
+
+  constructor() {
+    this.apiKey = process.env.MISTRAL_API_KEY || "";
+  }
+
+  isAvailable() {
+    return !!this.apiKey && this.apiKey !== "placeholder";
+  }
+
+  async generate(prompt: string, system: string): Promise<string> {
+    const res = await fetch("https://api.mistral.ai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "mistral-small-latest",
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: prompt },
+        ],
+        temperature: 0.2,
+        max_tokens: 2048,
+      }),
+      signal: AbortSignal.timeout(30000),
+    });
+    if (!res.ok) throw new Error(`Mistral API error: ${res.status}`);
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || "";
+  }
+}
+
+export class CerebrasProvider implements AIProvider {
+  name = "cerebras";
+  private apiKey: string;
+
+  constructor() {
+    this.apiKey = process.env.CEREBRAS_API_KEY || "";
+  }
+
+  isAvailable() {
+    return !!this.apiKey && this.apiKey !== "placeholder";
+  }
+
+  async generate(prompt: string, system: string): Promise<string> {
+    const res = await fetch("https://api.cerebras.ai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this.apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-oss-120b",
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: prompt },
+        ],
+        temperature: 0.2,
+        max_tokens: 2048,
+      }),
+      signal: AbortSignal.timeout(30000),
+    });
+    if (!res.ok) throw new Error(`Cerebras API error: ${res.status}`);
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || "";
+  }
+}
+
 let providers: AIProvider[] = [];
 
 export function clearProviderCache() {
@@ -117,11 +205,15 @@ export function clearProviderCache() {
 export function initProviders() {
   clearProviderCache();
   const groq = new GroqProvider();
+  const mistral = new MistralProvider();
   const openRouter = new OpenRouterProvider();
   const gemini = new GeminiProvider();
   if (groq.isAvailable()) providers.push(groq);
+  if (mistral.isAvailable()) providers.push(mistral);
   if (openRouter.isAvailable()) providers.push(openRouter);
   if (gemini.isAvailable()) providers.push(gemini);
+  const cerebras = new CerebrasProvider();
+  if (cerebras.isAvailable()) providers.push(cerebras);
   return providers;
 }
 

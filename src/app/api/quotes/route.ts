@@ -8,9 +8,11 @@ import { trackEvent } from "@/lib/analytics";
 
 export async function GET() {
   try {
-    await requireAuth();
+    const user = await requireAuth();
     const quotes = await getQuotes();
-    return success(quotes);
+    // Filter quotes to only include ones owned by the authenticated user
+    const userQuotes = quotes.filter(quote => quote.user_id === user.id);
+    return success(userQuotes);
   } catch (e) {
     Sentry.captureException(e);
     return parseError(e);

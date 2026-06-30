@@ -33,17 +33,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: result.message }, { status: 409 });
     }
 
-    // Track quote accepted event (non-blocking)
-    if (result?.quote_id) {
-      try {
-        await supabase.from("analytics_events").insert({
-          event_type: "quote_accepted",
-          user_id: result.quote_id,
-          event_data: { quote_id: result.quote_id, invoice_number: result?.invoice_number },
-        });
-      } catch { /* non-critical */ }
-    }
-
     // Fire-and-forget CRM sync + notifications (non-critical)
     if (result?.quote_id) {
       const { data: quote } = await supabase
@@ -53,6 +42,21 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (quote) {
+        // Track quote accepted event (non-blocking)
+        try {
+          await supabase.from("analytics_events").insert({
+            event_type: "quote_accepted",
+            user_id: quote.user_id,
+            event_data: { quote_id: result.quote_id, invoice_number: result?.invoice_number },
+          });
+        } catch { /* non-critical */ }
+
+        // Telegram notification (non-blocking)
+        import("@/lib/telegram/notify").then(({ notifyQuoteAccepted }) =>
+          notifyQuoteAccepted(result.quote_id, result?.invoice_number)
+        ).catch(() => {});
+
+        // Fire-and-forget CRM sync
         syncQuoteToCrm({
           id: quote.id,
           quote_number: quote.quote_number,
@@ -64,7 +68,7 @@ export async function POST(request: NextRequest) {
           created_at: quote.created_at,
         }).catch((e) => console.error("CRM sync failed after acceptance:", e));
 
-        // Send acceptance notification to the quote owner
+        // Send acceptance notification email
         if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== "placeholder" && quote.user_id) {
           const { subject, html } = quoteAcceptedEmail({
             clientName: escapeHtml(quote.client_name || "Client"),

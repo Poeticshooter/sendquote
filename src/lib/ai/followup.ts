@@ -4,7 +4,9 @@ import { getCachedResponse, setCachedResponse } from "./cache";
 let aiProviders: ReturnType<typeof initProviders> | null = null;
 
 function getProviders() {
-  aiProviders = initProviders();
+  if (!aiProviders) {
+    aiProviders = initProviders();
+  }
   return aiProviders;
 }
 

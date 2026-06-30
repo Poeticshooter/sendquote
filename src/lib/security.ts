@@ -35,7 +35,6 @@ export async function rateLimitCheck(request: NextRequest): Promise<boolean> {
     const { createAdminClient } = await import("@/lib/supabase/admin");
     const supabase = createAdminClient();
 
-    // Atomic rate limit check via PostgreSQL RPC (no read-then-write race condition)
     const { data, error } = await supabase.rpc("increment_rate_limit", {
       p_key: key,
       p_max_requests: maxRequests,
@@ -43,8 +42,12 @@ export async function rateLimitCheck(request: NextRequest): Promise<boolean> {
     });
 
     if (error) throw error;
-    return data?.[0]?.allowed ?? false;
-  } catch {
+    if (data && data.length > 0) {
+      return data[0].allowed ?? false;
+    }
+    throw new Error("No data from RPC");
+  } catch (e) {
+    console.warn("DB rate limit failed, falling back to memory:", e instanceof Error ? e.message : e);
     return checkMemoryRateLimit(key, maxRequests, windowMs);
   }
 }

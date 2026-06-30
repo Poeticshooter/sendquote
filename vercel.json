@@ -4,24 +4,16 @@
   "framework": "nextjs",
   "crons": [
     {
-      "path": "/api/expiry/check",
+      "path": "/api/cron/run?task=daily",
       "schedule": "0 8 * * *"
     },
     {
-      "path": "/api/followup/process",
-      "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/reconciliation",
+      "path": "/api/cron/run?task=weekly",
       "schedule": "0 6 * * 1"
     },
     {
-      "path": "/api/cron/reminders",
+      "path": "/api/cron/run?task=followup_process",
       "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/cron/weekly-digest",
-      "schedule": "0 4 * * 1"
     }
   ]
 }

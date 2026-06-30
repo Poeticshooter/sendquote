@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { Logo } from "@/components/shared/logo";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -78,7 +78,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
       >
         <div className="flex h-16 items-center justify-between border-b px-4">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <Image src="/logo-icon.svg" alt="SendQuote" width={36} height={36} className="h-[60px] w-[60px]" />
+            <Logo size={60} variant="icon" className="h-[60px] w-[60px]" />
             <span className="text-xl font-bold">SendQuote</span>
           </Link>
           <button

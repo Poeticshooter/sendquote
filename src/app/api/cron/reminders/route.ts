@@ -118,7 +118,6 @@ export async function POST(request: Request) {
           invoice_id: invoice.id,
           reminder_type: reminderType,
           sent_at: now.toISOString(),
-          sent_to_email: userEmail,
         });
         sent++;
       } else {

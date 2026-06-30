@@ -19,20 +19,18 @@ export async function GET() {
     checks.status = "degraded";
   }
 
-  // Lightweight database connectivity check
+    // Lightweight database connectivity check
+  // DO NOT expose error details publicly (security concern)
   try {
     const admin = createAdminClient();
     const { error } = await admin.from("profiles").select("id", { count: "exact", head: true }).limit(1);
+    checks.database_reachable = !error;
     if (error) {
-      checks.database_reachable = false;
-      checks.database_error = error.message;
+      console.error("Health check - DB error:", error.message);
       if (checks.status === "ok") checks.status = "degraded";
-    } else {
-      checks.database_reachable = true;
     }
-  } catch (e) {
+  } catch {
     checks.database_reachable = false;
-    checks.database_error = e instanceof Error ? e.message : "Unknown error";
     if (checks.status === "ok") checks.status = "degraded";
   }
 

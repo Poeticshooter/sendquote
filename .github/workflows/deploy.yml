@@ -1,23 +1,45 @@
 name: Deploy
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
     branches: [main]
+    types:
+      - completed
 
 env:
   NODE_VERSION: "22"
+  PNPM_VERSION: "11"
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
-      - run: pnpm install
+      - run: pnpm install --frozen-lockfile
+
       - name: Deploy to Vercel
-        run: npx vercel deploy --prod --token "${{ secrets.VERCEL_TOKEN }}" --yes
+        run: npx vercel deploy --prod --token "$VERCEL_TOKEN" --yes
+
+      - name: Smoke test
+        run: |
+          sleep 10
+          for path in / /pricing /features /login; do
+            status=$(curl -so /dev/null -w '%{http_code}' "https://sendquote.in$path")
+            if [ "$status" = "200" ]; then
+              echo "✅ $path -> $status"
+            else
+              echo "❌ $path -> $status"
+              exit 1
+            fi
+          done

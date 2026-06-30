@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import { Logo } from "@/components/shared/logo";
 import { SignQuoteFlow } from "./sign-quote-flow";
 import { ExpiryCountdown } from "./expiry-countdown";
 import { CheckCircle } from "lucide-react";
@@ -41,7 +41,7 @@ export function PublicQuoteView({ quote, publicToken }: PublicQuoteViewProps) {
       <div className="rounded-xl border border-border bg-card p-6 sm:p-8">
         <div className="flex items-center justify-between border-b border-border pb-6">
           <div className="flex items-center gap-2.5">
-            <Image src="/logo-icon.svg" alt="SendQuote" width={36} height={36} className="h-[60px] w-[60px]" />
+            <Logo size={60} variant="icon" className="h-[60px] w-[60px]" />
             <span className="text-xl font-bold text-foreground">SendQuote</span>
           </div>
           <span className="text-sm text-muted-foreground font-mono">{quote.quote_number}</span>

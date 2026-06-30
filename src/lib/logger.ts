@@ -39,8 +39,12 @@ function log(level: LogLevel, message: string, meta?: Record<string, unknown>) {
     case "warn":
       console.warn(line);
       break;
-    default:
-      console.warn(line);
+    case "info":
+      console.log(line);
+      break;
+    case "debug":
+      console.debug(line);
+      break;
   }
 }
 

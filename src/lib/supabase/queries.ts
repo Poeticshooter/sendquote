@@ -127,6 +127,7 @@ export async function createQuote(quote: {
       subtotal,
       discount: discountAmount,
       discount_type: discountType,
+      tax: quote.tax || 0,
       gst_rate: gstRate,
       gst_amount: gstAmount,
       cgst_rate: halfGstRate,

@@ -4,5 +4,5 @@
  */
 
 export { verifyOrigin } from "./csrf";
-export { detectBot, rateLimitCheck } from "@/lib/security";
+export { detectBot, rateLimitCheck } from "@/lib/security.ts";
 export { checkMemoryRateLimit } from "@/lib/rate-limit";

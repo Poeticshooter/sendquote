@@ -1,25 +1,13 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import * as Sentry from "@sentry/nextjs";
-import crypto from "crypto";
+import { verifyCronSecret } from "@/lib/security/cron";
 
 export const dynamic = "force-dynamic";
 
-function verifyCron(request: Request): boolean {
-  const auth = request.headers.get("authorization");
-  const secret = process.env.CRON_SECRET;
-  if (!secret || !auth) return false;
-  try {
-    const expected = crypto.createHmac("sha256", secret).update("reconciliation").digest("hex");
-    return crypto.timingSafeEqual(Buffer.from(auth), Buffer.from(`Bearer ${expected}`));
-  } catch {
-    return false;
-  }
-}
-
 export async function POST(request: Request) {
   try {
-    if (!verifyCron(request)) {
+    if (!verifyCronSecret(request)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
